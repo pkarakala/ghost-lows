@@ -105,3 +105,35 @@ def ratio_of_sums(numerator: str, denominator: str) -> Callable[[pd.DataFrame], 
         return float(df[numerator].sum() / d) if d > 0 else float("nan")
 
     return stat
+
+
+def bootstrap_ratios(
+    numerators: np.ndarray,
+    denominators: np.ndarray,
+    patient_ids,
+    n_boot: int = N_BOOT,
+    seed: int = 0,
+    level: float = 0.95,
+) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
+    """Vectorised `bootstrap_ci` for ratio-of-sums statistics.
+
+    `numerators` / `denominators` are (patients x statistics); returns estimates, lows and highs
+    per statistic. Resampling is stratified by age group, as in `bootstrap_ci`.
+    """
+    num = np.atleast_2d(np.asarray(numerators, float).T).T
+    den = np.atleast_2d(np.asarray(denominators, float).T).T
+    rng = np.random.default_rng(seed)
+    index = []
+    labels = np.array([age_group(p) for p in patient_ids])
+    for g in sorted(set(labels)):
+        rows = np.flatnonzero(labels == g)
+        index.append(rows[rng.integers(0, len(rows), size=(n_boot, len(rows)))])
+    idx = np.concatenate(index, axis=1)  # n_boot x n_patients
+    with np.errstate(invalid="ignore", divide="ignore"):
+        est = num.sum(0) / den.sum(0)
+        draws = num[idx].sum(1) / den[idx].sum(1)  # n_boot x statistics
+    alpha = (1 - level) / 2
+    lo = np.nanquantile(np.where(np.isfinite(draws), draws, np.nan), alpha, axis=0)
+    hi = np.nanquantile(np.where(np.isfinite(draws), draws, np.nan), 1 - alpha, axis=0)
+    est = np.where(den.sum(0) > 0, est, np.nan)
+    return est, lo, hi

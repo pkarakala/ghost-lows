@@ -31,7 +31,7 @@ def h2_reading(estimate: float, lo: float, hi: float, sesoi: float = SESOI_RATE_
 def context_contrasts(
     metrics: pd.DataFrame, n_boot: int = 2000, cause: str = "compression"
 ) -> pd.DataFrame:
-    """H2 rate ratios per detector x PISA fraction x mix, paired over patients."""
+    """H2 rate ratios per detector x fault level x mix, paired over patients."""
     col = f"false_{cause}" if cause else "n_false"
     rows = []
     detectors = sorted(
@@ -40,7 +40,7 @@ def context_contrasts(
     for det in detectors:
         a, b = det + CONTEXT_ARM, det + BASE_ARM
         sub = metrics[metrics["alarm_name"].isin([a, b])]
-        for key, g in sub.groupby(["pisa_fraction", "mix"]):
+        for key, g in sub.groupby(["level", "mix"]):
             pp = g.pivot_table(
                 index="patient_id", columns="alarm_name", values=col, aggfunc="sum"
             ).reset_index()
@@ -55,7 +55,7 @@ def context_contrasts(
             rows.append(
                 {
                     "detector": det,
-                    "pisa_fraction": key[0],
+                    "level": key[0],
                     "mix": key[1],
                     "cause": cause or "all",
                     "count_context": float(pp[a].sum()),
@@ -68,7 +68,7 @@ def context_contrasts(
             )
     columns = [
         "detector",
-        "pisa_fraction",
+        "level",
         "mix",
         "cause",
         "count_context",
@@ -82,17 +82,13 @@ def context_contrasts(
 
 
 def severity_slopes(metrics: pd.DataFrame, rate: str = "false_per_day") -> pd.DataFrame:
-    """Per patient and alarm: least-squares slope of `rate` against the PISA fraction (H1)."""
+    """Per patient and alarm: least-squares slope of `rate` against the fault level (H1)."""
     rows = []
-    agg = (
-        metrics.groupby(["alarm_name", "mix", "patient_id", "pisa_fraction"])[[rate]]
-        .mean()
-        .reset_index()
-    )
+    agg = metrics.groupby(["alarm_name", "mix", "patient_id", "level"])[[rate]].mean().reset_index()
     for (alarm, mix, pid), g in agg.groupby(["alarm_name", "mix", "patient_id"]):
-        if g["pisa_fraction"].nunique() < 2:
+        if g["level"].nunique() < 2:
             continue
-        slope = np.polyfit(g["pisa_fraction"].to_numpy(float), g[rate].to_numpy(float), 1)[0]
+        slope = np.polyfit(g["level"].to_numpy(float), g[rate].to_numpy(float), 1)[0]
         rows.append({"alarm_name": alarm, "mix": mix, "patient_id": pid, "slope": slope})
     return pd.DataFrame(rows)
 
@@ -116,7 +112,7 @@ def h1_contrast(
                 "median_slope_diff": est,
                 "lo": lo,
                 "hi": hi,
-                "supported": bool(lo > 0),
+                "supported": bool(lo > 1e-9),  # strictly above 0, not a rounding epsilon
             }
         )
     return pd.DataFrame(rows)

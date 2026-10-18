@@ -7,6 +7,8 @@ starts within the next 30 min (`ghostlows.bench.events.low_labels`). Alarms neve
 
 from __future__ import annotations
 
+from collections import OrderedDict
+
 import numpy as np
 import pandas as pd
 
@@ -27,18 +29,50 @@ ARMS = {"": (), "_time": ("time",), "_ctx": ("ctx",), "_time_ctx": ("time", "ctx
 # ------------------------------------------------------------------ detectors (feature makers)
 
 
+def _fingerprint(frame: pd.DataFrame) -> tuple:
+    """Cheap identity of a frame: run keys, first time, length and a hash of the CGM values."""
+    keys = tuple(frame[k].iloc[0] for k in ("patient_id", "seed", "mix") if k in frame)
+    cgm = np.ascontiguousarray(frame["cgm"].to_numpy(float))
+    return (keys, frame["time"].iloc[0], len(frame), hash(cgm.tobytes()))
+
+
 class Detector:
-    """Causal per-sample features of one detector; `gate` is its PISA evidence in [0, 1]."""
+    """Causal per-sample features of one detector; `gate` is its PISA evidence in [0, 1].
+
+    One detector instance is shared by the four context arms of a detector (D2), so `fit` skips
+    data it has already been fitted on and gates are cached per run (bounded LRU).
+    """
 
     name = "detector"
+    CACHE_SIZE = 2048
 
     def fit(self, train: pd.DataFrame) -> None:
+        token = (len(train), _fingerprint(train)) if len(train) else None
+        if token is not None and token == getattr(self, "_fit_token", None):
+            return
+        self._fit(train)
+        self._fit_token = token
+        self._cache = OrderedDict()
+
+    def _fit(self, train: pd.DataFrame) -> None:
         return None
 
     def features(self, run: pd.DataFrame) -> np.ndarray:
         raise NotImplementedError
 
     def gate(self, run: pd.DataFrame) -> np.ndarray:
+        cache = self.__dict__.setdefault("_cache", OrderedDict())
+        key = _fingerprint(run)
+        if key in cache:
+            cache.move_to_end(key)
+            return cache[key]
+        value = self._gate(run)
+        cache[key] = value
+        if len(cache) > self.CACHE_SIZE:
+            cache.popitem(last=False)
+        return value
+
+    def _gate(self, run: pd.DataFrame) -> np.ndarray:
         return np.zeros(len(run))
 
 
@@ -62,7 +96,7 @@ class BaysalDetector(Detector):
         self.params = BAYSAL_SETS[params]
         self.name = "baysal" if params == BAYSAL_DEFAULT else f"baysal_{params}"
 
-    def gate(self, run):
+    def _gate(self, run):
         return baysal_flags(run["time"], run["cgm"].to_numpy(float), self.params)
 
     def features(self, run):
@@ -72,7 +106,7 @@ class BaysalDetector(Detector):
 class MatchedFilterDetector(Detector):
     name = "matched_filter_causal"
 
-    def gate(self, run):
+    def _gate(self, run):
         return matched_filter_score(run["cgm"].to_numpy(float))
 
     def features(self, run):
@@ -85,11 +119,11 @@ class IForestDetector(Detector):
     def __init__(self, seed: int = 0):
         self.scorer = IForestScorer(seed=seed)
 
-    def fit(self, train):
+    def _fit(self, train):
         blocks = [trailing_features(r["time"], r["cgm"].to_numpy(float)) for _, r in runs(train)]
         self.scorer.fit(blocks)
 
-    def gate(self, run):
+    def _gate(self, run):
         return self.scorer(trailing_features(run["time"], run["cgm"].to_numpy(float)))
 
     def features(self, run):

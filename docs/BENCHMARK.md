@@ -65,7 +65,7 @@ Also produce: sensitivity vs. false-alarms-per-day curves for each alarm across 
 
 ## 5. Operating point (pre-registered, D5)
 
-Choose each alarm's threshold on the **training** patients only: θ\* minimises false alarms per day subject to level 2 sensitivity (floor alarms included) being at least that of the CGM-only `trend` alarm on the same training patients **[clinical review CR9: the cost of one missed level 2 low vs. extra false alarms]**. δ = 0 is primary; a 5-percentage-point non-inferiority margin (δ = 0.05) is a sensitivity analysis. Ties go to the more sensitive threshold. A training fold with fewer than 10 level 2 events is flagged as not estimable **[assumption]**. Report test-fold metrics at θ\*, including the achieved test sensitivity, alongside the threshold-free curves. Commit the operating-point rule to `experiments/configs/` before running the final benchmark.
+Choose each alarm's threshold on the **training** patients only: θ\* minimises false alarms per day subject to level 2 sensitivity (floor alarms included) being at least that of the CGM-only `trend` alarm on the same training patients **[clinical review CR9: the cost of one missed level 2 low vs. extra false alarms]**. δ = 0 is primary; a 5-percentage-point non-inferiority margin (δ = 0.05) is a sensitivity analysis. Ties go to the more sensitive threshold. A training fold with fewer than 10 level 2 events is flagged as not estimable **[assumption]**. Report test-fold metrics at θ\*, including the achieved test sensitivity, alongside the threshold-free curves. Commit the operating-point rule to `experiments/configs/` before running the final benchmark. Fitting and threshold choice happen once per fold and scenario mix, on training patients at the training fault level (the realistic default PISA fraction, other faults moderate); the frozen alarms are then evaluated at every sweep level (D19).
 
 ## 6. Statistics (D14)
 
@@ -85,3 +85,6 @@ Choose each alarm's threshold on the **training** patients only: θ\* minimises 
 - `summary.csv` (aggregated with CIs)
 - `figures/` (PNG + SVG): severity curves, sensitivity–false-alarm curves, false alarms split by cause, example traces
 - `config.yaml`, `git_commit.txt`, `benchmark_version.txt`, `assumptions.md` (auto-collected `# ASSUMPTION:` lines)
+- `thresholds.csv` (per fold and mix: chosen threshold, training reference sensitivity, feasibility), `contrasts_h2.csv` and `contrast_h1.csv` (the pre-registered contrasts), `meta.json` (training fault level and the realistic-PISA calibration)
+
+`experiments/run_all.py` (`make all`) runs every config in `experiments/configs/` that produces results (`rq1_pisa_sweep`, `rq1_all_faults`, `robust_*`), draws the figures, copies the headline figures and tables to `results/figures/` and `results/tables/` (committed) and writes `results/README.md`.

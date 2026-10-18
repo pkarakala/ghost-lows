@@ -134,3 +134,14 @@ def test_run_writes_and_reuses_cache(tmp_path, monkeypatch):
     assert longer.key() != config.key()
     loaded = run.load(out)
     assert len(loaded["truth"]) == 1440 and set(loaded["samples"]["mix"]) == {"standard"}
+
+
+def test_first_order_lag_matches_the_recursion():
+    rng = np.random.default_rng(0)
+    x = 100 + np.cumsum(rng.normal(0, 1, 500))
+    a = 1 - np.exp(-1 / 8.0)
+    expected = np.empty_like(x)
+    expected[0] = x[0]
+    for i in range(1, len(x)):
+        expected[i] = expected[i - 1] + a * (x[i - 1] - expected[i - 1])
+    assert np.allclose(first_order_lag(x, 8.0), expected)

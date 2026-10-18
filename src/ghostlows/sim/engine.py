@@ -200,10 +200,14 @@ def simulate(
 
 
 def first_order_lag(signal_1min: np.ndarray, tau_min: float) -> np.ndarray:
-    """First-order low-pass of a 1-min signal (blood-to-interstitial lag, SIMULATION.md §1)."""
-    alpha = 1 - np.exp(-1.0 / tau_min)
-    out = np.empty_like(np.asarray(signal_1min, dtype=float))
-    out[0] = signal_1min[0]
-    for i in range(1, len(out)):
-        out[i] = out[i - 1] + alpha * (signal_1min[i - 1] - out[i - 1])
-    return out
+    """First-order low-pass of a 1-min signal (blood-to-interstitial lag, SIMULATION.md §1).
+
+    y[0] = x[0]; y[n] = y[n-1] + a * (x[n-1] - y[n-1]) with a = 1 - exp(-1/tau).
+    """
+    from scipy.signal import lfilter
+
+    x = np.asarray(signal_1min, dtype=float)
+    a = 1 - np.exp(-1.0 / tau_min)
+    # transposed direct form: y[0] = b0 * x[0] + zi with b0 = 0, so zi = x[0] starts at x[0]
+    y, _ = lfilter([0.0, a], [1.0, -(1 - a)], x, zi=[x[0]])
+    return y

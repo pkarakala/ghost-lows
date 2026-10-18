@@ -7,6 +7,7 @@ import pytest
 from ghostlows.bench.stats import (
     age_group,
     bootstrap_ci,
+    bootstrap_ratios,
     candidate_thresholds,
     choose_threshold,
     patient_folds,
@@ -58,3 +59,20 @@ def test_bootstrap_ci_contains_estimate_and_is_degenerate_for_constant_data():
     df = pd.DataFrame({"patient_id": IDS, "x": rng.poisson(3, len(IDS)).astype(float), "n": 1.0})
     est, lo, hi = bootstrap_ci(df, ratio_of_sums("x", "n"), n_boot=500)
     assert lo < est < hi and hi - lo < 2.0
+
+
+def test_vectorised_bootstrap_agrees_with_the_reference():
+    rng = np.random.default_rng(1)
+    df = pd.DataFrame(
+        {
+            "patient_id": IDS,
+            "x": rng.poisson(4, len(IDS)).astype(float),
+            "n": rng.uniform(5, 15, len(IDS)),
+        }
+    )
+    ref = bootstrap_ci(df, ratio_of_sums("x", "n"), n_boot=4000, seed=2)
+    est, lo, hi = bootstrap_ratios(
+        df[["x"]].to_numpy(), df[["n"]].to_numpy(), df["patient_id"], n_boot=4000, seed=5
+    )
+    assert est[0] == pytest.approx(ref[0])
+    assert lo[0] == pytest.approx(ref[1], abs=0.03) and hi[0] == pytest.approx(ref[2], abs=0.03)

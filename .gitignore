@@ -3,6 +3,8 @@ data/*
 !data/README.md
 results/*/
 !results/README.md
+!results/figures/
+!results/tables/
 # python
 __pycache__/
 *.py[cod]

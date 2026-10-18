@@ -1,6 +1,6 @@
 # Common tasks. Everything runs through uv; see CLAUDE.md (Commands).
 
-.PHONY: install test lint format data data-diadata smoke all
+.PHONY: install test lint format data data-diadata smoke results all
 
 install:
 	uv sync
@@ -24,9 +24,13 @@ data:
 data-diadata:
 	uv run python scripts/download_data.py --diadata
 
-# experiments/run_benchmark.py arrives in phase 5 (docs/ROADMAP.md).
+# End-to-end check on 2 patients x 2 days (a few minutes).
 smoke:
-	@echo "smoke: needs experiments/run_benchmark.py (phase 5)" >&2; exit 1
+	uv run python experiments/run_benchmark.py --config experiments/configs/smoke.yaml
 
-# Grows with the roadmap: from phase 6 it regenerates every table and figure.
-all: lint test
+# Every table and figure in results/ (long: the full cohort is simulated once, then cached).
+results:
+	uv run python -m ghostlows.sim --config experiments/configs/sim_full.yaml
+	uv run python experiments/run_all.py
+
+all: lint test results

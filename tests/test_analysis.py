@@ -23,7 +23,7 @@ def metrics_rows():
                 {
                     "alarm_name": "trend_combined_time",
                     "patient_id": pid,
-                    "pisa_fraction": frac,
+                    "level": frac,
                     "mix": "default",
                     "false_compression": 10.0 * frac,
                     "false_per_day": 1 + 2 * frac,
@@ -33,7 +33,7 @@ def metrics_rows():
                 {
                     "alarm_name": "trend_combined_time_ctx",
                     "patient_id": pid,
-                    "pisa_fraction": frac,
+                    "level": frac,
                     "mix": "default",
                     "false_compression": 5.0 * frac,
                     "false_per_day": 1 + frac,
@@ -43,7 +43,7 @@ def metrics_rows():
                 {
                     "alarm_name": "trend",
                     "patient_id": pid,
-                    "pisa_fraction": frac,
+                    "level": frac,
                     "mix": "default",
                     "false_compression": 0.0,
                     "false_per_day": 1 + 3 * frac,
@@ -53,7 +53,7 @@ def metrics_rows():
                 {
                     "alarm_name": "threshold",
                     "patient_id": pid,
-                    "pisa_fraction": frac,
+                    "level": frac,
                     "mix": "default",
                     "false_compression": 0.0,
                     "false_per_day": 1 + 1 * frac,
@@ -63,7 +63,7 @@ def metrics_rows():
 
 
 def test_context_contrast_rate_ratio_is_paired():
-    c = context_contrasts(metrics_rows(), n_boot=100).set_index("pisa_fraction")
+    c = context_contrasts(metrics_rows(), n_boot=100).set_index("level")
     assert c.loc[1.0, "rate_ratio"] == pytest.approx(0.5)
     assert c.loc[1.0, "lo"] == pytest.approx(0.5) and c.loc[1.0, "hi"] == pytest.approx(0.5)
     assert c.loc[1.0, "reading"] == "meaningful reduction"

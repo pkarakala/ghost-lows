@@ -104,8 +104,13 @@ class BaseAlarm:
         return out
 
     def alarms(self, df: pd.DataFrame, threshold: float | None = None) -> pd.DataFrame:
+        return self.alarms_from_scores(df, self.score(df), threshold)
+
+    def alarms_from_scores(
+        self, df: pd.DataFrame, scores: pd.Series, threshold: float | None = None
+    ) -> pd.DataFrame:
+        """Alarm events from precomputed scores (lets threshold sweeps score only once)."""
         threshold = self.default_threshold if threshold is None else threshold
-        scores = self.score(df)
         rows = []
         for key, run in runs(df):
             s = scores.loc[run.index].to_numpy()
@@ -118,7 +123,6 @@ class BaseAlarm:
             for k, v in zip(keys, key, strict=True):
                 ev[k] = v
             ev["alarm_name"] = self.name
-            ev.attrs["flicker"] = ev.attrs.get("flicker", 0)
             rows.append(ev)
         return pd.concat(rows, ignore_index=True) if rows else pd.DataFrame()
 

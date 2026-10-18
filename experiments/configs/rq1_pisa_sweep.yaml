@@ -1,0 +1,12 @@
+# RQ1 and RQ2 main analysis (RESEARCH.md §2-3): PISA fraction swept with other faults moderate,
+# all 30 alarms, all three scenario mixes, alarms fitted and thresholded once per fold and mix at
+# the realistic PISA level (D19), patient-bootstrap CIs.
+name: rq1_pisa_sweep
+simulation: experiments/configs/sim_full.yaml
+sweep: pisa
+levels: [0.0, 0.1, 0.25, 0.5, 0.75, 1.0]
+severity: 0.5
+train_level: realistic
+alarms: all
+n_folds: 5
+n_boot: 2000

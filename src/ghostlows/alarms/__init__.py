@@ -6,15 +6,21 @@ from .rules import FloorOnlyAlarm, ThresholdAlarm, TrendAlarm
 
 
 def benchmark_alarms(seed: int = 0) -> list:
-    """Every alarm of BENCHMARK.md §2: references, as-published gates, four arms per detector."""
+    """Every alarm of BENCHMARK.md §2: references, as-published gates, four arms per detector.
+
+    The as-published gate and the four arms of a detector share one detector instance, so it is
+    fitted once per training set and its gate is computed once per run.
+    """
+    detectors = {
+        name: (make(seed=seed) if name == "iforest_causal" else make())
+        for name, make in DETECTORS.items()
+    }
     alarms = [FloorOnlyAlarm(), ThresholdAlarm(), TrendAlarm()]
-    for name in ("baysal", "matched_filter_causal", "iforest_causal"):
-        detector = DETECTORS[name]() if name != "iforest_causal" else DETECTORS[name](seed=seed)
-        alarms.append(GatedAlarm(detector))
-    for name, make in DETECTORS.items():
-        for arm in ARMS:
-            detector = make(seed=seed) if name == "iforest_causal" else make()
-            alarms.append(CombinedAlarm(detector, arm, seed=seed))
+    alarms += [
+        GatedAlarm(detectors[n]) for n in ("baysal", "matched_filter_causal", "iforest_causal")
+    ]
+    for name in DETECTORS:
+        alarms += [CombinedAlarm(detectors[name], arm, seed=seed) for arm in ARMS]
     alarms += [GBMAlarm(arm, seed=seed) for arm in ARMS]
     return alarms
 
