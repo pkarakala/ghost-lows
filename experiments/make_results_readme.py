@@ -186,6 +186,78 @@ def section_rq3(
     return lines + [""]
 
 
+def h2_level(h: pd.DataFrame, level: float | None) -> float:
+    """The H2 display level: the training level if it was evaluated, else the highest level."""
+    return level if level is not None and (h["level"] == level).any() else h["level"].max()
+
+
+def fmt_ci(est, lo, hi, digits=2) -> str:
+    return f"{est:.{digits}f} ({lo:.{digits}f}–{hi:.{digits}f})"
+
+
+def section_summary(meta: dict) -> list[str]:
+    """One bullet per hypothesis and RQ3, each read mechanically from the committed tables with
+    the pre-registered rules (RESEARCH.md §3; amendments A3, A4)."""
+    lines = [
+        "## Summary",
+        "",
+        "Read mechanically from the tables below; nothing in this section is typed by hand.",
+        "",
+    ]
+    h1 = table(TABLES / f"{MAIN}__contrast_h1.csv")
+    if h1 is not None and len(h1):
+        parts = [
+            f"{r['mix']}: {fmt_ci(r['median_slope_diff'], r['lo'], r['hi'])}, {'supported' if r['supported'] else 'not supported'}"
+            for _, r in h1.iterrows()
+        ]
+        lines.append(
+            "- **H1** (trend alarms degrade faster than threshold alarms as compression nights increase; median per-patient slope difference, false alarms/day per unit PISA fraction): "
+            + "; ".join(parts)
+            + "."
+        )
+    h2 = table(TABLES / f"{MAIN}__contrasts_h2.csv")
+    if h2 is not None and len(h2):
+        h = h2.dropna(subset=["rate_ratio"])
+        lv = h2_level(h, meta.get("train_level"))
+        d = h[(h["mix"] == "default") & (h["level"] == lv)]
+        by = d.groupby("reading")["detector"].apply(
+            lambda x: ", ".join(f"`{v}`" for v in sorted(x))
+        )
+        lines.append(
+            f"- **H2** (default mix, PISA on {lv:.0%} of nights; compression false alarms with IOB/COB ÷ without, SESOI 0.75): "
+            + "; ".join(f"{k}: {v}" for k, v in by.items())
+            + "."
+        )
+        sec = h[h["level"] == lv].pivot_table(index="detector", columns="mix", values="rate_ratio")
+        if {"high", "standard"} <= set(sec.columns):
+            closer = (np.log(sec["high"]).abs() < np.log(sec["standard"]).abs()).sum()
+            lines.append(
+                f"- **H2, secondary** (the ratio is closer to 1 on the high-perturbation mix than on the standard mix): {int(closer)} of {sec[['high', 'standard']].dropna().shape[0]} detectors."
+            )
+    az = table(TABLES / "real__azt1d_contrasts_h2.csv")
+    az_meta = read_json(TABLES / "real__azt1d_meta.json")
+    leak = meta.get("leak_auc") or {}
+    if az is not None and h2 is not None and leak:
+        matched = min(leak, key=lambda m: abs(leak[m]["iob"] - az_meta.get("leak_auc_iob", np.nan)))
+        lv = az["level"].max()
+        a = az[az["level"] == lv].set_index("detector")["rate_ratio"]
+        b = h2[(h2["mix"] == matched) & (h2["level"] == lv)].set_index("detector")["rate_ratio"]
+        both = pd.concat([a.rename("azt1d"), b.rename("sim")], axis=1).dropna()
+        if len(both):
+            closer = (np.log(both["azt1d"]).abs() < np.log(both["sim"]).abs()).sum()
+            lines.append(
+                f"- **H3** (the context benefit is closer to 1 on real AZT1D nights than in simulation, matched mix `{matched}`, PISA on {lv:.0%} of nights; descriptive, A4): holds for {int(closer)} of {len(both)} detectors."
+            )
+    rq3 = table(TABLES / "rq3_kalman__contrasts_rq3.csv")
+    if rq3 is not None and len(rq3):
+        r = rq3[(rq3["mix"] == "default") & (rq3["level"] == rq3["level"].max())]
+        for _, row in r[r["a"] == "kalman_pisa"].iterrows():
+            lines.append(
+                f"- **RQ3** (exploratory; default mix, PISA on {row['level']:.0%} of nights): `kalman_pisa` vs. {row['b'] if row['contrast'] == 'versus best discriminative' else '`' + row['b'] + '`'}, {row['measure']}: {fmt_ci(row['estimate'], row['lo'], row['hi'])}."
+            )
+    return lines + [""]
+
+
 def read_json(path: Path) -> dict:
     return json.loads(path.read_text()) if path.exists() else {}
 
@@ -324,6 +396,7 @@ def main() -> None:
                 else "."
             ),
             "",
+            *section_summary(meta),
             "## Headline results",
             "",
             *section_rq1(summary),
