@@ -261,6 +261,9 @@ def run_benchmark(config: BenchConfig, out_dir: Path, extra_alarms=()) -> dict[s
                         "l2_events_train": info.get("l2_events"),
                         "train_sens_l2": info.get("train_sens_l2"),
                         "train_false_per_day": info.get("train_false_per_day"),
+                        "fitted": json.dumps(alarm.describe())
+                        if hasattr(alarm, "describe")
+                        else "",
                     }
                 )
             fitted[(mix, fold)] = entries

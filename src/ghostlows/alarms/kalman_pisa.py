@@ -54,8 +54,8 @@ G, R, C, A, N = range(5)  # state indices
 TUNE_GRID = {
     "obs_var": (4.0, 16.0),  # (mg/dL)^2
     "rate_var": (1e-4, 3e-4, 1e-3),  # (mg/dL/min)^2 per min
-    "noise_var": (0.0, 100.0, 225.0, 400.0),  # (mg/dL)^2
-    "noise_tau_min": (20.0, 40.0, 60.0),
+    "noise_var": (0.0, 100.0, 225.0, 400.0, 900.0),  # (mg/dL)^2
+    "noise_tau_min": (40.0, 60.0, 90.0),
 }
 TUNE_RUNS = 16  # ASSUMPTION: training runs used to choose the noise settings (evenly chosen)
 
@@ -316,6 +316,11 @@ class KalmanPisaAlarm(BaseAlarm):
             labels[i, : len(run)] = run["label"].to_numpy(float)
         tuned = tune_noise(y, dt, self._u(ins, carb), labels, self.params)
         self.params = replace(self.params, **tuned)
+
+    def describe(self) -> dict:
+        """The settings fitted on training patients (recorded with the threshold)."""
+        names = (*TUNE_GRID, "gain_insulin", "gain_carb")
+        return {name: round(float(getattr(self.params, name)), 6) for name in names}
 
     def filter(self, df: pd.DataFrame) -> pd.DataFrame:
         """Per sample: `p_low` (the score) and `p_pressure` (probability of the pressure mode)."""
