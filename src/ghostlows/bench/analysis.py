@@ -17,6 +17,7 @@ from .stats import bootstrap_ci
 
 SESOI_RATE_RATIO = 0.75  # ASSUMPTION: smallest effect size of interest for H2 (CR9, CR16)
 CONTEXT_ARM, BASE_ARM = "_combined_time_ctx", "_combined_time"
+GBM_ARMS = ("gbm_time_ctx", "gbm_time")
 
 
 def h2_reading(estimate: float, lo: float, hi: float, sesoi: float = SESOI_RATE_RATIO) -> str:
@@ -36,11 +37,12 @@ def context_contrasts(
     """H2 rate ratios per detector x fault level x mix, paired over patients."""
     col = f"false_{cause}" if cause else "n_false"
     rows = []
-    detectors = sorted(
-        {n[: -len(CONTEXT_ARM)] for n in metrics["alarm_name"] if n.endswith(CONTEXT_ARM)}
-    )
-    for det in detectors:
-        a, b = det + CONTEXT_ARM, det + BASE_ARM
+    names = set(metrics["alarm_name"])
+    detectors = sorted({n[: -len(CONTEXT_ARM)] for n in names if n.endswith(CONTEXT_ARM)})
+    pairs = [(det, det + CONTEXT_ARM, det + BASE_ARM) for det in detectors]
+    if GBM_ARMS[0] in names:  # gbm's arms are its feature sets (BENCHMARK.md §2; amendment A8)
+        pairs.append(("gbm", *GBM_ARMS))
+    for det, a, b in pairs:
         sub = metrics[metrics["alarm_name"].isin([a, b])]
         for key, g in sub.groupby(["level", "mix"]):
             pp = g.pivot_table(
@@ -145,7 +147,7 @@ def select_comparators(thresholds: pd.DataFrame, pool: list[str]) -> pd.DataFram
     for (mix, fold), g in t.groupby(["mix", "fold"]):
         ok = g[g["feasible"].astype(bool)] if g["feasible"].astype(bool).any() else g
         best = ok.sort_values(
-            ["train_false_per_day", "train_sens_l2", "alarm_name"], ascending=[True, False, True]
+            ["train_false_per_day", "train_sens", "alarm_name"], ascending=[True, False, True]
         ).iloc[0]
         rows.append({"mix": mix, "fold": fold, "comparator": best["alarm_name"]})
     return pd.DataFrame(rows, columns=["mix", "fold", "comparator"])

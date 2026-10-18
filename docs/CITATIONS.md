@@ -86,6 +86,7 @@ Literature preparation for the paper is a separate, later step. This list exists
 | Battelino 2023 | Battelino T, et al. CGM consensus. *Lancet Diabetes Endocrinol* 2023 | [doi](https://doi.org/10.1016/S2213-8587(22)00319-9) | opened | Event definition (≥15 min) |
 | IHSG 2017 | International Hypoglycaemia Study Group. *Diabetes Care* 2017 | — | verify | Hypoglycaemia levels |
 | Garg 2022 | Garg SK, et al. Dexcom G7 accuracy. *Diabetes Technol Ther* 2022 | [doi](https://doi.org/10.1089/dia.2022.0011) | opened | G7 MARD; alerts |
+| CDC 2024 | Centers for Disease Control and Prevention. Treatment of Low Blood Sugar (Hypoglycemia). Web page, 15 May 2024 | [cdc.gov](https://www.cdc.gov/diabetes/treatment/treatment-low-blood-sugar-hypoglycemia.html) | opened (2026-10-18) | The 15-15 rule: "Have 15 grams of carbs, then wait 15 minutes"; "If it's still less than 70 mg/dL, repeat this process." Used for the virtual patients' treatment of lows (A6). The ADA Standards of Care 2025 §6 (doi:10.2337/dc25-S006) could not be opened here |
 | 21 CFR 862.1355 | iCGM special controls | [eCFR](https://www.ecfr.gov/current/title-21/chapter-I/subchapter-H/part-862/subpart-B/section-862.1355) | verify | Alert-rate definitions |
 | FDA K212132 | FreeStyle Libre 3 decision summary | [pdf](https://www.accessdata.fda.gov/cdrh_docs/reviews/K212132.pdf) | opened | Alert-rate definitions |
 | Shivers 2013 | Shivers JP, et al. Turn it off! Alarm fatigue. *J Diabetes Sci Technol* 2013 | [doi](https://doi.org/10.1177/193229681300700324) | opened | Alarm fatigue |

@@ -74,3 +74,36 @@ def test_h1_slope_contrast():
     h = h1_contrast(metrics_rows(), n_boot=100).iloc[0]
     assert h["median_slope_diff"] == pytest.approx(2.0)  # slopes 3 vs 1
     assert h["supported"]
+
+
+def test_gbm_arms_get_a_context_contrast_too():
+    rows = metrics_rows()
+    gbm = rows[rows["alarm_name"].str.startswith("trend_combined")].copy()
+    gbm["alarm_name"] = gbm["alarm_name"].map(
+        {"trend_combined_time": "gbm_time", "trend_combined_time_ctx": "gbm_time_ctx"}
+    )
+    c = context_contrasts(pd.concat([rows, gbm]), n_boot=50)
+    assert set(c["detector"]) == {"trend", "gbm"}
+    g = c[(c["detector"] == "gbm") & (c["level"] == 1.0)].iloc[0]
+    assert g["rate_ratio"] == pytest.approx(0.5)
+
+
+def test_per_run_counts_are_integers_even_from_object_columns():
+    from ghostlows.bench.scoring import per_run_metrics
+
+    hours = pd.DataFrame({"patient_id": ["p"], "seed": [1], "mix": ["m"], "hours": [24.0]})
+    classified = pd.DataFrame(
+        {
+            "patient_id": ["p", "p"],
+            "seed": [1, 1],
+            "mix": ["m", "m"],
+            "alarm_name": ["a", "a"],
+            "time": pd.to_datetime(["2026-01-05 01:00", "2026-01-05 02:00"]),
+            "is_floor": pd.Series([True, False], dtype=object),
+            "matched": pd.Series([False, True], dtype=object),
+            "cause": ["noise", None],
+        }
+    )
+    m = per_run_metrics(classified, pd.DataFrame(), hours, ["a"])
+    assert m["n_floor"].tolist() == [1] and m["n_false"].tolist() == [1]
+    assert m["n_floor"].dtype.kind == "i" and m["n_false"].dtype.kind == "i"

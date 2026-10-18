@@ -91,7 +91,7 @@ def test_comparator_is_chosen_on_training_results_only():
             "alarm_name": ["gbm_ctx", "trend_combined_ctx"] * 2,
             "feasible": [True, True, False, True],
             "train_false_per_day": [0.4, 0.6, 0.1, 0.5],
-            "train_sens_l2": [0.9, 0.9, 0.8, 0.9],
+            "train_sens": [0.9, 0.9, 0.8, 0.9],
         }
     )
     chosen = select_comparators(thresholds, pool).set_index("fold")["comparator"]

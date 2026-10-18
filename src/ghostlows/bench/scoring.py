@@ -262,8 +262,9 @@ def per_run_metrics(
     """One row per run x alarm (every pair, zeros included): counts, rates per day, sensitivity."""
     keys = [k for k in RUN_KEYS if k in hours]
     grid = hours.merge(pd.DataFrame({"alarm_name": list(alarm_names)}), how="cross")
-    a = classified.assign(false=~classified["matched"]) if len(classified) else classified
-    if len(a):
+    a = classified
+    if len(a):  # counts must be integers even when an empty frame made is_floor an object column
+        a = a.assign(false=~a["matched"].astype(bool), is_floor=a["is_floor"].astype(bool))
         counts = a.groupby(keys + ["alarm_name"]).agg(
             n_alarms=("time", "size"), n_floor=("is_floor", "sum"), n_false=("false", "sum")
         )
@@ -273,7 +274,7 @@ def per_run_metrics(
     else:
         m = grid.assign(n_alarms=0, n_floor=0, n_false=0, **{f"false_{c}": 0 for c in CAUSES})
     fill = ["n_alarms", "n_floor", "n_false"] + [f"false_{c}" for c in CAUSES]
-    m[fill] = m[fill].fillna(0)
+    m[fill] = m[fill].fillna(0).astype(int)
     if len(scored):
         lev = scored.groupby(keys + ["alarm_name", "level"]).agg(
             events=("caught", "size"),

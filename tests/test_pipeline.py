@@ -151,3 +151,14 @@ def test_parallel_workers_give_identical_results(tiny):
     a, b = (outs[w]["metrics"].sort_values(keys).reset_index(drop=True) for w in (1, 2))
     pd.testing.assert_frame_equal(a, b)
     pd.testing.assert_frame_equal(outs[1]["thresholds"], outs[2]["thresholds"])
+
+
+def test_folds_with_few_level_2_lows_match_level_1_and_are_flagged(result):
+    """A7: below MIN_L2_EVENTS level 2 lows in a training fold, D5 matches level 1 sensitivity
+    (the tiny cohort has far fewer than 10 level 2 lows per fold)."""
+    res, _ = result
+    t = res["thresholds"]
+    assert {"match_level", "reference_sens", "train_sens"} <= set(t.columns)
+    few = t["l2_events_train"].notna() & (t["l2_events_train"] < pipeline.MIN_L2_EVENTS)
+    assert few.any()
+    assert (t.loc[few, "match_level"] == 1).all() and (~t.loc[few, "estimable"].astype(bool)).all()

@@ -162,7 +162,7 @@ def training_threshold(
     n_l2 = int((events["level"] == 2).sum())
     sens, fpd = evaluate(theta)
     info.update(
-        l2_events=n_l2, estimable=n_l2 >= MIN_L2_EVENTS, train_sens_l2=sens, train_false_per_day=fpd
+        l2_events=n_l2, estimable=n_l2 >= MIN_L2_EVENTS, train_sens=sens, train_false_per_day=fpd
     )
     return theta, info
 
@@ -195,15 +195,28 @@ def reference_sensitivity(train, events, faults, windows, level: int = 2) -> flo
 
 def fit_fold(mix, fold, alarms, tr, tr_ev, tr_faults, delta, windows, train_level):
     """Fit and threshold every alarm for one mix and fold on its training patients (D5, D19).
-    Returns ([(alarm, threshold)], threshold rows)."""
-    reference = reference_sensitivity(tr, tr_ev, tr_faults, windows)
+    Returns ([(alarm, threshold)], threshold rows).
+
+    D5 matches level 2 sensitivity; a fold with fewer than MIN_L2_EVENTS level 2 lows in its
+    training patients matches level 1 sensitivity instead and is flagged (amendment A7)."""
+    n_l2 = int((tr_ev["level"] == 2).sum()) if len(tr_ev) else 0
+    level = 2 if n_l2 >= MIN_L2_EVENTS else 1
+    reference = reference_sensitivity(tr, tr_ev, tr_faults, windows, level=level)
     entries, rows = [], []
     for alarm in alarms:  # a fresh copy per fold and mix: independent models
         threshold, info = alarm.default_threshold, {"feasible": True, "estimable": True}
         if is_learned(alarm):
             alarm.fit(alarm_frame(tr, alarm, with_label=True))
             threshold, info = training_threshold(
-                alarm, alarm_frame(tr, alarm), tr, tr_ev, tr_faults, reference, delta, windows
+                alarm,
+                alarm_frame(tr, alarm),
+                tr,
+                tr_ev,
+                tr_faults,
+                reference,
+                delta,
+                windows,
+                level=level,
             )
         entries.append((alarm, threshold))
         rows.append(
@@ -213,11 +226,12 @@ def fit_fold(mix, fold, alarms, tr, tr_ev, tr_faults, delta, windows, train_leve
                 "alarm_name": alarm.name,
                 "threshold": threshold,
                 "train_level": train_level,
-                "reference_sens_l2": reference,
+                "match_level": level,
+                "reference_sens": reference,
                 "feasible": info.get("feasible"),
                 "estimable": info.get("estimable"),
                 "l2_events_train": info.get("l2_events"),
-                "train_sens_l2": info.get("train_sens_l2"),
+                "train_sens": info.get("train_sens"),
                 "train_false_per_day": info.get("train_false_per_day"),
                 "fitted": json.dumps(alarm.describe()) if hasattr(alarm, "describe") else "",
             }
