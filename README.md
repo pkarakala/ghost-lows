@@ -40,9 +40,13 @@ See [`docs/RESEARCH.md`](docs/RESEARCH.md). In short:
 - **RQ2.** At a fixed sensitivity on level 2 lows, how many compression false alarms does adding insulin and carb context remove, and how much of the effect is on compression versus other noise?
 - **RQ3.** Does a filter with an explicit "compressed" state beat the best discriminative model, and does either hold up on real data?
 
+## Try the upload report
+
+**[pkarakala.github.io/ghost-lows](https://pkarakala.github.io/ghost-lows/)** reads a Dexcom Clarity or LibreView CSV export inside your browser tab and shows the consensus metrics, the ambulatory glucose profile, daily traces and nights with a *possible compression artifact*, each with the reasons it was flagged and time below range with and without the flagged readings. There is no server and no analytics: the file never leaves the tab ([`docs/PRIVACY_AND_SAFETY.md`](docs/PRIVACY_AND_SAFETY.md)). The first load downloads the Python runtime and takes up to a minute. Flags are deliberately conservative (two published methods must agree and the episode must start at night) and are not proof: a low that felt real was worth treating.
+
 ## Quickstart
 
-Status: work in progress (phases 0–5 of [`docs/ROADMAP.md`](docs/ROADMAP.md) built; results not yet produced). Requires [uv](https://docs.astral.sh/uv/); Python 3.11 is installed automatically.
+Status: work in progress (phases 0, 1, 3, 4, 5 and 8 of [`docs/ROADMAP.md`](docs/ROADMAP.md) done; benchmark results not yet produced). Requires [uv](https://docs.astral.sh/uv/); Python 3.11 is installed automatically.
 
 ```
 uv sync                                                    # install everything, simulator included
