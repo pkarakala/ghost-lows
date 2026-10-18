@@ -223,3 +223,11 @@ def test_view_hides_truth_and_faults():
 def test_combined_alarm_rejects_unknown_arm():
     with pytest.raises(ValueError):
         CombinedAlarm(MatchedFilterDetector(), arm="_bogus")
+
+
+def test_refractory_period_is_configurable_per_alarm():
+    times = pd.date_range("2026-01-01", periods=24, freq="5min").to_numpy()
+    on = np.ones(24, bool)
+    off = np.zeros(24, bool)
+    assert len(fire_events(times, on, off)) == 4  # every 30 min over 115 min
+    assert len(fire_events(times, on, off, refractory_min=60.0)) == 2

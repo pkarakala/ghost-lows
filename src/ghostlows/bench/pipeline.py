@@ -65,6 +65,12 @@ class BenchConfig:
     lag_tau_min: float | None = None  # rebuild the CGM with this blood-to-ISF lag (D1 arm)
     early_min: float = 30.0  # matching windows (D12 sensitivity analysis)
     late_min: float = 15.0
+    cause_min: float = 30.0  # a fault active this long before a false alarm explains it (D10)
+    near_after_min: float = 60.0  # near-event: within this long after a true low ends (D10)
+    near_before_min: float = 60.0  # ... or up to this long before an onset (D10)
+    label_horizon_min: float = 30.0  # training label: a low ongoing or starting within this
+    refractory_min: float = 30.0  # minimum time between two alarms (BENCHMARK.md §1)
+    sesoi: float = 0.75  # H2 smallest effect size of interest (RESEARCH.md §3)
     fault_seed: int = 0
     alarms: list[str] | str = "all"
     n_folds: int = 5
@@ -294,7 +300,13 @@ def run_benchmark(config: BenchConfig, out_dir: Path, extra_alarms=()) -> dict[s
     if config.lag_tau_min:
         samples = rebuild_cgm(samples, truth, config.lag_tau_min)
     events = true_events(truth)
-    windows = Windows(early=config.early_min, late=config.late_min)
+    windows = Windows(
+        early=config.early_min,
+        late=config.late_min,
+        cause=config.cause_min,
+        after_event=config.near_after_min,
+        before_event=config.near_before_min,
+    )
     patients = samples["patient_id"].unique()
     folds = patient_folds(patients, min(config.n_folds, len(patients)), config.fold_seed)
     mixes = sorted(samples["mix"].unique())
@@ -307,9 +319,11 @@ def run_benchmark(config: BenchConfig, out_dir: Path, extra_alarms=()) -> dict[s
         train_level = realistic["fraction"] if np.isfinite(realistic["fraction"]) else 0.0
     train_config = config.fault_config(train_level, test=False)
     train_obs, train_faults = apply_faults(samples, train_config, seed=config.fault_seed)
-    train_obs["label"] = low_labels(train_obs, events)
+    train_obs["label"] = low_labels(train_obs, events, horizon_min=config.label_horizon_min)
 
     alarms_all = select_alarms(config.alarms) + list(extra_alarms)
+    for alarm in alarms_all:
+        alarm.refractory_min = config.refractory_min
     fold_ids = sorted(set(folds.values()))
     tasks = [(mix, fold) for mix in mixes for fold in fold_ids]
 
@@ -359,7 +373,7 @@ def run_benchmark(config: BenchConfig, out_dir: Path, extra_alarms=()) -> dict[s
     extras = {
         "thresholds": thresholds_df,
         "contrasts_rq3": rq3_contrasts(metrics_df, thresholds_df, n_boot=config.n_boot),
-        "contrasts_h2": context_contrasts(metrics_df, n_boot=config.n_boot),
+        "contrasts_h2": context_contrasts(metrics_df, n_boot=config.n_boot, sesoi=config.sesoi),
         "contrast_h1": (
             h1_contrast(metrics_df, n_boot=config.n_boot)
             if len(config.levels) > 1

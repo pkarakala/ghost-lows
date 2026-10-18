@@ -57,13 +57,14 @@ def fire_events(
     condition: np.ndarray,
     floor: np.ndarray,
     refractory_min: float = REFRACTORY_MIN,
+    flicker_min: float = FLICKER_MIN,
 ) -> pd.DataFrame:
     """Alarm events from a per-sample condition and the ungated floor (D4).
 
     An event is raised at a sample where `condition or floor` holds and no event was raised in the
     previous `refractory_min` minutes, so a persisting condition re-alarms every refractory period.
     `is_floor` marks events raised by the floor alone. `flicker` marks condition onsets that come
-    within FLICKER_MIN minutes of the condition last switching off.
+    within `flicker_min` minutes of the condition last switching off.
     """
     active = np.asarray(condition, bool) | np.asarray(floor, bool)
     t = minutes(times)
@@ -78,7 +79,7 @@ def fire_events(
     flicker = [
         i
         for i in onsets
-        if len(offsets[offsets < i]) and t[i] - t[offsets[offsets < i][-1]] < FLICKER_MIN
+        if len(offsets[offsets < i]) and t[i] - t[offsets[offsets < i][-1]] < flicker_min
     ]
     out.attrs["flicker"] = len(flicker)
     return out
@@ -90,6 +91,7 @@ class BaseAlarm:
     name = "base"
     uses_context = False
     default_threshold = 0.0
+    refractory_min = REFRACTORY_MIN  # set per alarm, or for a run by BenchConfig.refractory_min
 
     def fit(self, train: pd.DataFrame) -> None:  # rule-based alarms learn nothing
         return None
@@ -117,7 +119,7 @@ class BaseAlarm:
             cgm = run["cgm"].to_numpy()
             condition = np.nan_to_num(s, nan=-np.inf) > threshold
             floor = np.nan_to_num(cgm, nan=np.inf) <= FLOOR_MG_DL
-            ev = fire_events(run["time"].to_numpy(), condition, floor)
+            ev = fire_events(run["time"].to_numpy(), condition, floor, self.refractory_min)
             keys = [k for k in RUN_KEYS if k in run]
             key = key if isinstance(key, tuple) else (key,)
             for k, v in zip(keys, key, strict=True):

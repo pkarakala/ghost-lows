@@ -162,3 +162,25 @@ def test_folds_with_few_level_2_lows_match_level_1_and_are_flagged(result):
     few = t["l2_events_train"].notna() & (t["l2_events_train"] < pipeline.MIN_L2_EVENTS)
     assert few.any()
     assert (t.loc[few, "match_level"] == 1).all() and (~t.loc[few, "estimable"].astype(bool)).all()
+
+
+def test_config_defaults_match_the_frozen_constants():
+    """Configurable assumptions default to the values the v1 results were computed with."""
+    from ghostlows.alarms.base import FLICKER_MIN, REFRACTORY_MIN, BaseAlarm
+    from ghostlows.bench.analysis import SESOI_RATE_RATIO
+    from ghostlows.bench.events import LABEL_HORIZON_MIN
+    from ghostlows.bench.pipeline import BenchConfig
+    from ghostlows.bench.scoring import DEFAULT_WINDOWS
+
+    c = BenchConfig(name="x", simulation="x.yaml")
+    assert c.sesoi == SESOI_RATE_RATIO
+    assert c.label_horizon_min == LABEL_HORIZON_MIN
+    assert c.refractory_min == REFRACTORY_MIN == BaseAlarm.refractory_min
+    assert FLICKER_MIN == 15.0
+    assert (c.early_min, c.late_min, c.cause_min, c.near_after_min, c.near_before_min) == (
+        DEFAULT_WINDOWS.early,
+        DEFAULT_WINDOWS.late,
+        DEFAULT_WINDOWS.cause,
+        DEFAULT_WINDOWS.after_event,
+        DEFAULT_WINDOWS.before_event,
+    )

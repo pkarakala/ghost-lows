@@ -33,7 +33,10 @@ def h2_reading(estimate: float, lo: float, hi: float, sesoi: float = SESOI_RATE_
 
 
 def context_contrasts(
-    metrics: pd.DataFrame, n_boot: int = 2000, cause: str = "compression"
+    metrics: pd.DataFrame,
+    n_boot: int = 2000,
+    cause: str = "compression",
+    sesoi: float = SESOI_RATE_RATIO,
 ) -> pd.DataFrame:
     """H2 rate ratios per detector x fault level x mix, paired over patients."""
     col = f"false_{cause}" if cause else "n_false"
@@ -68,7 +71,7 @@ def context_contrasts(
                     "rate_ratio": est,
                     "lo": lo,
                     "hi": hi,
-                    "reading": h2_reading(est, lo, hi),
+                    "reading": h2_reading(est, lo, hi, sesoi),
                 }
             )
     columns = [
