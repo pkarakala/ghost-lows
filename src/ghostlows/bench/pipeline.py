@@ -262,10 +262,14 @@ def run_tasks(func, arg_iter, workers: int, kwargs: dict):
         for args in arg_iter:
             yield func(*args, **kwargs)
         return
+    import multiprocessing
     from collections import deque
     from concurrent.futures import ProcessPoolExecutor
 
-    with ProcessPoolExecutor(max_workers=workers) as pool:
+    # spawn, not fork: a forked child of a process that has started native thread pools
+    # (OpenMP in scikit-learn's gradient boosting) can die abruptly on Linux
+    context = multiprocessing.get_context("spawn")
+    with ProcessPoolExecutor(max_workers=workers, mp_context=context) as pool:
         pending = deque()
         for args in arg_iter:
             pending.append(pool.submit(func, *args, **kwargs))
