@@ -33,7 +33,8 @@ class Mix:
     exercise_per_week: tuple[int, int] = (0, 0)  # sessions per week ~ U{lo..hi}
     exercise_minutes: tuple[int, int] = (30, 60)
     # ASSUMPTION: exercise raises insulin-independent uptake during the session and insulin
-    # sensitivity afterwards, decaying exponentially (CR13; the 2008 model has no exercise).
+    # sensitivity afterwards, decaying exponentially (the 2008 model has no exercise).
+    # CLINICAL-REVIEW: CR13
     exercise_uptake_gain: float = 0.5  # Vm0 x (1 + gain) during the session
     exercise_sensitivity_gain: float = 0.5  # Vmx, kp3 x (1 + gain * exp(-dt / tau))
     exercise_sensitivity_tau_min: float = 360.0
@@ -41,7 +42,8 @@ class Mix:
 
 
 STANDARD = Mix("standard")
-# ASSUMPTION: SIMULATION.md §3 values (CR13)
+# ASSUMPTION: SIMULATION.md §3 values
+# CLINICAL-REVIEW: CR13
 DEFAULT = Mix(
     "default",
     carb_error_sd=0.2,

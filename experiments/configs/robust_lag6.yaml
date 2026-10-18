@@ -1,4 +1,5 @@
 # Robustness arm: CGM rebuilt from plasma with a 6-min blood-to-ISF lag [Basu 2013] (D1) (default mix only; the alarms H1-H2 need).
+# CLINICAL-REVIEW: CR8
 name: robust_lag6
 simulation: experiments/configs/sim_full.yaml
 sweep: pisa

@@ -61,6 +61,7 @@ class BenchConfig:
     train_level: float | str = "realistic"  # PISA fraction for fitting and thresholds (D19)
     mixes: list[str] | None = None  # default: every mix in the cohort
     pisa_tau: float | None = None  # test-time PISA time constant (generator mismatch, D8)
+    # CLINICAL-REVIEW: CR8 (the 6-min arm uses Basu 2013's healthy-adult lag)
     lag_tau_min: float | None = None  # rebuild the CGM with this blood-to-ISF lag (D1 arm)
     early_min: float = 30.0  # matching windows (D12 sensitivity analysis)
     late_min: float = 15.0
@@ -432,7 +433,7 @@ def collect_assumptions() -> str:
     for path in sorted((REPO / "src" / "ghostlows").rglob("*.py")):
         text = path.read_text().splitlines()
         for i, line in enumerate(text):
-            m = re.search(r"#\s*ASSUMPTION:\s*(.+)$", line)
+            m = re.search(r"(?<!`)#\s*ASSUMPTION:\s*(.+)$", line)
             if not m:
                 continue
             note, code = m.group(1).strip(), line[: m.start()].strip()
@@ -440,6 +441,8 @@ def collect_assumptions() -> str:
                 j = i + 1
                 while j < len(text) and text[j].strip().startswith("#") and ":" not in text[j][:20]:
                     note += " " + text[j].strip().lstrip("#").strip()
+                    j += 1
+                while j < len(text) and text[j].strip().startswith("#"):  # e.g. CLINICAL-REVIEW
                     j += 1
                 code = text[j].strip() if j < len(text) else ""
             where = f"{path.relative_to(REPO)}:{i + 1}"

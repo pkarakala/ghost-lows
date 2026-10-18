@@ -248,6 +248,7 @@ def stable_onsets(
 ) -> list[pd.Timestamp]:
     """Candidate PISA onsets in a real trace: night samples whose next `window_min` minutes have
     complete 5-min data, no reading below 70 mg/dL and a standard deviation of at most `max_sd`."""
+    # ASSUMPTION: injection sites are 2 h of complete, steady night data (SD <= 15, no reading < 70)
     # ASSUMPTION: stability rule for semi-synthetic injection (SIMULATION.md §5)
     r = (
         run.loc[run["glucose"].notna(), ["time", "glucose"]]

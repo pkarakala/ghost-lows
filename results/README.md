@@ -318,4 +318,4 @@ H1 and H2 are read mechanically from the tables above with the rules in docs/RES
 
 ## Assumptions
 
-Every `# ASSUMPTION:` in the code, collected at run time: `results/tables/assumptions.md`.
+Every `# ASSUMPTION:` in the code, collected from the current code when this README is generated: `results/tables/assumptions.md`.

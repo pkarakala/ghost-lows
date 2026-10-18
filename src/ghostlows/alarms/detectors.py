@@ -59,11 +59,12 @@ def matched_filter_score(cgm: np.ndarray) -> np.ndarray:
 
 
 def trailing_features(times, cgm: np.ndarray) -> np.ndarray:
-    """Five trailing-window features of the sensor state (ASSUMPTION; Idi 2024 used five).
+    """Five trailing-window features of the sensor state (Idi 2024 used five).
 
     rate over 10 min, minimum 10-min rate over the last 30 min, change in rate, drop from the
     trailing 60-min median, and the CGM itself.
     """
+    # ASSUMPTION: which five features, and their windows (Idi 2024's own set is retrospective)
     y = np.asarray(cgm, float)
     s = pd.Series(y, index=pd.DatetimeIndex(times))
     rate = trailing_slope(times, y, 10.0, min_points=2)

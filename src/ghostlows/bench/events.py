@@ -6,9 +6,9 @@ import numpy as np
 import pandas as pd
 
 # SOURCE: Battelino 2023 (event starts after >=15 consecutive minutes below the threshold and
-# ends after >=15 consecutive minutes at or above it)
+# ends after >=15 consecutive minutes at or above it) CLINICAL-REVIEW: CR6
 EVENT_MIN = 15
-LEVEL_THRESHOLDS = {1: 70.0, 2: 54.0}  # SOURCE: IHSG 2017; Battelino 2019
+LEVEL_THRESHOLDS = {1: 70.0, 2: 54.0}  # SOURCE: IHSG 2017; Battelino 2019 CLINICAL-REVIEW: CR6
 NIGHT_HOURS = (23, 7)  # ASSUMPTION: same window as PISA onsets (SIMULATION.md §4.1)
 
 
@@ -101,7 +101,8 @@ def leak_auc(samples: pd.DataFrame, events: pd.DataFrame, feature: str = "iob") 
     return auc(at_onset.dropna().to_numpy(), night.dropna().to_numpy())
 
 
-# ASSUMPTION: training target horizon equals the early matching window (BENCHMARK.md §4, D12)
+# ASSUMPTION: training target horizon, 30 min like the default early matching window (D12). The
+# window robustness arms keep it at 30 (proposed amendment P4 in DECISIONS.md)
 LABEL_HORIZON_MIN = 30.0
 
 

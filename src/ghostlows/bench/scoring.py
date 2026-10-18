@@ -15,9 +15,10 @@ import pandas as pd
 RUN_KEYS = ("patient_id", "seed", "mix")
 
 
+# ASSUMPTION: matching and attribution windows (D10, D12); early/late are swept in robustness arms
 @dataclass(frozen=True)
 class Windows:
-    """Matching and attribution windows, in minutes (BENCHMARK.md §4). ASSUMPTION: values"""
+    """Matching and attribution windows, in minutes (BENCHMARK.md §4)."""
 
     early: float = 30.0  # an alarm up to this long before onset catches the event
     late: float = 15.0  # ... or up to this long after onset
@@ -201,7 +202,7 @@ def score_events(
 def fda_rates(
     alarms: pd.DataFrame,
     truth: pd.DataFrame,
-    threshold: float = 70.0,
+    threshold: float = 70.0,  # SOURCE: IHSG 2017 CLINICAL-REVIEW: CR6
     windows: Windows = DEFAULT_WINDOWS,
 ) -> pd.DataFrame:
     """True alert rate and detection rate against reference glucose (iCGM style, BENCHMARK.md §4).

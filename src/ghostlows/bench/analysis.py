@@ -15,7 +15,8 @@ import pandas as pd
 
 from .stats import bootstrap_ci
 
-SESOI_RATE_RATIO = 0.75  # ASSUMPTION: smallest effect size of interest for H2 (CR9, CR16)
+# CLINICAL-REVIEW: CR9, CR16
+SESOI_RATE_RATIO = 0.75  # ASSUMPTION: smallest effect size of interest for H2
 CONTEXT_ARM, BASE_ARM = "_combined_time_ctx", "_combined_time"
 GBM_ARMS = ("gbm_time_ctx", "gbm_time")
 

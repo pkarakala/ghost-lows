@@ -3,6 +3,7 @@
 - `src/ghostlows/alarms/base.py:21` `REFRACTORY_MIN = 30.0`: BENCHMARK.md §1
 - `src/ghostlows/alarms/base.py:22` `FLICKER_MIN = 15.0`: BENCHMARK.md §1
 - `src/ghostlows/alarms/detectors.py:29` `_MEDIAN = pisa_model.from_size(0.0, pisa_model.DEPTH.median, pisa_model.DURATION`: template = drop phase of the median Facchinetti PISA at 5-min sampling, compared with first differences over the same span; Idi 2023 is retrospective (D7).
+- `src/ghostlows/alarms/detectors.py:67` `y = np.asarray(cgm, float)`: which five features, and their windows (Idi 2024's own set is retrospective)
 - `src/ghostlows/alarms/kalman_pisa.py:52` `TUNE_GRID = {`: grid for the noise settings (BENCHMARK.md §2); a sensor error variance of 0 is the white-noise model, so the grid nests it
 - `src/ghostlows/alarms/kalman_pisa.py:60` `TUNE_RUNS = 16`: training runs used to choose the noise settings (evenly chosen)
 - `src/ghostlows/alarms/kalman_pisa.py:72` `level_var: float = 0.1  # (mg/dL)^2 per min`: small level noise, so that real changes go through the rate state
@@ -15,24 +16,28 @@
 - `src/ghostlows/alarms/kalman_pisa.py:296` `default_threshold = 0.5`: untuned default; the benchmark tunes it (D5)
 - `src/ghostlows/alarms/learned.py:164` `default_threshold = 0.5`: untuned default (suppress when gate > 0.5); the benchmark tunes it (D5)
 - `src/ghostlows/alarms/learned.py:222` `LogisticRegression(C=1.0, max_iter=2000),`: default L2 strength
-- `src/ghostlows/alarms/learned.py:282` `self.model = HistGradientBoostingClassifier(random_state=self.seed).fit(x, y)`: library defaults with a fixed seed; no tuning on test patients
+- `src/ghostlows/alarms/learned.py:237` `cgm = run["cgm"].to_numpy(float)`: the exact feature set and windows (the paper's are not reproduced)
+- `src/ghostlows/alarms/learned.py:283` `self.model = HistGradientBoostingClassifier(random_state=self.seed).fit(x, y)`: library defaults with a fixed seed; no tuning on test patients
 - `src/ghostlows/alarms/rules.py:15` `TREND_WINDOW_MIN = 15.0`: the stand-in fits a line to the last 15 min (4 readings at 5 min); the device's prediction model is not public (RESEARCH.md §6)
-- `src/ghostlows/bench/analysis.py:18` `SESOI_RATE_RATIO = 0.75`: smallest effect size of interest for H2 (CR9, CR16)
+- `src/ghostlows/bench/analysis.py:19` `SESOI_RATE_RATIO = 0.75`: smallest effect size of interest for H2
 - `src/ghostlows/bench/events.py:12` `NIGHT_HOURS = (23, 7)`: same window as PISA onsets (SIMULATION.md §4.1)
-- `src/ghostlows/bench/events.py:104` `LABEL_HORIZON_MIN = 30.0`: training target horizon equals the early matching window (BENCHMARK.md §4, D12)
+- `src/ghostlows/bench/events.py:104` `LABEL_HORIZON_MIN = 30.0`: training target horizon, 30 min like the default early matching window (D12). The window robustness arms keep it at 30 (proposed amendment P4 in DECISIONS.md)
 - `src/ghostlows/bench/pipeline.py:50` `N_CANDIDATES = 30`: candidate thresholds per learned alarm (training quantiles)
-- `src/ghostlows/bench/pipeline.py:422` `"""Every ``: ` comment in the package with its location and the code it qualifies.
-- `src/ghostlows/bench/scoring.py:28` `fda_reference_every: float = 15.0`: reference sampling like YSI every 15 min
+- `src/ghostlows/bench/scoring.py:18` `@dataclass(frozen=True)`: matching and attribution windows (D10, D12); early/late are swept in robustness arms
+- `src/ghostlows/bench/scoring.py:29` `fda_reference_every: float = 15.0`: reference sampling like YSI every 15 min
 - `src/ghostlows/bench/stats.py:16` `MIN_L2_EVENTS = 10`: BENCHMARK.md §5 (D5)
 - `src/ghostlows/bench/stats.py:62` `TAIL_FRACTIONS = (0.05, 1e-4)`: log-spaced firing fractions from 5% down to 0.01% of training samples are added to the evenly spaced quantiles, so the rule can reach the sparse operating points that low alarms need (time below range is a few percent); amendment A2
-- `src/ghostlows/faults/pisa.py:21` `TAU_MIN = 10.0`: time constant until the full text is read (SIMULATION.md §4.1); swept 5/10/20 min
-- `src/ghostlows/faults/pisa.py:23` `END_FRACTION = 0.10`: the artifact "lasts" from onset until the attenuation decays to 10% of its peak
-- `src/ghostlows/faults/pisa.py:25` `TAIL_FRACTION = 0.01`: the tail below 1% of the peak is dropped
+- `src/ghostlows/faults/pisa.py:22` `TAU_MIN = 10.0`: time constant until the full text is read (SIMULATION.md §4.1); swept 5/10/20 min
+- `src/ghostlows/faults/pisa.py:24` `END_FRACTION = 0.10`: the artifact "lasts" from onset until the attenuation decays to 10% of its peak
+- `src/ghostlows/faults/pisa.py:26` `TAIL_FRACTION = 0.01`: the tail below 1% of the peak is dropped
+- `src/ghostlows/faults/pisa.py:38` `median: float`: a two-piece log-normal fits the published median and 5th/95th percentiles
 - `src/ghostlows/faults/suite.py:22` `DEVICE_LIMITS = (40.0, 400.0)`: as in ghostlows.sim (SIMULATION.md §1)
 - `src/ghostlows/faults/suite.py:34` `night_hours: tuple[float, float] = (23.0, 7.0)`: PISA onset window
 - `src/ghostlows/faults/suite.py:36` `dropout_per_day: float = 4.0`: rates and sizes at s = 1 (SIMULATION.md §4.2); rates thin and sizes scale with s
 - `src/ghostlows/faults/suite.py:52` `DROPOUT_RATE_PER_MIN = np.log(10) / 20.0`: exponential gap length until the paper's three-state Markov model is read
-- `src/ghostlows/faults/suite.py:251` `r = (`: stability rule for semi-synthetic injection (SIMULATION.md §5)
+- `src/ghostlows/faults/suite.py:251` `r = (`: injection sites are 2 h of complete, steady night data (SD <= 15, no reading < 70)
+- `src/ghostlows/faults/suite.py:252` `r = (`: stability rule for semi-synthetic injection (SIMULATION.md §5)
+- `src/ghostlows/io/azt1d.py:32` `USER = re.compile(r"^(Standard|BLE Standard Bolus|Quick|Extended)")`: the extended remainder, in about 60 of 300,000 rows, is ignored
 - `src/ghostlows/io/glucobench.py:22` `SENTINELS = {`: inferred from pile-ups at the extremes (docs/DATA.md §1): weinstock has 11,924 readings of 39 vs 605 of 40 and 11,978 of 401 vs 187 of 400; dubosson piles up at 39.6 and 399.6 (2.2 and 22.2 mmol/L x 18); colas has 75 readings of 40 vs 12 of 41.
 - `src/ghostlows/io/schema.py:25` `DEVICE_LIMITS_MG_DL = (40.0, 400.0)`: reportable range of current Dexcom and Libre sensors; censored "Low"/"High" readings are stored at these limits (with a flag). Configurable per loader call.
 - `src/ghostlows/io/schema.py:29` `MG_DL_PER_MMOL_L = 18.0`: devices convert with 1 mmol/L = 18 mg/dL (the molar-mass factor is 18.016).
@@ -44,9 +49,9 @@
 - `src/ghostlows/retro/baysal.py:43` `KF_MEASUREMENT_SD = 10.0  # mg/dL`: Kalman tuning; [Cameron 2012] gives the structure (glucose and rate estimated every minute, updated at each sensor reading) but its appendix values were not available.
 - `src/ghostlows/retro/baysal.py:50` `KF_RESET_TAU_MIN = 30.0`: "gradually"
 - `src/ghostlows/retro/baysal.py:107` `rule_c = rule_b and (roc[k - 1] >= 0 or roc[k] / roc[k - 1] > p.g_ratio)`: a previous rate of exactly 0 counts like a positive one (infinite ratio)
-- `src/ghostlows/retro/flags.py:31` `# (CLINICAL-REVIEW: CR12)`: a flag needs both methods and a night-time start, because compression artifacts occur mostly at night [Facchinetti 2016] and single-method detections include genuine falls
+- `src/ghostlows/retro/flags.py:31` `REQUIRE_ALL_METHODS = True`: a flag needs both methods and a night-time start, because compression artifacts occur mostly at night [Facchinetti 2016] and single-method detections include genuine falls
 - `src/ghostlows/retro/flags.py:36` `NIGHT_HOURS = (23, 7)`: same night window as the benchmark
-- `src/ghostlows/retro/flags.py:37` `MIN_DEPTH_MG_DL = 10.0`: the 5th percentile of PISA depth [Facchinetti 2016]
+- `src/ghostlows/retro/flags.py:37` `MIN_DEPTH_MG_DL = 10.0`: the 5th percentile of PISA depth [Facchinetti 2016] (CR2)
 - `src/ghostlows/retro/flags.py:38` `MF_MIN_CORRELATION = 0.85`: shape agreement needed for a matched-filter flag
 - `src/ghostlows/retro/flags.py:39` `BASELINE_MIN = 30.0`: baseline = median CGM in the 30 min before a flag
 - `src/ghostlows/sim/calibrate.py:28` `TBR_BAND_PCT = (1.0, 8.0)`: plausible open-loop exposure; lows deeper than the floor are outside the 2008 model's credible range (CLINICAL-REVIEW: CR15)
@@ -54,9 +59,13 @@
 - `src/ghostlows/sim/context.py:19` `end = dia_h * 60.0`: exponential action curve, peak 75 min, duration 5 h; configurable, with sensitivity at 3 and 7 h (SIMULATION.md §2).
 - `src/ghostlows/sim/context.py:34` `return np.clip(1 - np.asarray(minutes_ago, dtype=float) / (absorption_h * 60.0),`: linear absorption over 3 h (SIMULATION.md §2)
 - `src/ghostlows/sim/engine.py:20` `DEVICE_LIMITS = (40.0, 400.0)`: G6/G7 reportable range (SIMULATION.md §1)
-- `src/ghostlows/sim/engine.py:49` `night_hours: tuple[int, int] = (23, 7)`: at night only the urgent-low alarm wakes the person; once awake, the 70 mg/dL rule applies for the next 30 min. Same night window as the PISA onsets.
+- `src/ghostlows/sim/engine.py:50` `night_hours: tuple[int, int] = (23, 7)`: at night only the urgent-low alarm wakes the person; once awake, the 70 mg/dL rule applies for the next 30 min. Same night window as the PISA onsets.
+- `src/ghostlows/sim/engine.py:118` `dia_h: float = 5.0,`: insulin action duration for IOB (SIMULATION.md §2)
+- `src/ghostlows/sim/engine.py:119` `cob_h: float = 3.0,`: carbohydrate absorption time for COB (SIMULATION.md §2)
 - `src/ghostlows/sim/run.py:33` `days: int = 14`: SIMULATION.md §1
-- `src/ghostlows/sim/scenario.py:35` `exercise_uptake_gain: float = 0.5  # Vm0 x (1 + gain) during the session`: exercise raises insulin-independent uptake during the session and insulin sensitivity afterwards, decaying exponentially (CR13; the 2008 model has no exercise).
-- `src/ghostlows/sim/scenario.py:44` `DEFAULT = Mix(`: SIMULATION.md §3 values (CR13)
-- `src/ghostlows/sim/scenario.py:53` `HIGH = Mix(`: every perturbation doubled relative to DEFAULT (D3)
-- `src/ghostlows/sim/scenario.py:130` `for day in range(days + 1):`: the day-level multiplier switches at 12:00, away from the night window, so that the switch itself does not create nocturnal transients.
+- `src/ghostlows/sim/run.py:38` `dia_h: float = 5.0`: insulin action duration for IOB (SIMULATION.md §2)
+- `src/ghostlows/sim/run.py:39` `cob_h: float = 3.0`: carbohydrate absorption time for COB (SIMULATION.md §2)
+- `src/ghostlows/sim/scenario.py:35` `exercise_uptake_gain: float = 0.5  # Vm0 x (1 + gain) during the session`: exercise raises insulin-independent uptake during the session and insulin sensitivity afterwards, decaying exponentially (the 2008 model has no exercise). CLINICAL-REVIEW: CR13
+- `src/ghostlows/sim/scenario.py:45` `DEFAULT = Mix(`: SIMULATION.md §3 values
+- `src/ghostlows/sim/scenario.py:55` `HIGH = Mix(`: every perturbation doubled relative to DEFAULT (D3)
+- `src/ghostlows/sim/scenario.py:132` `for day in range(days + 1):`: the day-level multiplier switches at 12:00, away from the night window, so that the switch itself does not create nocturnal transients.

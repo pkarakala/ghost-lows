@@ -35,8 +35,8 @@ class SimConfig:
     mixes: list[str] = field(default_factory=lambda: ["default"])
     calibration: str | None = None  # YAML with a bolus_scale per patient (D17)
     start: str = "2026-01-05"
-    dia_h: float = 5.0
-    cob_h: float = 3.0
+    dia_h: float = 5.0  # ASSUMPTION: insulin action duration for IOB (SIMULATION.md §2)
+    cob_h: float = 3.0  # ASSUMPTION: carbohydrate absorption time for COB (SIMULATION.md §2)
     hypo_treatment: bool = True  # the virtual person treats lows (amendment A6)
 
     @classmethod
@@ -134,6 +134,7 @@ def _run_task(args):
         **tag,
         "valid": result.valid,
         "nadir": result.nadir,
+        # SOURCE: Battelino 2019 (time below 70 and 54 mg/dL) CLINICAL-REVIEW: CR6
         "tbr70_truth_pct": 100 * float((result.truth["truth_glucose"] < 70).mean()),
         "tbr54_truth_pct": 100 * float((result.truth["truth_glucose"] < 54).mean()),
         "seconds": time.time() - t0,

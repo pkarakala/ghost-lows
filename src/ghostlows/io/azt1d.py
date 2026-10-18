@@ -28,7 +28,8 @@ MEMBER = re.compile(r"^AZT1D 2025/CGM Records/Subject (\d+)/Subject \1\.csv$")
 GLUCOSE_COLUMNS = ("CGM", "Readings (CGM / BGM)")  # the second name appears in one subject
 AUTOMATIC = "Automatic Bolus/Correction"
 # User-entered bolus types in the archive; for an extended bolus only the part delivered at the
-# time is recorded (ASSUMPTION: the extended remainder, in about 60 of 300,000 rows, is ignored)
+# time is recorded.
+# ASSUMPTION: the extended remainder, in about 60 of 300,000 rows, is ignored
 USER = re.compile(r"^(Standard|BLE Standard Bolus|Quick|Extended)")
 MODES = {"sleep": "sleep", "sleepsleep": "sleep", "exercise": "exercise"}
 

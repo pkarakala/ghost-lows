@@ -14,6 +14,7 @@ import pandas as pd
 from .suite import FaultConfig, apply_faults
 
 # SOURCE: Lobo 2026 (abstract: 1,260 PISAs with minimum sensor glucose < 85 mg/dL in 94,201 h)
+# CLINICAL-REVIEW: CR3
 LOBO_PISAS, LOBO_HOURS = 846 + 89 + 325, 59_122 + 8_189 + 26_890
 LOBO_THRESHOLD = 85.0
 TARGET_PER_HOUR = LOBO_PISAS / LOBO_HOURS

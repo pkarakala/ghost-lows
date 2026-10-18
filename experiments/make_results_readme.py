@@ -13,6 +13,8 @@ from pathlib import Path
 import numpy as np
 import pandas as pd
 
+from ghostlows.bench.pipeline import collect_assumptions
+
 REPO = Path(__file__).resolve().parents[1]
 TABLES = REPO / "results" / "tables"
 MAIN = "rq1_pisa_sweep"
@@ -722,12 +724,10 @@ def main() -> None:
         *limitations(),
         "## Assumptions",
         "",
-        "Every `# ASSUMPTION:` in the code, collected at run time: `results/tables/assumptions.md`.",
+        "Every `# ASSUMPTION:` in the code, collected from the current code when this README is generated: `results/tables/assumptions.md`.",
         "",
     ]
-    assumptions = REPO / "results" / MAIN / "assumptions.md"
-    if assumptions.exists():
-        (TABLES / "assumptions.md").write_text(assumptions.read_text())
+    (TABLES / "assumptions.md").write_text(collect_assumptions())
     (REPO / "results" / "README.md").write_text("\n".join(lines))
     print("wrote results/README.md")
 

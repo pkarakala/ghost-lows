@@ -10,7 +10,7 @@ from __future__ import annotations
 import numpy as np
 import pandas as pd
 
-# SOURCE: Battelino 2019 (glycaemic ranges for time in ranges)
+# SOURCE: Battelino 2019 (glycaemic ranges for time in ranges) CLINICAL-REVIEW: CR6, CR7
 TIR_RANGE = (70.0, 180.0)  # inclusive
 TBR_THRESHOLDS = (70.0, 54.0)  # strictly below
 TAR_THRESHOLDS = (180.0, 250.0)  # strictly above

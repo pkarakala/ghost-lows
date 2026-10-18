@@ -7,7 +7,7 @@ import pandas as pd
 
 from .base import BaseAlarm, trailing_slope
 
-# SOURCE: IHSG 2017 (level 1 hypoglycaemia threshold, 70 mg/dL)
+# SOURCE: IHSG 2017 (level 1 hypoglycaemia threshold, 70 mg/dL) CLINICAL-REVIEW: CR6
 THRESHOLD_MG_DL = 70.0
 # SOURCE: Garg 2022 (G7 Urgent Low Soon: predicted 55 mg/dL within 20 min) CLINICAL-REVIEW: CR14
 TREND_TARGET_MG_DL = 55.0

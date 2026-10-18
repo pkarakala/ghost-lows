@@ -171,3 +171,22 @@ def test_every_source_comment_cites_a_known_key():
                     if not cites_known_key(item, keys):
                         unknown.append(f"{path.relative_to(ROOT)}:{lineno}: {item!r}")
     assert not unknown, "SOURCE keys missing from docs/CITATIONS.md:\n" + "\n".join(unknown)
+
+
+CLINICAL_RE = re.compile(r"CLINICAL-REVIEW:\s*(.+)$")
+
+
+def test_every_clinical_review_marker_names_a_listed_item():
+    listed = set(re.findall(r"\*\*(CR\d+)\.", (ROOT / "docs" / "CLINICAL_REVIEW.md").read_text()))
+    unknown = []
+    for folder in ["src", "scripts", "experiments", "app"]:
+        for path in sorted((ROOT / folder).rglob("*.py")) + sorted((ROOT / folder).rglob("*.yaml")):
+            for lineno, line in enumerate(path.read_text().splitlines(), 1):
+                match = CLINICAL_RE.search(line)
+                if match:
+                    for cr in re.findall(r"CR\d+", match.group(1)):
+                        if cr not in listed:
+                            unknown.append(f"{path.relative_to(ROOT)}:{lineno}: {cr}")
+    assert listed and not unknown, "CR items missing from docs/CLINICAL_REVIEW.md:\n" + "\n".join(
+        unknown
+    )

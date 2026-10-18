@@ -30,11 +30,11 @@ METHODS = {
 }
 # ASSUMPTION: a flag needs both methods and a night-time start, because compression artifacts
 # occur mostly at night [Facchinetti 2016] and single-method detections include genuine falls
-# (CLINICAL-REVIEW: CR12)
+# CLINICAL-REVIEW: CR12
 REQUIRE_ALL_METHODS = True
 NIGHT_ONLY = True
 NIGHT_HOURS = (23, 7)  # ASSUMPTION: same night window as the benchmark
-MIN_DEPTH_MG_DL = 10.0  # ASSUMPTION: the 5th percentile of PISA depth [Facchinetti 2016]
+MIN_DEPTH_MG_DL = 10.0  # ASSUMPTION: the 5th percentile of PISA depth [Facchinetti 2016] (CR2)
 MF_MIN_CORRELATION = 0.85  # ASSUMPTION: shape agreement needed for a matched-filter flag
 BASELINE_MIN = 30.0  # ASSUMPTION: baseline = median CGM in the 30 min before a flag
 

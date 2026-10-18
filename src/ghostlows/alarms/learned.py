@@ -233,7 +233,8 @@ class CombinedAlarm(BaseAlarm):
 
 
 def gbm_features(run: pd.DataFrame) -> np.ndarray:
-    """Causal CGM features in the style of [Navarathna 2023] (ASSUMPTION: exact set)."""
+    """Causal CGM features in the style of [Navarathna 2023]."""
+    # ASSUMPTION: the exact feature set and windows (the paper's are not reproduced)
     cgm = run["cgm"].to_numpy(float)
     s = pd.Series(cgm, index=pd.DatetimeIndex(run["time"]))
     slopes = [trailing_slope(run["time"], cgm, w) for w in (10.0, 20.0, 30.0, 60.0)]

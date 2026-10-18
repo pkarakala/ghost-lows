@@ -83,7 +83,7 @@ class KalmanParams:
     amp_var: float = 0.0  # (mg/dL)^2 per min
     artifact_var: float = 0.5  # (mg/dL)^2 per min
     pressure_mode: bool = True  # False: the ablation without a compressed state
-    # SOURCE: Lobo 2026 (pooled abstract counts: about one PISA per 74.8 h of wear)
+    # SOURCE: Lobo 2026 (pooled abstract counts: one PISA per 74.8 h of wear) CLINICAL-REVIEW: CR3
     onset_per_min: float = TARGET_PER_HOUR / 60.0
     # ASSUMPTION: mean pressure time = that of the median PISA under the realised-size mapping
     release_per_min: float = 1.0 / _MEDIAN.pressure_min

@@ -41,6 +41,7 @@ class HypoTreatment:
     without treatment a low lasts until the insulin wears off and plasma glucose can reach 0."""
 
     # SOURCE: CDC 2024 (15-15 rule: 15 g of carbs, wait 15 min, repeat while below 70 mg/dL)
+    # CLINICAL-REVIEW: CR17
     grams: float = 15.0
     recheck_min: int = 15
     awake_threshold: float = 70.0
@@ -114,8 +115,8 @@ def simulate(
     noise_seed: int,
     start: pd.Timestamp = DEFAULT_START,
     limits: tuple[float, float] = DEVICE_LIMITS,
-    dia_h: float = 5.0,
-    cob_h: float = 3.0,
+    dia_h: float = 5.0,  # ASSUMPTION: insulin action duration for IOB (SIMULATION.md §2)
+    cob_h: float = 3.0,  # ASSUMPTION: carbohydrate absorption time for COB (SIMULATION.md §2)
     treatment: HypoTreatment | None = None,
 ) -> SimResult:
     """Simulate one patient-run. With `treatment`, the virtual person treats lows they see on

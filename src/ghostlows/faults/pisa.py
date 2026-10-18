@@ -15,6 +15,7 @@ import numpy as np
 Z95 = 1.6448536269514722  # standard normal 95th percentile
 
 # SOURCE: Facchinetti 2016 (median and 5th-95th percentiles of PISA duration and amplitude)
+# CLINICAL-REVIEW: CR2 (Dexcom G4 data; do they hold for G6/G7?)
 DURATION_MIN = (45.0, 30.0, 70.0)  # median, 5th, 95th percentile, minutes
 DEPTH_MG_DL = (24.0, 10.0, 48.0)  # median, 5th, 95th percentile, mg/dL
 
@@ -31,9 +32,10 @@ class TwoPieceLogNormal:
     """Log-normal with different log-scale spreads below and above the median.
 
     Matches a published median and 5th/95th percentiles exactly, which a single log-normal cannot
-    do when they are asymmetric in log space (depth: 0.88 below vs. 0.69 above). ASSUMPTION.
+    do when they are asymmetric in log space (depth: 0.88 below vs. 0.69 above).
     """
 
+    # ASSUMPTION: a two-piece log-normal fits the published median and 5th/95th percentiles
     median: float
     p5: float
     p95: float
