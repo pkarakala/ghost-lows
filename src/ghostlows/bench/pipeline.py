@@ -25,7 +25,7 @@ from ..alarms import BaseAlarm, TrendAlarm, benchmark_alarms, stretch_alarms, vi
 from ..faults import FaultConfig, apply_faults
 from ..faults.calibrate import realistic_fraction
 from .analysis import context_contrasts, h1_contrast, rq3_contrasts
-from .events import low_labels, true_events
+from .events import leak_auc, low_labels, true_events
 from .scoring import (
     CAUSES,
     Windows,
@@ -133,8 +133,11 @@ def fire_and_score(alarm, frame, threshold, events, faults, observed, windows, s
     return fired, classified, scored
 
 
-def training_threshold(alarm, frame, train_obs, events, faults, reference_sens, delta, windows):
-    """Pre-registered rule on training patients (D5)."""
+def training_threshold(
+    alarm, frame, train_obs, events, faults, reference_sens, delta, windows, level: int = 2
+):
+    """Pre-registered rule on training patients (D5): sensitivity on lows of `level` (2, or 1 on
+    CGM-referenced real data, amendment A5)."""
     scores = alarm.score(frame)
     days = run_hours(train_obs)["hours"].sum() / 24
     cache: dict[float, tuple[float, float]] = {}
@@ -144,7 +147,7 @@ def training_threshold(alarm, frame, train_obs, events, faults, reference_sens, 
             _, cls, scored = fire_and_score(
                 alarm, frame, theta, events, faults, train_obs, windows, scores=scores
             )
-            l2 = scored[scored["level"] == 2] if len(scored) else scored
+            l2 = scored[scored["level"] == level] if len(scored) else scored
             sens = float(l2["caught"].mean()) if len(l2) else float("nan")
             fpd = float((~cls["matched"]).sum() / days) if len(cls) else 0.0
             cache[theta] = (sens, fpd)
@@ -178,13 +181,14 @@ def rebuild_cgm(samples: pd.DataFrame, truth: pd.DataFrame, tau_min: float) -> p
     return pd.concat(out, ignore_index=True)
 
 
-def reference_sensitivity(train, events, faults, windows) -> float:
-    """Level 2 sensitivity of the CGM-only trend alarm on training patients (D5 reference)."""
+def reference_sensitivity(train, events, faults, windows, level: int = 2) -> float:
+    """Sensitivity of the CGM-only trend alarm on training patients (D5 reference), on lows of
+    `level` (2; 1 on CGM-referenced real data, amendment A5)."""
     trend = TrendAlarm()
     _, _, ref = fire_and_score(
         trend, alarm_frame(train, trend), None, events, faults, train, windows
     )
-    ref_l2 = ref[ref["level"] == 2] if len(ref) else ref
+    ref_l2 = ref[ref["level"] == level] if len(ref) else ref
     return float(ref_l2["caught"].mean()) if len(ref_l2) else float("nan")
 
 
@@ -298,6 +302,13 @@ def run_benchmark(config: BenchConfig, out_dir: Path, extra_alarms=()) -> dict[s
     meta = {
         "realistic_pisa": realistic,
         "train_level": train_level,
+        "leak_auc": {  # D3: IOB/COB at nocturnal true-low onsets vs. all night samples, per mix
+            mix: {
+                f: leak_auc(subset(samples, mix, patients), subset(events, mix, patients), f)
+                for f in ("iob", "cob")
+            }
+            for mix in mixes
+        },
         "seconds": round(time.time() - t0, 1),
         "patients": int(len(patients)),
         "runs": int(samples.groupby(RUN_KEYS).ngroups),

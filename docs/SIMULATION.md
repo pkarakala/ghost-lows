@@ -89,6 +89,8 @@ Injecting faults after simulation assumes the controller never acted on the faul
 
 Inject PISAs from the same model into **real** overnight CGM traces (Weinstock 2016; DiaData raw release, deduplicated against Weinstock and D1NAMO; see `DATA.md`) at stable stretches, and score alarms on the injected events. This tests detectors against real sensor noise and real low shapes, though not against real compression. The un-injected CGM is the reference; real, unlabelled PISAs in it bias sensitivity.
 
+As implemented (`experiments/real_data.py`): alarms are fitted on the training folds with PISAs injected on half the nights, then frozen and evaluated at each level. Weinstock uses 2 folds; AZT1D, the H3 track, uses 5. Because the reference lows come from the CGM, the operating point matches level 1 sensitivity, not level 2: the floor catches every CGM-referenced level 2 low by construction (amendment A5). AZT1D carries IOB and COB from user-entered boluses and carbs only (D9). DiaData is not used yet; it is optional, 2.3 GB, and overlaps Weinstock.
+
 ## 6. Reproducibility
 
 - Every run is driven by one YAML config, with seeds, and writes its config, git commit hash and benchmark version (`ghostlows-bench v1`, D18) next to its outputs.

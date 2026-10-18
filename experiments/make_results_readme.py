@@ -10,6 +10,7 @@ import json
 import re
 from pathlib import Path
 
+import numpy as np
 import pandas as pd
 
 REPO = Path(__file__).resolve().parents[1]
@@ -185,6 +186,108 @@ def section_rq3(
     return lines + [""]
 
 
+def read_json(path: Path) -> dict:
+    return json.loads(path.read_text()) if path.exists() else {}
+
+
+def section_real() -> list[str]:
+    lines = ["## Real data", ""]
+    s, meta = table(TABLES / "real__summary.csv"), read_json(TABLES / "real__meta.json")
+    if s is None:
+        return lines + ["Not run yet: `uv run python experiments/real_data.py`.", ""]
+    lines += [
+        f"### Semi-synthetic RQ1 (co-primary, D16): {meta.get('dataset', 'Weinstock 2016')}",
+        "",
+        f"{meta.get('patients')} people, {meta.get('days', float('nan')):.0f} days. Reference lows are taken from the un-injected CGM: "
+        f"{meta.get('reference_l1_events')} level 1, {meta.get('reference_l2_events')} level 2. {meta.get('labelled', '')}",
+        "",
+        "| Alarm | PISA nights | False alarms/day | Compression false alarms/day | Level 1 caught | Level 2 caught |",
+        "|---|---|---|---|---|---|",
+    ]
+    for _, r in s.sort_values(["alarm_name", "level"]).iterrows():
+        lines.append(
+            f"| `{r['alarm_name']}` | {r['level']:.0%} | {ci(r, 'false_per_day')} | {ci(r, 'false_compression_per_day')} | "
+            f"{ci(r, 'sens_l1', pct=True)} | {ci(r, 'sens_l2', pct=True)} |"
+        )
+    fv = table(TABLES / "real__face_validity.csv")
+    lines += ["", "### Face validity of simulated lows (D16)", ""]
+    if fv is None:
+        lines.append("Not run yet (needs the full simulated cohort).")
+    else:
+        lines += [
+            "Medians per source: CGM fall rate in the 30 min before a nocturnal low, its nadir and duration, the share of the night at 70–95 mg/dL, and time below 70.",
+            "",
+            "| Source | Fall rate (mg/dL/min) | Nadir (mg/dL) | Duration (min) | Night at 70–95 | Time below 70 | Nocturnal lows |",
+            "|---|---|---|---|---|---|---|",
+        ]
+        for _, r in fv.iterrows():
+            lines.append(
+                f"| {r['source']} | {r['fall_rate']:.2f} | {r['nadir']:.0f} | {r['duration_min']:.0f} | "
+                f"{r['night_70_95']:.0%} | {r['tbr70']:.1%} | {r['nocturnal_lows']:.0f} |"
+            )
+        if (REPO / "results" / "figures" / "real__face_validity.png").exists():
+            lines += ["", "![face validity](figures/real__face_validity.png)"]
+    return lines + [""] + section_h3()
+
+
+def section_h3() -> list[str]:
+    lines = ["### H3: does the context benefit shrink on real data? (AZT1D)", ""]
+    az = table(TABLES / "real__azt1d_contrasts_h2.csv")
+    az_meta = read_json(TABLES / "real__azt1d_meta.json")
+    sim = table(TABLES / f"{MAIN}__contrasts_h2.csv")
+    sim_meta = read_json(TABLES / f"{MAIN}__meta.json")
+    if az is None:
+        return lines + [
+            "Not run yet: `uv run python experiments/real_data.py --dataset azt1d`.",
+            "",
+        ]
+    leak = sim_meta.get("leak_auc") or {}
+    az_leak = az_meta.get("leak_auc_iob", float("nan"))
+    matched = min(leak, key=lambda m: abs(leak[m]["iob"] - az_leak)) if leak else None
+    level = az["level"].max()
+    lines += [
+        f"{az_meta.get('patients')} people, {az_meta.get('days', float('nan')):.0f} days. {az_meta.get('context', '')}. "
+        f"Leak AUC (IOB) on AZT1D {az_leak:.2f}"
+        + (
+            "; simulated mixes: "
+            + ", ".join(f"{m} {v['iob']:.2f}" for m, v in leak.items())
+            + f". Matched mix (closest leak AUC): **{matched}**."
+            if matched
+            else "."
+        ),
+        "",
+        f"Compression false alarms, [CGM + time + IOB/COB] ÷ [CGM + time], at PISA on {level:.0%} of nights. Reading (amendment A4): H3 holds for a detector when the AZT1D ratio is closer to 1, on the log scale, than the simulated ratio on the matched mix. The reading is descriptive: the two ratios come from different samples, and real artifacts in the AZT1D reference are unlabelled. {az_meta.get('labelled', '')}",
+        "",
+        "| Detector | AZT1D rate ratio (95% CI) | Simulated, matched mix (95% CI) | Closer to 1 on AZT1D |",
+        "|---|---|---|---|",
+    ]
+    a = az[az["level"] == level].set_index("detector")
+    b = (
+        sim[(sim["mix"] == matched) & (sim["level"] == level)].set_index("detector")
+        if sim is not None and matched
+        else None
+    )
+    for det, r in a.iterrows():
+        cell_a = (
+            f"{r['rate_ratio']:.2f} ({r['lo']:.2f}–{r['hi']:.2f})"
+            if pd.notna(r["rate_ratio"])
+            else "–"
+        )
+        cell_b, verdict = "–", "–"
+        if (
+            b is not None
+            and det in b.index
+            and pd.notna(b.loc[det, "rate_ratio"])
+            and pd.notna(r["rate_ratio"])
+        ):
+            rb = b.loc[det]
+            cell_b = f"{rb['rate_ratio']:.2f} ({rb['lo']:.2f}–{rb['hi']:.2f})"
+            closer = abs(np.log(r["rate_ratio"])) < abs(np.log(rb["rate_ratio"]))
+            verdict = "yes" if closer else "no"
+        lines.append(f"| `{det}` | {cell_a} | {cell_b} | {verdict} |")
+    return lines + [""]
+
+
 def limitations() -> list[str]:
     text = (REPO / "docs" / "RESEARCH.md").read_text()
     m = re.search(r"## 6\. Known limitations to state up front\n(.*?)\n## 7", text, flags=re.S)
@@ -238,10 +341,11 @@ def main() -> None:
         for fig in sorted((REPO / "results" / "figures").glob(f"{MAIN}__*.png")):
             lines.append(f"![{fig.stem}](figures/{fig.name})")
         lines.append("")
+    lines += section_real()
     lines += [
         "## Reading of the hypotheses",
         "",
-        "H1 and H2 are read mechanically from the tables above with the rules in docs/RESEARCH.md §3. H3 (real data) is reported in the real-data section once the semi-synthetic AZT1D track has run (ROADMAP phase 7).",
+        "H1 and H2 are read mechanically from the tables above with the rules in docs/RESEARCH.md §3; H3 with the rule of amendment A4 in the real-data section.",
         "",
         *limitations(),
         "## Assumptions",

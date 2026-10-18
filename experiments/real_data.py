@@ -155,14 +155,16 @@ def semi_synthetic(grid, events, levels, windows, seed=0, n_folds=2, n_boot=2000
         )
         from ghostlows.bench.pipeline import reference_sensitivity
 
-        ref = reference_sensitivity(tr, tr_ev, tr_f, windows)
+        # A5: on CGM-referenced lows the ungated floor catches every level 2 low by
+        # construction, so the operating point matches level 1 sensitivity instead
+        ref = reference_sensitivity(tr, tr_ev, tr_f, windows, level=1)
         entries = []
         for alarm in copy.deepcopy(alarms_all):
             threshold = alarm.default_threshold
             if is_learned(alarm):
                 alarm.fit(alarm_frame(tr, alarm, with_label=True))
                 threshold, _ = training_threshold(
-                    alarm, alarm_frame(tr, alarm), tr, tr_ev, tr_f, ref, 0.0, windows
+                    alarm, alarm_frame(tr, alarm), tr, tr_ev, tr_f, ref, 0.0, windows, level=1
                 )
             entries.append((alarm, threshold))
         fitted[fold] = entries
