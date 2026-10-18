@@ -59,16 +59,22 @@ From [Facchinetti 2016] (72 people, Dexcom G4 Platinum, 7 days), as used by [Idi
 
 ### 4.2 Other faults (each switchable, with a severity knob)
 
-| Fault | Model **[assumption]** unless cited | Why include |
+| Fault | Model **[assumption]** unless cited; values at full severity (s = 1) | Why include |
 |---|---|---|
-| Dropout / signal loss | Facchinetti 2016's three-state Markov model once the full text is read. Until then: exponential gap length with P(gap <20 min) = 0.90 [Facchinetti 2016] (median ≈ 6 min) | Common in practice; alarms must handle gaps |
-| Stale readings | Last value repeated for 10 to 30 min | Tests trend logic |
-| Drift | Slow multiplicative bias, ±10 to 20% over a sensor's life, reset at sensor change | Sensor ageing |
-| Spikes / noise bursts | Short bursts of extra noise | Tests robustness near threshold |
+| Dropout / signal loss | Facchinetti 2016's three-state Markov model once the full text is read. Until then: 4 gaps/day, exponential length with P(gap <20 min) = 0.90 [Facchinetti 2016] (median ≈ 6 min); readings missing | Common in practice; alarms must handle gaps |
+| Stale readings | 2/day; last value repeated for 10 to 30 min | Tests trend logic |
+| Drift | Linear multiplicative bias reaching ±10 to 20% (× s) at the end of a 10-day sensor, reset at sensor change; labelled once \|bias\| ≥ 5% | Sensor ageing |
+| Spikes / noise bursts | 2/day, 15 to 30 min of extra Gaussian noise, SD 20 mg/dL × s | Tests robustness near threshold |
+
+Overlapping faults are applied in a fixed order (drift, PISA, spikes, stale, dropout). Each sample's `fault_type` is the highest-priority active fault (dropout, stale, PISA, spike, drift); `ghostlows.faults.apply_faults` also returns one row per fault instance (start, end, size), which is what cause attribution uses (BENCHMARK.md §4).
 
 ### 4.3 Mixed suite
 
-A single `FaultSuite` config combines all faults with one overall severity `s ∈ [0, 1]` that scales rates and magnitudes, plus per-fault overrides. For PISA, `s` scales only the rate; depth and duration stay at the literature distribution. The default benchmark sweeps the PISA fraction with the other faults at a fixed moderate level, and a second sweep raises all faults together.
+A single `FaultConfig` combines all faults with one overall severity `s ∈ [0, 1]` that scales rates and magnitudes, plus per-fault overrides. PISAs have their own knob, the fraction of nights; depth and duration always stay at the literature distribution. The default benchmark sweeps the PISA fraction with the other faults at a fixed moderate level (s = 0.5), and a second sweep raises all faults together.
+
+**Common random numbers.** Each fault type has its own random stream per patient-run, and candidates are drawn at full severity and kept when their uniform draw falls below the severity (thinning). Sweeps are therefore nested: the PISAs at 10% of nights are a subset of those at 25%. Switching one fault type on or off never changes another's realisation. This makes severity curves smooth and the H1 slopes paired.
+
+**Realistic default.** `ghostlows.faults.realistic_fraction` finds the fraction of nights that reproduces [Lobo 2026]'s rate of PISAs reaching an observed CGM below 85 mg/dL (1,260 in 94,201 h in the abstract, about one per 74.8 h) on the simulated cohort itself. With thinning, the expected rate is exactly linear in the fraction.
 
 ### 4.4 Robustness arms
 
