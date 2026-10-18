@@ -58,7 +58,7 @@ Lag from plasma level-1 onset to interstitial glucose <70: median 15 min (IQR 12
 
 What this shows, and what it limits:
 
-- **Plausibility.** No run left the model's validity range. Medians of 2.6% below 70 and 0.3% below 54 in the default mix sit in the range reported for people with type 1 diabetes. The default mix has 1423 level-1 and 249 level-2 lows in 2,100 patient-days (0.68 and 0.12 per day), close to AZT1D's CGM-referenced 0.51 and 0.10. The standard mix has few severe lows (32; 16 of 30 patients have none), so its D5 operating point is coarse, and folds with fewer than 10 level-2 lows fall back to level 1 (A7).
+- **Plausibility.** No run left the model's validity range. Medians of 2.6% below 70 and 0.3% below 54 in the default mix sit in the range reported for people with type 1 diabetes. The default mix has 1423 level-1 and 249 level-2 lows in 2,100 patient-days (0.68 and 0.12 per day), close to AZT1D's CGM-referenced 0.51 and 0.10. The standard mix has few severe lows (32; 16 of 30 patients have none), so its D5 operating point is coarse. Folds with fewer than 10 level-2 lows would fall back to level 1 (A7), but in the benchmark runs every training fold of every mix had enough (`thresholds.csv`: `estimable` is true and `match_level` is 2 throughout).
 - **Children dominate the level-2 lows** in every mix (121 of 249 in the default mix). Results are reported by age group as well as pooled (D14).
 - **The leak axis is narrower than designed.** Leak AUC (IOB at nocturnal low onsets vs. the night) falls only from 0.69 (standard) to 0.65 (default) and 0.63 (high). Insulin still explains most nocturnal lows in every mix, so the three mixes are three modestly different worlds, not a wide sweep. AZT1D's real leak AUC (0.59, user-entered boluses only) is below all three; the matched mix for H3 is therefore `high` (A4).
 - **Treatment frequency.** The virtual patients treat 1.2, 2.5 and 3.6 times a day. That is more often than real people do, partly because the smooth simulated sensor error drifts below 70 mg/dL and triggers a treatment that a real person might wait out (CR17).
@@ -72,11 +72,11 @@ Recorded per the working rule "if something is blocked, record it here and move 
 |---|---|---|---|
 | Full text of Facchinetti 2016 | Not open access; only the abstract was read | The PISA time constant (τ = 10 min) and the dropout model are assumptions, swept by the τ = 5/20 min robustness arms; the paper's Markov dropout model is not used (SPEC_REVIEW SR2–SR3) | Project lead (library access) |
 | Full text of Lobo 2026 | Read as abstract only | The realistic PISA rate comes from the abstract's counts (1,260 PISAs in 94,201 h, minimum < 85 mg/dL) | Project lead |
-| Padova/UVA labelled dual-sensor data | Needs contact and an agreement | No real PISA labels: real-data results use injected PISAs, and real artifacts in the reference count as true lows | Project lead (PUBLICATION.md) |
+| Padova/UVA labelled dual-sensor data | Needs contact and an agreement | No real PISA labels: real-data results use injected PISAs, and real artifacts in the reference count as true lows | Project lead |
 | OhioT1DM | Data use agreement | Not used (optional fingerstick reference) | Project lead |
 | CGMacros | Descoped rather than blocked: its labels would be a weak proxy (Libre Pro, mostly T2D, few lows) | Not used | — |
 | Zenodo DOI for `v0.1.0` | Needs the GitHub–Zenodo integration switched on by the repository owner | Release can be tagged, but the DOI is minted only after the integration is on | Project lead |
-| Clinical review (CR1–CR16) | Needs a clinician | Thresholds, the floor, the SESOI and the flag rule stay marked as assumptions | Clinical co-lead |
+| Clinical review (CR1–CR17) | Needs a clinician | Thresholds, the floor, the SESOI and the flag rule stay marked as assumptions | Clinical co-lead |
 
 AZT1D was listed as a manual download until 2026-10-18. Mendeley Data's public API serves the CC BY 4.0 archive with a published SHA-256, so `scripts/download_data.py --azt1d` now fetches it (DATA.md §2).
 

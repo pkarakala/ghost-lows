@@ -1,6 +1,6 @@
 # Common tasks. Everything runs through uv; see CLAUDE.md (Commands).
 
-.PHONY: install test lint format data data-diadata data-azt1d smoke sample results reproduce all
+.PHONY: install test lint format data data-diadata data-azt1d smoke sample results reproduce all fault-figure sim-report package
 
 # Parallel benchmark workers each run their own models; keep native thread pools small.
 export OMP_NUM_THREADS ?= 2
@@ -51,3 +51,15 @@ reproduce:
 	uv run python scripts/check_reproducible.py --config rq1_pisa_sweep --resimulate 3
 
 all: lint test results
+
+# The example-faults figure in docs/figures/ (SIMULATION.md).
+fault-figure:
+	uv run python experiments/make_fault_figure.py
+
+# The cohort report in docs/SIMULATION_NOTES.md (needs the simulated cohort).
+sim-report:
+	uv run python experiments/sim_report.py --config experiments/configs/sim_full.yaml
+
+# dist/ghostlows-bench-v1.zip: the frozen cohort for a dataset release (DECISIONS.md D18).
+package:
+	uv run python scripts/package_cohort.py

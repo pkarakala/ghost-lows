@@ -21,7 +21,7 @@ The first complete release of the benchmark (`ghostlows-bench v1`). Results: [`r
 - **Scoring and statistics:** events, matching windows, false alarms by cause, leave-patients-out cross-validation, the pre-registered operating point (D5), patient-bootstrap CIs, and the H1–H3 and RQ3 contrasts. Fold fits run in parallel with identical results.
 - **Real-data track:** PISAs injected into real nights (Weinstock 2016, co-primary for RQ1), the H3 context check on AZT1D (Control-IQ users, user-entered context only), and face validity of simulated lows.
 - **Upload report:** <https://pkarakala.github.io/ghost-lows/>. It runs in the browser with no server, flags a *possible compression artifact* conservatively, and keeps the file in the tab.
-- **Reproducibility:** pinned, checksummed downloads; `make results`; `make reproduce`, which reruns the headline tables in a clean checkout of the commit that produced them. That check reproduced them exactly on 2026-10-18 (`docs/PUBLICATION.md`). A packaged frozen cohort for a dataset release (`scripts/package_cohort.py`).
+- **Reproducibility:** pinned, checksummed downloads; `make results`; `make reproduce`, which reruns the headline tables in a clean checkout of the commit that produced them. That check reproduced them exactly on 2026-10-18 (`results/README.md`, Reproducibility). A packaged frozen cohort for a dataset release (`scripts/package_cohort.py`).
 - **Paper:** a JOSS draft (`paper.md`) that builds in CI.
 
 ### Amendments after the pre-registration tag `protocol-v1`
@@ -43,4 +43,4 @@ See `docs/RESEARCH.md` §6, and the blocked items in `docs/SIMULATION_NOTES.md`:
 - **Full texts:** Facchinetti 2016 and Lobo 2026 were read as abstracts only.
 - **Labelled data:** no public data labels real compression.
 - **Clinical review:** items CR1–CR17 are still to be checked by a clinician.
-- **DOIs:** the Zenodo DOI and the dataset record need the project lead (`docs/PUBLICATION.md`).
+- **DOIs:** the Zenodo DOI and the dataset record need the project lead (`docs/development/REVIEW.md`, Status).

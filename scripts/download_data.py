@@ -11,7 +11,7 @@ records URL, retrieval date, size and SHA-256 for every file.
 
 Standard library only (Python 3.11+), so it runs with or without the project environment:
 
-    uv run python scripts/download_data.py [--diadata] [--force] [--data-dir DIR]
+    uv run python scripts/download_data.py [--diadata] [--azt1d] [--force] [--data-dir DIR]
 """
 
 from __future__ import annotations

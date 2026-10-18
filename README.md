@@ -88,7 +88,7 @@ paper.md        Journal of Open Source Software draft
 
 ## Cite
 
-See [`CITATION.cff`](CITATION.cff). Results should name the benchmark version (`ghostlows-bench v1`). Sources are in [`docs/CITATIONS.md`](docs/CITATIONS.md) and [`docs/references.bib`](docs/references.bib).
+See [`CITATION.cff`](CITATION.cff). Results should name the benchmark version (`ghostlows-bench v1`); every run records it in `benchmark_version.txt`. A DOI per release through Zenodo is pending. Sources are in [`docs/CITATIONS.md`](docs/CITATIONS.md) and [`docs/references.bib`](docs/references.bib).
 
 ## Licence
 

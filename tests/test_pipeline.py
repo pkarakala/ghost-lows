@@ -1,5 +1,5 @@
 """End-to-end: a tiny simulated cohort through faults, CV, operating point and scoring, plus the
-plug-in example (PUBLICATION.md: the example must run in CI)."""
+plug-in example (DECISIONS.md D18: the example must run in CI)."""
 
 from pathlib import Path
 

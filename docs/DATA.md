@@ -36,6 +36,11 @@ As implemented (standard library only; `uv run python scripts/download_data.py [
 - **Manual datasets** go in `data/raw/{cgmacros,ohiot1dm}/`; re-running the script hashes whatever is there into the manifest.
 - **Manifest.** One entry per archive and per extracted or manually placed file: dataset key (from `CITATIONS.md`), URL, pinned ref, retrieval time (UTC), size, SHA-256 (and MD5), licence as stated by the source, and for extracted files the archive member. Re-runs keep the first retrieval time of unchanged files. The manifest is gitignored with the data; reproducibility comes from the pins in the committed script.
 
+## Limits of the upload loaders
+
+- **Sampling.** The alarms and the retrospective flags assume 5-minute readings. Exports at 15-minute intervals (FreeStyle Libre 1 and 2 history) load and give the consensus metrics, but the trend rule needs three readings in about 15 minutes and the matched filter compares readings one by one, so flags are not meaningful on them.
+- **Time zones.** Exports are read as naive local time. At a daylight-saving change the repeated or missing hour is not reconciled, so readings around it may be dropped or out of order.
+
 ## 3. Common schema
 
 All loaders return one long table:

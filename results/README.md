@@ -298,6 +298,14 @@ On the matched mix (`high`) the simulation itself shows no meaningful context be
 
 On AZT1D every CI includes 1; the widest, `gbm` (0.84–1.21), does not exclude a modest benefit. AZT1D users are on automated insulin delivery (Control-IQ), not the open-loop population RQ2 targets (D9), and the artifacts are injected, not real.
 
+## Reproducibility
+
+Each benchmark run records the commit it ran at (`results/tables/<run>__git_commit.txt`): `cb3d87a` for `robust_delta05`, `robust_early20`, `robust_early45`, `robust_lag6`, `robust_late30`, `robust_tau20`, `robust_tau5`, `rq1_all_faults`; `4725089` for `rq1_pisa_sweep`; `49895a2` for `rq3_kalman`. The warning-time, age-group and RQ3 tables were derived afterwards from each run's `metrics.csv` by `experiments/run_all.py` at later commits, and the real-data tables (`real__*`) carry no commit record.
+
+`make reproduce` (`scripts/check_reproducible.py`) clones the commit recorded for `rq1_pisa_sweep`, installs it with `uv sync --locked`, reruns that config on the cached cohort, compares the tables, and re-simulates three randomly chosen patient-runs. On 2026-10-18 it reproduced `summary.csv` (540 rows), `contrasts_h2.csv` (108), `contrast_h1.csv` (3) and `thresholds.csv` (450) exactly from commit `4725089`, and the three re-simulated runs matched the cached cohort exactly.
+
+This is weaker than re-running everything. It needs the cached cohort under `data/sim/` (from `make results`, about 2.3 h). The cohort's cache key includes the package version, and the cohort was simulated at version 0.0.1, so at a later version `make results` simulates it afresh under a new key. The full pipeline was run once to produce these results and has not been repeated from a clean clone.
+
 ## Reading of the hypotheses
 
 H1 and H2 are read mechanically from the tables above with the rules in docs/RESEARCH.md §3; H3 with the rule of amendment A4 in the real-data section.
@@ -305,14 +313,20 @@ H1 and H2 are read mechanically from the tables above with the rules in docs/RES
 ## Limitations (from docs/RESEARCH.md §6)
 
 - **Simulated hypoglycaemia is the weakest part of the simulator.** simglucose implements the 2008 UVA/Padova model [simglucose; Kovatchev 2009]. It lacks the 2013 model's nonlinear rise of insulin action in hypoglycaemia and its glucagon counter-regulation [Dalla Man 2014]. Those equations are published, but the parameter values needed to add them are not. Hence the real-data validation in §7 (D16).
-- Virtual patients treat lows with a fixed rule (15 g when the fault-free CGM is below 70 mg/dL by day or at or below 55 at night, never logged; amendment A6). Real people treat less regularly. Without any treatment the 2008 model gives impossible hypoglycaemia, so the rule is needed, but it shapes how long and how deep simulated lows are **[clinical review CR17]**.
+- Virtual patients treat lows with a fixed rule (15 g when the fault-free CGM is below 70 mg/dL by day or at or below 55 at night, never logged; amendment A6). Real people treat less regularly. Without any treatment the 2008 model gives impossible hypoglycaemia, so the rule is needed, but it shapes how long and how deep simulated lows are **[clinical review CR17]**. Its night trigger (≤55 mg/dL) is the urgent-low floor and the trend alarm's target, and its day trigger (<70) is the threshold alarm's, so true lows tend to end where the alarms fire; a decoupled arm is proposed (P5).
 - The three scenario mixes span a narrow range of how much recorded insulin explains nocturnal lows: leak AUC 0.69, 0.65 and 0.63 (SIMULATION_NOTES.md). The secondary H2 comparison and H3 therefore compare modestly different worlds, and AZT1D's real 0.59 lies outside the simulated range.
 - The "realistic" training fault level reproduces Lobo 2026's rate of PISAs reaching below 85 mg/dL. In the treated cohort that takes a PISA on 86% of nights, because most simulated PISAs start from higher overnight glucose and never get that low. Alarms are fitted with compression on most nights (D19).
 - The stock controller settings give implausible hypoglycaemia in several virtual patients (DECISIONS.md, pilot). Therapy settings are calibrated per patient to a pre-specified range (D17); that range is itself an assumption **[clinical review CR15]**.
 - 30 virtual patients and one shared CGM noise model [simglucose; Breton 2008]. The noise is smooth (AR(1) on a 15-minute grid, cubic-interpolated), so sample-level noise and spikes are gentler than in real sensors. Confidence intervals describe this cohort, not a population.
 - The model's blood-to-interstitial lag (τ = 1/ksc, 6.6–19.9 min, median about 11) is longer than the 5–6 min measured in healthy fasted adults [Basu 2013], so simulated warning times are pessimistic; a sensitivity arm uses 6 min (D1).
 - No public dataset has PISA labels. The one labelled real set (36 adults, two G6 sensors) is held by Padova [Idi 2024].
-- Insulin and carb context exists only for pump/AID users or people who log; many standalone G7 users have none.
+- Insulin and carb context exists only for pump/AID users or people who log; many standalone G7 users have none. AZT1D, the H3 data, comes from users of automated insulin delivery, not the open-loop population RQ2 targets (D9).
+- Every result is read at one operating point (D5, δ = 0: no loss of training level 2 sensitivity against the trend alarm). The threshold-free curves the protocol calls for were not produced (P2), so "a gate suppresses nothing" and "context adds nothing" are statements about that operating point.
+- Learned alarms choose their threshold on scores from the patients they were fitted on, which is optimistic (P6). The RQ3 comparator is chosen from the same in-sample rates.
+- The matched filter, the flag rule and the Kalman filter's pressure mode use the same PISA model that generates the injected artifacts, so they have a home advantage that real artifacts would not give them. The τ-mismatch arms test part of this, but not for the Kalman alarms (P7).
+- The realistic training PISA fraction is calibrated on the whole default-mix cohort, test patients included (a fault-generator setting, not outcome information; P8).
+- False alarms are attributed to the first fault active in the 30 min before them. Drift labels cover long stretches, so some alarms that sensor noise alone would have caused may be counted as "other fault".
+- On the real-data tracks the reference lows come from the same CGM the alarms read, so lows caught there is near-circular. Only the false alarms caused by injected PISAs are informative.
 - There is no G7-specific PISA data in the literature found so far; the injected artifacts come from Dexcom G4 data [Facchinetti 2016]. The model's time constant and the mapping from reported artifact size to model inputs await the full text (SIMULATION.md §4.1).
 - The Dexcom Urgent Low Soon prediction model is not public; the trend alarm here is a stand-in (predict 55 mg/dL within 20 min) [Garg 2022].
 

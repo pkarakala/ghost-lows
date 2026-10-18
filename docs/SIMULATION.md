@@ -1,6 +1,6 @@
 # Simulation and fault-suite specification
 
-Every number here comes from a cited source or is marked **[assumption]**. Assumptions are configurable and must be listed in the results. Decisions D1–D18 are explained in [`DECISIONS.md`](DECISIONS.md).
+Every number here comes from a cited source or is marked **[assumption]**. Assumptions are configurable and must be listed in the results. Decisions D1–D19 and amendments are explained in [`DECISIONS.md`](DECISIONS.md). What the simulator and the cohort turned out to be, as built, is in [`SIMULATION_NOTES.md`](SIMULATION_NOTES.md); example faults are drawn in [`figures/faults_examples.png`](figures/faults_examples.png) (`make fault-figure`).
 
 ## 1. Simulator
 
@@ -23,7 +23,7 @@ Open-loop basal-bolus control (the RQ2 target population). The stock `BBControll
 - **Basal:** the patient's steady-state basal (u2ss) times a per-patient calibrated factor.
 - **Meal bolus:** one bolus at the start of each announced meal, equal to announced carbs ÷ carb ratio (per-patient calibrated scale on the ratio from simglucose's `Quest.csv`).
 - **Correction:** at most one per meal, added to the meal bolus when the CGM is above 150 mg/dL, aiming for 140 mg/dL with the patient's correction factor **[assumption, as in the stock controller]**.
-- **Calibration:** for each patient, choose the basal factor and carb-ratio scale on the *standard* scenario (calibration seeds only) so that 14-day TBR <70 lies in 1–8% and plasma never falls below 40 mg/dL **[assumption, clinical review CR15]**. Lows deeper than that are outside the 2008 model's credible range. Report the calibrated factors and compare the cohort's TBR distribution with real per-person TBR (DiaData).
+- **Calibration:** for each patient, choose the basal factor and carb-ratio scale on the *standard* scenario (calibration seeds only) so that 14-day TBR <70 lies in 1–8% and plasma never falls below 40 mg/dL **[assumption, clinical review CR15]**. Lows deeper than that are outside the 2008 model's credible range. Report the calibrated factors and compare the cohort's TBR distribution with real per-person TBR (DiaData; not done yet, since DiaData is not used).
 - **Treating lows (amendment A6):** the virtual person follows the 15-15 rule [CDC 2024]: 15 g of fast carbohydrate when the displayed CGM is below 70 mg/dL by day, or at or below 55 mg/dL at night (23:00–07:00, when only the urgent-low alarm [Garg 2022] is assumed to wake them). They recheck after 15 min and repeat while below 70 **[assumption, clinical review CR17]**. The trigger is the fault-free simulated CGM, so injected faults cannot cause a treatment (the same post-hoc limitation as D9). Rescue carbohydrate is eaten but never logged: IOB, COB and the alarms do not see it. Without treatment the 2008 model, which lacks counter-regulation, let lows run until the insulin wore off. In the first full cohort this gave 5.6% (default mix) and 20.6% (high mix) of time below 54 mg/dL, with run nadirs near 0 mg/dL. Calibration (above) is defined, and was run, without treatment.
 - **Records:** every delivered dose and every announced carbohydrate amount, with times.
 - **Context features use recorded data only (SR12):** IOB from delivered boluses, with a configurable insulin action curve (default duration 5 h; sensitivity 3 and 7 h) **[assumption]**; COB from *announced* carbs (miscounted, and still present when the meal is skipped), with a configurable absorption curve (default linear over 3 h) **[assumption]**. A test checks that context columns can be recomputed from the logged events alone.
@@ -96,4 +96,4 @@ As implemented (`experiments/real_data.py`): alarms are fitted on the training f
 
 - Every run is driven by one YAML config, with seeds, and writes its config, git commit hash and benchmark version (`ghostlows-bench v1`, D18) next to its outputs.
 - Calibration seeds and benchmark seeds are disjoint.
-- Simulated traces are cached as Parquet under `data/sim/` (gitignored), keyed by a config hash. The frozen benchmark cohort is also released as a versioned dataset (PUBLICATION.md).
+- Simulated traces are cached as Parquet under `data/sim/` (gitignored), keyed by a config hash. `scripts/package_cohort.py` (`make package`) packages the frozen benchmark cohort for a versioned dataset release; the release itself is pending.

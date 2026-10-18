@@ -1,4 +1,4 @@
-"""The `ghostlows` command (PUBLICATION.md: one command per job).
+"""The `ghostlows` command: one command per job (DECISIONS.md D18).
 
     ghostlows simulate --config experiments/configs/sim_smoke.yaml
     ghostlows benchmark --config experiments/configs/smoke.yaml

@@ -33,7 +33,7 @@ An open benchmark that scores real-time CGM low-glucose alarms on **lows caught,
 
 ```
 src/ghostlows/{io,metrics,sim,faults,alarms,bench,retro}/
-experiments/{configs/*.yaml, run_sim.py, run_benchmark.py, make_figures.py}
+experiments/{configs/*.yaml, run_benchmark.py, run_all.py, real_data.py, make_figures.py, make_results_readme.py}
 scripts/download_data.py
 app/            # stlite app + index.html
 tests/          # pytest; fixtures in tests/fixtures/ (synthetic only)

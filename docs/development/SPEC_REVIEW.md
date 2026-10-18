@@ -4,7 +4,7 @@ A critical review of `docs/` made before any code was written, so that problems 
 
 Evidence sources checked on 2026-10-18: PubMed abstracts of [Facchinetti 2016], [Baysal 2014], [Lobo 2026], [Idi 2024], [Manzoni 2025], [Basu 2013] and Bergenstal 2018 (GMI); the full text of [Baysal 2014] (PMC4455457); the simglucose 0.2.11 wheel source; the GlucoBench archive at commit `661d840` (profiled); the DiaData v3 Zenodo record and README.
 
-Items marked **PI decision** change the study design or a research question. They were decided on 2026-10-18 under delegated authority; see [`DECISIONS.md`](../DECISIONS.md) (D1–D18) for the decisions and the pilot evidence behind them. The others are corrections to make in the phase that implements them.
+Items marked **PI decision** change the study design or a research question. They were decided on 2026-10-18 under delegated authority; see [`DECISIONS.md`](../DECISIONS.md) (D1–D18; D19 was added at the protocol tag) for the decisions and the pilot evidence behind them. The others are corrections to make in the phase that implements them.
 
 ## Contradicted by a source (fix before the phase)
 

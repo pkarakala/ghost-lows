@@ -1,4 +1,4 @@
-"""Package the frozen simulated cohort `ghostlows-bench v1` for a dataset release (PUBLICATION.md).
+"""Package the frozen simulated cohort `ghostlows-bench v1` for a dataset release (DECISIONS.md D18).
 
     uv run python scripts/package_cohort.py            # writes dist/ghostlows-bench-v1.zip
 

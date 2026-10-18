@@ -1,6 +1,6 @@
 # Benchmark specification
 
-Benchmark version **`ghostlows-bench v1`** (D18): the alarms, truth, metrics, operating point and statistics below, together with the frozen simulation and fault configs. Any change to them that alters results makes a new benchmark version. Decisions D1–D18 are explained in [`DECISIONS.md`](DECISIONS.md).
+Benchmark version **`ghostlows-bench v1`** (D18): the alarms, truth, metrics, operating point and statistics below, together with the frozen simulation and fault configs. Any change to them that alters results makes a new benchmark version. Decisions D1–D19 and amendments are explained in [`DECISIONS.md`](DECISIONS.md).
 
 ## 1. Alarm interface
 
@@ -101,4 +101,4 @@ Choose each alarm's threshold on the **training** patients only: θ\* minimises 
 
 Fold fits and evaluations can run in parallel processes (`workers` in the config, `--workers` on the command line); results do not depend on it (a test compares serial and parallel runs).
 
-`experiments/run_all.py` (`make all`) runs every config in `experiments/configs/` that produces results (`rq1_pisa_sweep`, `rq1_all_faults`, `robust_*`), draws the figures, copies the headline figures and tables to `results/figures/` and `results/tables/` (committed) and writes `results/README.md`.
+`experiments/run_all.py` (part of `make results`) runs every config in `experiments/configs/` that produces results (`rq1_pisa_sweep`, `rq3_kalman`, `rq1_all_faults`, `robust_*`), draws the figures, copies the headline figures and tables to `results/figures/` and `results/tables/` (committed) and writes `results/README.md`.

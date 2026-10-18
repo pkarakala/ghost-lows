@@ -659,6 +659,32 @@ def azt1d_note(a: pd.DataFrame) -> str:
     )
 
 
+def section_reproducibility() -> list[str]:
+    """Which commit produced which table, and what the clean-checkout check covered."""
+    by_commit: dict[str, list[str]] = {}
+    for f in sorted(TABLES.glob("*__git_commit.txt")):
+        by_commit.setdefault(f.read_text().strip()[:7], []).append(f.name.split("__")[0])
+    lines = ["## Reproducibility", ""]
+    if by_commit:
+        lines.append(
+            "Each benchmark run records the commit it ran at (`results/tables/<run>__git_commit.txt`): "
+            + "; ".join(
+                f"`{c}` for {', '.join(f'`{n}`' for n in names)}" for c, names in by_commit.items()
+            )
+            + ". The warning-time, age-group and RQ3 tables were derived afterwards from each run's "
+            "`metrics.csv` by `experiments/run_all.py` at later commits, and the real-data tables "
+            "(`real__*`) carry no commit record."
+        )
+        lines.append("")
+    lines += [
+        "`make reproduce` (`scripts/check_reproducible.py`) clones the commit recorded for `rq1_pisa_sweep`, installs it with `uv sync --locked`, reruns that config on the cached cohort, compares the tables, and re-simulates three randomly chosen patient-runs. On 2026-10-18 it reproduced `summary.csv` (540 rows), `contrasts_h2.csv` (108), `contrast_h1.csv` (3) and `thresholds.csv` (450) exactly from commit `4725089`, and the three re-simulated runs matched the cached cohort exactly.",
+        "",
+        "This is weaker than re-running everything. It needs the cached cohort under `data/sim/` (from `make results`, about 2.3 h). The cohort's cache key includes the package version, and the cohort was simulated at version 0.0.1, so at a later version `make results` simulates it afresh under a new key. The full pipeline was run once to produce these results and has not been repeated from a clean clone.",
+        "",
+    ]
+    return lines
+
+
 def limitations() -> list[str]:
     text = (REPO / "docs" / "RESEARCH.md").read_text()
     m = re.search(r"## 6\. Known limitations to state up front\n(.*?)\n## 7", text, flags=re.S)
@@ -716,6 +742,7 @@ def main() -> None:
             lines.append(f"![{fig.stem}](figures/{fig.name})")
         lines.append("")
     lines += section_real()
+    lines += section_reproducibility()
     lines += [
         "## Reading of the hypotheses",
         "",
