@@ -91,8 +91,8 @@ class BenchConfig:
 
 
 def is_learned(alarm: BaseAlarm) -> bool:
-    """Learned alarms are fitted and get the pre-registered operating point; a user alarm opts in
-    with `learned = True`."""
+    """Learned alarms are fitted and get the pre-registered operating point (D5): the combiner
+    arms, gbm and the gated alarms (`learned = True`); a user alarm opts in the same way."""
     return bool(getattr(alarm, "learned", False)) or any(tag in alarm.name for tag in LEARNED)
 
 
@@ -139,7 +139,8 @@ def training_threshold(alarm, frame, train_obs, events, faults, reference_sens, 
             cache[theta] = (sens, fpd)
         return cache[theta]
 
-    candidates = candidate_thresholds(scores.to_numpy(), n=N_CANDIDATES)
+    low = getattr(alarm, "candidate_low_quantile", 0.5)
+    candidates = candidate_thresholds(scores.to_numpy(), n=N_CANDIDATES, low=low)
     theta, info = choose_threshold(
         candidates, lambda t: evaluate(t)[0], lambda t: evaluate(t)[1], reference_sens, delta
     )

@@ -45,4 +45,6 @@ Also verified in the simglucose 0.2.11 source: the stock controller adds the ful
 
 ## Amendments
 
-None yet.
+Each entry gives the date, whether any full-benchmark result existed at the time, the change, and the reason. The tag `protocol-v1` is never moved.
+
+- **A1 (2026-10-18; no full-cohort result yet). The gated alarms now follow D5 as written.** At the tag the pipeline applied the D5 operating point only to the combiner arms and `gbm`. Gated alarms kept a fixed threshold of 0 on the score 1[trend] × (1 − gate). The binary Baysal gate then behaved as published, but the continuous matched-filter and isolation-forest gates almost never reach 1, so they never suppressed an alarm. This was found in the semi-synthetic Weinstock run, where both gates scored exactly like `trend`. A gate selected without its combiner arms was also never fitted, so the robustness configs would have failed. Now every gated alarm is fitted, and D5 chooses its gate threshold on training patients (BENCHMARK.md §5). The trend alarm's own rule, the hypotheses, the estimands and the configs are unchanged.

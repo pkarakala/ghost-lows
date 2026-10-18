@@ -37,7 +37,7 @@ def result(tmp_path_factory):
         name="tiny",
         simulation=str(sim_cfg),
         pisa_fractions=[0.0],
-        alarms=["trend", "threshold"],
+        alarms=["trend", "threshold", "iforest_causal_gate"],
         n_folds=2,
         n_boot=20,
     )
@@ -68,12 +68,22 @@ def test_outputs_follow_benchmark_spec(result):
 def test_every_patient_alarm_pair_is_scored(result):
     res, _ = result
     m = res["metrics"]
-    assert set(m["alarm_name"]) == {"trend", "threshold", "falling_below_70"}
+    assert set(m["alarm_name"]) == {"trend", "threshold", "iforest_causal_gate", "falling_below_70"}
     assert m.groupby("alarm_name")["patient_id"].nunique().eq(2).all()
     assert (m["hours"] > 23).all()
     s = res["summary"]
     assert {"sens_l1", "false_per_day", "false_compression_per_day"} <= set(s.columns)
     assert np.isfinite(s["false_per_day"]).all()
+
+
+def test_gated_alarm_is_fitted_and_tuned_on_its_own(result):
+    """A gate selected without its combiner arms still gets its detector fitted and its gate
+    threshold chosen by the operating-point rule (D5)."""
+    res, _ = result
+    t = res["thresholds"]
+    gate = t[t["alarm_name"] == "iforest_causal_gate"]
+    assert len(gate) and gate["threshold"].between(-1e-6, 1.0).all()
+    assert gate["feasible"].notna().all()
 
 
 def test_example_alarm_fires_only_when_low_and_falling():

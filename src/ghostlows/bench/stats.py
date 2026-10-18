@@ -59,13 +59,15 @@ def choose_threshold(
     return float(best["threshold"]), {"feasible": True, "table": table}
 
 
-def candidate_thresholds(scores: np.ndarray, n: int = 60) -> np.ndarray:
-    """Quantiles of training scores (upper tail, where alarms live), plus the extremes."""
+def candidate_thresholds(scores: np.ndarray, n: int = 60, low: float = 0.5) -> np.ndarray:
+    """Quantiles `low`..0.999 of the finite training scores (by default the upper tail, where
+    alarms live), plus the extremes. Gated alarms use low = 0: their finite scores are the trend
+    alarm's firings, and every suppression fraction is a candidate."""
     s = np.asarray(scores, float)
     s = s[np.isfinite(s)]
     if s.size == 0:
         return np.array([0.5])
-    qs = np.unique(np.quantile(s, np.r_[np.linspace(0.5, 0.999, n), [0.0, 1.0]]))
+    qs = np.unique(np.quantile(s, np.r_[np.linspace(low, 0.999, n), [0.0, 1.0]]))
     return qs - 1e-9  # alarms fire when score > threshold
 
 

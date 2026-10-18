@@ -152,9 +152,17 @@ def arm_features(run: pd.DataFrame, arm: str) -> np.ndarray:
 
 
 class GatedAlarm(BaseAlarm):
-    """Trend alarm suppressed by a PISA detector, as published. Score = 1[trend] x (1 - gate)."""
+    """Trend alarm suppressed by a PISA detector, without a combiner.
 
-    default_threshold = 0.0
+    Score = 1 - gate where the trend alarm fires and -inf where it does not, so the threshold
+    tunes only the gate (D5): the alarm fires when the trend alarm does and gate < 1 - threshold.
+    For a binary gate (Baysal) any threshold in [0, 1) is the published rule.
+    """
+
+    learned = True  # the gate threshold is chosen by the operating-point rule (D5)
+    candidate_low_quantile = 0.0  # candidates run from no suppression to suppressing almost all
+    # ASSUMPTION: untuned default (suppress when gate > 0.5); the benchmark tunes it (D5)
+    default_threshold = 0.5
 
     def __init__(self, detector: Detector):
         self.detector = detector
@@ -168,7 +176,7 @@ class GatedAlarm(BaseAlarm):
         return np.where(
             np.isnan(run["cgm"].to_numpy(float)),
             np.nan,
-            trend_fires * (1 - self.detector.gate(run)),
+            np.where(trend_fires, 1 - self.detector.gate(run), -np.inf),
         )
 
 

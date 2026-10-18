@@ -125,6 +125,26 @@ def test_floor_is_never_suppressed():
     assert (run_of(values).set_index("time").loc[events["time"], "cgm"] <= FLOOR_MG_DL).all()
 
 
+class SomewhatPisa(Detector):
+    name = "somewhat"
+
+    def gate(self, run):
+        return np.full(len(run), 0.7)
+
+
+def test_gate_threshold_tunes_only_the_gate():
+    from ghostlows.bench.pipeline import is_learned
+
+    falling = run_of(110 - 2.0 * 5 * np.arange(10))
+    alarm = GatedAlarm(SomewhatPisa())
+    assert is_learned(alarm)  # the operating-point rule chooses the gate threshold (D5)
+    kept = alarm.alarms(falling, threshold=0.2)  # 1 - 0.7 = 0.3 > 0.2: trend alarm kept
+    cut = alarm.alarms(falling, threshold=0.5)  # 0.3 < 0.5: suppressed, the floor remains
+    assert (~kept["is_floor"]).any()
+    assert len(cut) > 0 and cut["is_floor"].all()
+    assert alarm.alarms(run_of(np.full(20, 100.0)), threshold=-1.0).empty  # no trend, no alarm
+
+
 def test_refractory_and_flicker():
     times = pd.date_range("2026-01-05", periods=24, freq="5min").to_numpy()
     on = np.ones(24, bool)
