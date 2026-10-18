@@ -1,0 +1,53 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Ghost Lows CGM report</title>
+    <!-- Pinned runtime (PRIVACY_AND_SAFETY.md: no third-party scripts beyond the pinned runtime) -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@stlite/browser@1.9.2/build/stlite.css" />
+    <style>
+      :root { --surface: #fcfcfb; --ink: #0b0b0b; --muted: #52514e; --warn: #fdf3dc; }
+      @media (prefers-color-scheme: dark) {
+        :root:not([data-theme="light"]) { --surface: #1a1a19; --ink: #f0efec; --muted: #c3c2b7; --warn: #3a3222; }
+      }
+      :root[data-theme="dark"] { --surface: #1a1a19; --ink: #f0efec; --muted: #c3c2b7; --warn: #3a3222; }
+      body { margin: 0; background: var(--surface); color: var(--ink); font-family: system-ui, sans-serif; }
+      .notice { max-width: 960px; margin: 0 auto; padding: 12px 16px; }
+      .notice p { margin: 4px 0; font-size: 14px; }
+      .notice .disclaimer { background: var(--warn); padding: 8px 12px; border-radius: 6px; }
+      .notice .privacy { color: var(--muted); }
+    </style>
+  </head>
+  <body>
+    <div class="notice" id="static-notice">
+      <p class="disclaimer"><strong>Research software, not a medical device. Not for treatment decisions.</strong></p>
+      <p class="privacy">
+        Your file is read inside this browser tab and never leaves it: there is no server, no account and no
+        analytics. The page downloads its Python runtime (Pyodide and packages) from public CDNs; those requests
+        never contain your data.
+      </p>
+    </div>
+    <div id="root"></div>
+    <script type="module">
+      import { mount } from "https://cdn.jsdelivr.net/npm/@stlite/browser@1.9.2/build/stlite.js";
+
+      // The ghostlows wheel is built next to this page (scripts/build_app.py writes wheel.json).
+      const wheel = await (await fetch("./wheel.json")).json();
+      const wheelUrl = new URL(wheel.file, window.location.href).href;
+
+      mount(
+        {
+          requirements: [wheelUrl],
+          entrypoint: "streamlit_app.py",
+          files: { "streamlit_app.py": { url: "./streamlit_app.py" } },
+          streamlitConfig: {
+            "client.toolbarMode": "viewer",
+            "browser.gatherUsageStats": false,
+          },
+        },
+        document.getElementById("root"),
+      );
+    </script>
+  </body>
+</html>
