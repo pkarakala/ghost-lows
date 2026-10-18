@@ -65,6 +65,7 @@ class SimConfig:
             "ghostlows": version("ghostlows"),
             "simglucose": version("simglucose"),
         }
+        payload["layout"] = 2  # one Parquet part per patient-run
         blob = json.dumps(payload, sort_keys=True, default=str).encode()
         return hashlib.sha256(blob).hexdigest()[:12]
 
@@ -78,8 +79,13 @@ def task_seeds(seed: int, patient: str) -> tuple[int, int, int]:
     return tuple(int(s) % (2**31) for s in state)
 
 
+def part_name(patient: str, seed: int, mix: str) -> str:
+    return f"{mix}_s{seed}_{patient.replace('#', '-')}.parquet"
+
+
 def _run_task(args):
-    patient, seed, mix_name, therapy, days, start, dia_h, cob_h = args
+    """Simulate one patient-run and write its three part files; return its summary row."""
+    patient, seed, mix_name, therapy, days, start, dia_h, cob_h, out = args
     t0 = time.time()
     meal_seed, perturb_seed, noise_seed = task_seeds(seed, patient)
     scenario = make_scenario(get_mix(mix_name), days, meal_seed, perturb_seed)
@@ -87,7 +93,15 @@ def _run_task(args):
         patient, scenario, therapy, noise_seed, pd.Timestamp(start), dia_h=dia_h, cob_h=cob_h
     )
     tag = {"seed": seed, "mix": mix_name}
-    run = {
+    name = part_name(patient, seed, mix_name)
+    parts = {
+        "samples": result.samples.assign(**tag),
+        "truth": result.truth.assign(**tag),
+        "events": result.events.assign(patient_id=f"sim:{patient}", **tag),
+    }
+    for folder, frame in parts.items():
+        frame.to_parquet(Path(out) / folder / name, index=False)
+    return {
         "patient_id": f"sim:{patient}",
         **tag,
         "valid": result.valid,
@@ -96,18 +110,12 @@ def _run_task(args):
         "tbr54_truth_pct": 100 * float((result.truth["truth_glucose"] < 54).mean()),
         "seconds": time.time() - t0,
     }
-    return (
-        result.samples.assign(**tag),
-        result.truth.assign(**tag),
-        result.events.assign(patient_id=f"sim:{patient}", **tag),
-        run,
-    )
 
 
-def tasks(config: SimConfig) -> list[tuple]:
+def tasks(config: SimConfig, out: Path) -> list[tuple]:
     therapy = config.therapy()
     return [
-        (p, s, m, therapy[p], config.days, config.start, config.dia_h, config.cob_h)
+        (p, s, m, therapy[p], config.days, config.start, config.dia_h, config.cob_h, str(out))
         for m in config.mixes
         for s in config.seeds
         for p in config.patients
@@ -124,20 +132,31 @@ def git_commit() -> str:
 
 
 def run(config: SimConfig, force: bool = False, workers: int | None = None) -> Path:
-    """Simulate every task in `config` (or reuse the cache) and return the output folder."""
+    """Simulate every task in `config` (or reuse the cache) and return the output folder.
+
+    Each patient-run is written as its own part file as soon as it finishes, so memory stays
+    bounded and an interrupted run resumes: finished parts are reused unless `force`.
+    """
     out = config.out_dir()
     if (out / "meta.json").exists() and not force:
         return out
-    out.mkdir(parents=True, exist_ok=True)
-    jobs = tasks(config)
+    for folder in ("samples", "truth", "events"):
+        (out / folder).mkdir(parents=True, exist_ok=True)
+    previous = (
+        pd.read_csv(out / "runs.partial.csv") if (out / "runs.partial.csv").exists() else None
+    )
+    jobs = tasks(config, out)
+    todo = [j for j in jobs if force or not (out / "truth" / part_name(j[0], j[1], j[2])).exists()]
     t0 = time.time()
+    rows = [] if previous is None or force else previous.to_dict("records")
     with ProcessPoolExecutor(max_workers=workers) as pool:
-        results = list(pool.map(_run_task, jobs))
-    samples, truth, events, runs = (list(x) for x in zip(*results, strict=True))
-    pd.concat(samples, ignore_index=True).to_parquet(out / "samples.parquet", index=False)
-    pd.concat(truth, ignore_index=True).to_parquet(out / "truth.parquet", index=False)
-    pd.concat(events, ignore_index=True).to_parquet(out / "events.parquet", index=False)
-    pd.DataFrame(runs).to_csv(out / "runs.csv", index=False)
+        for row in pool.map(_run_task, todo):
+            rows.append(row)
+            pd.DataFrame(rows).to_csv(out / "runs.partial.csv", index=False)
+    pd.DataFrame(rows).drop_duplicates(["patient_id", "seed", "mix"], keep="last").to_csv(
+        out / "runs.csv", index=False
+    )
+    (out / "runs.partial.csv").unlink(missing_ok=True)
     (out / "config.yaml").write_text(yaml.safe_dump(config.__dict__, sort_keys=False))
     meta = {
         "key": config.key(),
@@ -145,6 +164,7 @@ def run(config: SimConfig, force: bool = False, workers: int | None = None) -> P
         "ghostlows": version("ghostlows"),
         "simglucose": version("simglucose"),
         "tasks": len(jobs),
+        "resumed_tasks": len(jobs) - len(todo),
         "wall_seconds": round(time.time() - t0, 1),
     }
     (out / "meta.json").write_text(json.dumps(meta, indent=2) + "\n")
@@ -152,6 +172,5 @@ def run(config: SimConfig, force: bool = False, workers: int | None = None) -> P
 
 
 def load(out: Path) -> dict[str, pd.DataFrame]:
-    return {
-        name: pd.read_parquet(out / f"{name}.parquet") for name in ("samples", "truth", "events")
-    }
+    """The cohort's samples, 1-min truth and event log (each folder read as one dataset)."""
+    return {name: pd.read_parquet(out / name) for name in ("samples", "truth", "events")}

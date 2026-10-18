@@ -121,12 +121,13 @@ def test_run_writes_and_reuses_cache(tmp_path, monkeypatch):
     config = run.SimConfig(name="t", patients=["adult#001"], days=1, seeds=[1], mixes=["standard"])
     out = run.run(config, workers=1)
     assert {p.name for p in out.iterdir()} >= {
-        "samples.parquet",
-        "truth.parquet",
-        "events.parquet",
+        "samples",
+        "truth",
+        "events",
         "runs.csv",
         "meta.json",
     }
+    assert len(list((out / "truth").glob("*.parquet"))) == 1
     stamp = (out / "meta.json").stat().st_mtime_ns
     assert run.run(config, workers=1) == out and (out / "meta.json").stat().st_mtime_ns == stamp
     longer = dataclasses.replace(config, days=2)
