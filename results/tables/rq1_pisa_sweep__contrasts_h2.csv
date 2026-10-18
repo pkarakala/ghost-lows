@@ -1,0 +1,109 @@
+detector,level,mix,cause,count_context,count_base,rate_ratio,lo,hi,reading
+baysal,0.0,default,compression,0.0,0.0,,,,not estimable
+baysal,0.0,high,compression,0.0,0.0,,,,not estimable
+baysal,0.0,standard,compression,0.0,0.0,,,,not estimable
+baysal,0.1,default,compression,70.0,68.0,1.0294117647058822,1.0,1.0724637681159421,no meaningful reduction
+baysal,0.1,high,compression,46.0,47.0,0.9787234042553191,0.9347826086956522,1.0,no meaningful reduction
+baysal,0.1,standard,compression,75.0,79.0,0.9493670886075949,0.8732394366197183,1.0116279069767442,no meaningful reduction
+baysal,0.25,default,compression,141.0,139.0,1.014388489208633,1.0,1.0333389261744967,no meaningful reduction
+baysal,0.25,high,compression,109.0,110.0,0.990909090909091,0.9603960396039604,1.018018018018018,no meaningful reduction
+baysal,0.25,standard,compression,182.0,192.0,0.9479166666666666,0.9074026345933562,0.9821454987320372,no meaningful reduction
+baysal,0.5,default,compression,293.0,296.0,0.9898648648648649,0.9728790499250548,1.003760470568055,no meaningful reduction
+baysal,0.5,high,compression,249.0,250.0,0.996,0.9752465019229195,1.0127132167327804,no meaningful reduction
+baysal,0.5,standard,compression,365.0,385.0,0.948051948051948,0.9173777777777778,0.9726816433920259,no meaningful reduction
+baysal,0.75,default,compression,448.0,451.0,0.9933481152993349,0.9818530021548909,1.002409638554217,no meaningful reduction
+baysal,0.75,high,compression,366.0,367.0,0.997275204359673,0.9813817375886525,1.0134426765475153,no meaningful reduction
+baysal,0.75,standard,compression,558.0,584.0,0.9554794520547946,0.9225060612519483,0.9821145470383275,no meaningful reduction
+baysal,1.0,default,compression,614.0,618.0,0.9935275080906149,0.9846415726920517,1.0015823411703344,no meaningful reduction
+baysal,1.0,high,compression,477.0,482.0,0.9896265560165975,0.9754588655335412,1.0039922155688623,no meaningful reduction
+baysal,1.0,standard,compression,741.0,775.0,0.9561290322580646,0.9199424622881619,0.9847019938359877,no meaningful reduction
+iforest_causal,0.0,default,compression,0.0,0.0,,,,not estimable
+iforest_causal,0.0,high,compression,0.0,0.0,,,,not estimable
+iforest_causal,0.0,standard,compression,0.0,0.0,,,,not estimable
+iforest_causal,0.1,default,compression,85.0,84.0,1.0119047619047619,1.0,1.04,no meaningful reduction
+iforest_causal,0.1,high,compression,73.0,73.0,1.0,1.0,1.0,no meaningful reduction
+iforest_causal,0.1,standard,compression,94.0,95.0,0.9894736842105263,0.9405940594059405,1.0285714285714285,no meaningful reduction
+iforest_causal,0.25,default,compression,170.0,169.0,1.0059171597633136,1.0,1.0193579807289483,no meaningful reduction
+iforest_causal,0.25,high,compression,161.0,163.0,0.9877300613496932,0.9720670391061452,1.0,no meaningful reduction
+iforest_causal,0.25,standard,compression,233.0,233.0,1.0,0.9759011853867081,1.0228310502283104,no meaningful reduction
+iforest_causal,0.5,default,compression,350.0,352.0,0.9943181818181818,0.9839563595096034,1.0030979409307583,no meaningful reduction
+iforest_causal,0.5,high,compression,345.0,344.0,1.002906976744186,0.991304347826087,1.01628664495114,no meaningful reduction
+iforest_causal,0.5,standard,compression,467.0,466.0,1.002145922746781,0.9819277108433735,1.0205486498675236,no meaningful reduction
+iforest_causal,0.75,default,compression,532.0,535.0,0.994392523364486,0.9837390094878545,1.0019802962439102,no meaningful reduction
+iforest_causal,0.75,high,compression,506.0,506.0,1.0,0.990874656800375,1.0101636386261823,no meaningful reduction
+iforest_causal,0.75,standard,compression,709.0,704.0,1.0071022727272727,0.9904089722243246,1.0260739530541478,no meaningful reduction
+iforest_causal,1.0,default,compression,730.0,733.0,0.9959072305593452,0.9882032920604263,1.0014124793229928,no meaningful reduction
+iforest_causal,1.0,high,compression,664.0,665.0,0.9984962406015038,0.9911367142622682,1.0063696807159763,no meaningful reduction
+iforest_causal,1.0,standard,compression,945.0,932.0,1.0139484978540771,0.9980313015467929,1.0314892267122244,no meaningful reduction
+matched_filter_causal,0.0,default,compression,0.0,0.0,,,,not estimable
+matched_filter_causal,0.0,high,compression,0.0,0.0,,,,not estimable
+matched_filter_causal,0.0,standard,compression,0.0,0.0,,,,not estimable
+matched_filter_causal,0.1,default,compression,80.0,82.0,0.975609756097561,0.9230769230769231,1.0,no meaningful reduction
+matched_filter_causal,0.1,high,compression,51.0,51.0,1.0,1.0,1.0,no meaningful reduction
+matched_filter_causal,0.1,standard,compression,95.0,103.0,0.9223300970873787,0.842080668962125,0.9811320754716981,no meaningful reduction
+matched_filter_causal,0.25,default,compression,160.0,162.0,0.9876543209876543,0.9602649006622517,1.0,no meaningful reduction
+matched_filter_causal,0.25,high,compression,123.0,124.0,0.9919354838709677,0.9724706931702345,1.0,no meaningful reduction
+matched_filter_causal,0.25,standard,compression,229.0,246.0,0.9308943089430894,0.8809418457648546,0.9722379336349923,no meaningful reduction
+matched_filter_causal,0.5,default,compression,329.0,333.0,0.987987987987988,0.9678360613329571,1.0031257393533124,no meaningful reduction
+matched_filter_causal,0.5,high,compression,281.0,281.0,1.0,0.9863469540417972,1.0141856591201635,no meaningful reduction
+matched_filter_causal,0.5,standard,compression,457.0,489.0,0.934560327198364,0.9050484324890373,0.9627332237242724,no meaningful reduction
+matched_filter_causal,0.75,default,compression,503.0,509.0,0.9882121807465619,0.9743018902905651,1.0,no meaningful reduction
+matched_filter_causal,0.75,high,compression,414.0,414.0,1.0,0.9905437352245863,1.0096858177202097,no meaningful reduction
+matched_filter_causal,0.75,standard,compression,701.0,761.0,0.9211563731931669,0.8882907133243607,0.954609358852834,no meaningful reduction
+matched_filter_causal,1.0,default,compression,691.0,698.0,0.9899713467048711,0.9784942379784329,1.0,no meaningful reduction
+matched_filter_causal,1.0,high,compression,539.0,541.0,0.9963031423290203,0.9886792452830189,1.0039457554397793,no meaningful reduction
+matched_filter_causal,1.0,standard,compression,930.0,1017.0,0.9144542772861357,0.8790550713485119,0.9488418198611278,no meaningful reduction
+threshold,0.0,default,compression,0.0,0.0,,,,not estimable
+threshold,0.0,high,compression,0.0,0.0,,,,not estimable
+threshold,0.0,standard,compression,0.0,0.0,,,,not estimable
+threshold,0.1,default,compression,68.0,68.0,1.0,1.0,1.0,no meaningful reduction
+threshold,0.1,high,compression,42.0,40.0,1.05,0.9285714285714286,1.2045454545454546,no meaningful reduction
+threshold,0.1,standard,compression,89.0,85.0,1.0470588235294118,1.0,1.118421052631579,no meaningful reduction
+threshold,0.25,default,compression,133.0,131.0,1.015267175572519,1.0,1.0404101995565411,no meaningful reduction
+threshold,0.25,high,compression,96.0,94.0,1.0212765957446808,0.9666666666666667,1.0804831595829991,no meaningful reduction
+threshold,0.25,standard,compression,224.0,214.0,1.0467289719626167,1.0081958849113415,1.1,no meaningful reduction
+threshold,0.5,default,compression,290.0,291.0,0.9965635738831615,0.9770979852333875,1.0133798011308246,no meaningful reduction
+threshold,0.5,high,compression,221.0,212.0,1.0424528301886793,1.0,1.0977030651340995,no meaningful reduction
+threshold,0.5,standard,compression,421.0,410.0,1.026829268292683,0.9894449320245069,1.0745520469631278,no meaningful reduction
+threshold,0.75,default,compression,424.0,429.0,0.9883449883449883,0.9723615195794642,1.002587130522468,no meaningful reduction
+threshold,0.75,high,compression,312.0,301.0,1.0365448504983388,1.0,1.0852947072975139,no meaningful reduction
+threshold,0.75,standard,compression,653.0,635.0,1.0283464566929135,0.9927354208888761,1.0742100774050394,no meaningful reduction
+threshold,1.0,default,compression,567.0,576.0,0.984375,0.9674467067742385,1.0017580164989461,no meaningful reduction
+threshold,1.0,high,compression,407.0,395.0,1.030379746835443,0.9953914390012878,1.0756909152914114,no meaningful reduction
+threshold,1.0,standard,compression,883.0,850.0,1.0388235294117647,1.0,1.0876455686630369,no meaningful reduction
+trend,0.0,default,compression,0.0,0.0,,,,not estimable
+trend,0.0,high,compression,0.0,0.0,,,,not estimable
+trend,0.0,standard,compression,0.0,0.0,,,,not estimable
+trend,0.1,default,compression,60.0,66.0,0.9090909090909091,0.8289379699248121,0.972972972972973,no meaningful reduction
+trend,0.1,high,compression,47.0,47.0,1.0,0.9375,1.0625,no meaningful reduction
+trend,0.1,standard,compression,84.0,91.0,0.9230769230769231,0.8374927325581396,0.9891333567087424,no meaningful reduction
+trend,0.25,default,compression,121.0,134.0,0.9029850746268657,0.8278145695364238,0.9689922480620154,no meaningful reduction
+trend,0.25,high,compression,111.0,111.0,1.0,0.9734332260659694,1.025,no meaningful reduction
+trend,0.25,standard,compression,211.0,227.0,0.9295154185022027,0.8769807060755337,0.9743697478991595,no meaningful reduction
+trend,0.5,default,compression,268.0,291.0,0.9209621993127147,0.8631553804894402,0.9660393348257116,no meaningful reduction
+trend,0.5,high,compression,251.0,249.0,1.0080321285140563,0.9861735151049666,1.0313756368689209,no meaningful reduction
+trend,0.5,standard,compression,406.0,437.0,0.9290617848970252,0.8886197740352065,0.9634408602150538,no meaningful reduction
+trend,0.75,default,compression,400.0,433.0,0.9237875288683602,0.8807888859593342,0.9591381504524887,no meaningful reduction
+trend,0.75,high,compression,365.0,366.0,0.9972677595628415,0.9789108561907203,1.0143287119229085,no meaningful reduction
+trend,0.75,standard,compression,633.0,670.0,0.9447761194029851,0.9075484664351853,0.976117331656135,no meaningful reduction
+trend,1.0,default,compression,553.0,591.0,0.9357021996615905,0.9049422125541569,0.9637693077803203,no meaningful reduction
+trend,1.0,high,compression,485.0,488.0,0.9938524590163934,0.9785554067817946,1.0083533789121981,no meaningful reduction
+trend,1.0,standard,compression,861.0,912.0,0.944078947368421,0.9044726660974662,0.9771950667059277,no meaningful reduction
+gbm,0.0,default,compression,0.0,0.0,,,,not estimable
+gbm,0.0,high,compression,0.0,0.0,,,,not estimable
+gbm,0.0,standard,compression,0.0,0.0,,,,not estimable
+gbm,0.1,default,compression,52.0,53.0,0.9811320754716981,0.8813559322033898,1.0952380952380953,no meaningful reduction
+gbm,0.1,high,compression,30.0,28.0,1.0714285714285714,0.7998529411764709,1.375,no meaningful reduction
+gbm,0.1,standard,compression,30.0,41.0,0.7317073170731707,0.5226799242424243,0.9500304878048779,meaningful reduction
+gbm,0.25,default,compression,92.0,98.0,0.9387755102040817,0.8541666666666666,1.0204187925170067,no meaningful reduction
+gbm,0.25,high,compression,68.0,68.0,1.0,0.8571428571428571,1.1551993534482756,no meaningful reduction
+gbm,0.25,standard,compression,81.0,104.0,0.7788461538461539,0.6568627450980392,0.9080512496045555,inconclusive
+gbm,0.5,default,compression,203.0,209.0,0.9712918660287081,0.909512987012987,1.0305744185599137,no meaningful reduction
+gbm,0.5,high,compression,148.0,152.0,0.9736842105263158,0.8874148866710195,1.0649421230942968,no meaningful reduction
+gbm,0.5,standard,compression,174.0,206.0,0.8446601941747572,0.75,0.9518729432332373,inconclusive
+gbm,0.75,default,compression,304.0,315.0,0.9650793650793651,0.9158507754381541,1.0102049522880823,no meaningful reduction
+gbm,0.75,high,compression,212.0,215.0,0.986046511627907,0.9114566851265823,1.0673158212560385,no meaningful reduction
+gbm,0.75,standard,compression,253.0,310.0,0.8161290322580645,0.732637934981685,0.894912086654716,inconclusive
+gbm,1.0,default,compression,410.0,427.0,0.9601873536299765,0.916839753816973,1.0024885044474596,no meaningful reduction
+gbm,1.0,high,compression,280.0,291.0,0.9621993127147767,0.8821246567384875,1.0484471116878125,no meaningful reduction
+gbm,1.0,standard,compression,344.0,421.0,0.8171021377672208,0.7409892186375238,0.8891690744600227,inconclusive

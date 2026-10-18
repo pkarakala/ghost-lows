@@ -1,0 +1,18 @@
+{
+  "realistic_pisa": {
+    "target_per_hour": 0.013375654186261292,
+    "rate_at_full": 0.015476190476190477,
+    "fraction": 0.8642730397276527,
+    "reachable": true
+  },
+  "train_level": 0.8642730397276527,
+  "leak_auc": {
+    "default": {
+      "iob": 0.6539994610048744,
+      "cob": 0.5825628176686247
+    }
+  },
+  "seconds": 403.4,
+  "patients": 30,
+  "runs": 150
+}

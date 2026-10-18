@@ -46,7 +46,7 @@ See [`docs/RESEARCH.md`](docs/RESEARCH.md). In short:
 
 ## Quickstart
 
-Status: work in progress (phases 0, 1, 3, 4, 5 and 8 of [`docs/ROADMAP.md`](docs/ROADMAP.md) done; benchmark results not yet produced). Requires [uv](https://docs.astral.sh/uv/); Python 3.11 is installed automatically.
+Status: phases 0–9 of [`docs/ROADMAP.md`](docs/ROADMAP.md) are done, and the results are in [`results/README.md`](results/README.md). The release (phase 10) is in progress. Requires [uv](https://docs.astral.sh/uv/); Python 3.11 is installed automatically.
 
 ```
 uv sync                                                    # install everything, simulator included

@@ -1,0 +1,4 @@
+mix,contrast,median_slope_diff,lo,hi,supported,age_group
+default,trend - threshold,0.14285714285714282,0.057142857142856995,0.18571428571428572,True,adolescent
+default,trend - threshold,0.08571428571428585,0.04285714285714348,0.17142857142857051,True,adult
+default,trend - threshold,0.1285714285714285,0.05714285714285741,0.1714285714285712,True,child

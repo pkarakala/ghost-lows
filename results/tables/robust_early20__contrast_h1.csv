@@ -1,0 +1,2 @@
+mix,contrast,median_slope_diff,lo,hi,supported
+default,trend - threshold,0.08571428571428541,0.05714285714285772,0.11428571428571432,True

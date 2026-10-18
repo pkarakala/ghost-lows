@@ -1,0 +1,9 @@
+detector,level,mix,cause,count_context,count_base,rate_ratio,lo,hi,reading
+baysal,0.0,default,compression,0.0,0.0,,,,not estimable
+baysal,0.5,default,compression,286.0,288.0,0.9930555555555556,0.9794485120453472,1.0,no meaningful reduction
+matched_filter_causal,0.0,default,compression,0.0,0.0,,,,not estimable
+matched_filter_causal,0.5,default,compression,319.0,323.0,0.9876160990712074,0.9671592488010399,1.00320538585209,no meaningful reduction
+trend,0.0,default,compression,0.0,0.0,,,,not estimable
+trend,0.5,default,compression,261.0,261.0,1.0,0.9782588932806324,1.0204102542656406,no meaningful reduction
+gbm,0.0,default,compression,0.0,0.0,,,,not estimable
+gbm,0.5,default,compression,196.0,202.0,0.9702970297029703,0.906096444135666,1.0335352227823955,no meaningful reduction
