@@ -249,9 +249,10 @@ def rq3_contrasts(
 def warning_times(metrics: pd.DataFrame, n_boot: int = 2000, seed: int = 0) -> pd.DataFrame:
     """Minutes of warning before caught lows, always with the miss rate (BENCHMARK.md §4).
 
-    Per alarm x fault level x mix and low level: the median over patient-runs of each run's
-    median warning (onset minus first alarm, caught events only), with a patient-bootstrap CI,
-    next to the pooled miss rate. Run-level medians, because event-level warnings are not kept.
+    Per alarm x fault level x mix and low level: each patient is reduced to one value, the median
+    over its runs of each run's median warning (onset minus first alarm, caught events only); the
+    estimate is the median over patients, with a patient-bootstrap CI (D14; amendment A10), next
+    to the pooled miss rate. Run-level medians, because event-level warnings are not kept.
     """
     rows = []
     for low in (1, 2):
@@ -262,11 +263,12 @@ def warning_times(metrics: pd.DataFrame, n_boot: int = 2000, seed: int = 0) -> p
             runs = g.dropna(subset=[col])
             if runs.empty:
                 continue
+            patients = runs.groupby("patient_id")[col].median().reset_index()
 
             def median(df, col=col):
                 return float(df[col].median()) if len(df) else float("nan")
 
-            est, lo, hi = bootstrap_ci(runs, median, n_boot=n_boot, seed=seed)
+            est, lo, hi = bootstrap_ci(patients, median, n_boot=n_boot, seed=seed)
             n_events = g[events].sum()
             rows.append(
                 {
@@ -281,6 +283,7 @@ def warning_times(metrics: pd.DataFrame, n_boot: int = 2000, seed: int = 0) -> p
                     if n_events
                     else float("nan"),
                     "runs": len(runs),
+                    "patients": len(patients),
                 }
             )
     return pd.DataFrame(rows)

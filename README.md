@@ -36,7 +36,7 @@ Simulated cohort: 30 virtual patients (UVA/Padova 2008 via simglucose), 14 days,
 - **The cohort is small and smooth.** It has 30 virtual patients and one smooth sensor-noise model. Results describe this cohort, not people with diabetes.
 - **No real compression is labelled.** The real-data tracks inject artifacts into real CGM. Their lows caught is near-circular, because the reference lows come from the same CGM; only the injected-compression false alarms are informative.
 - **Some inputs are unverified.** The PISA model's time constant and the realistic PISA frequency come from abstracts (Facchinetti 2016, Lobo 2026). Clinical review of thresholds and wording is in progress.
-- **Some checks are still missing.** Thresholds are chosen on in-sample training scores, and warning-time CIs resample runs rather than patients ([`docs/development/REVIEW.md`](docs/development/REVIEW.md); fixes proposed in DECISIONS.md).
+- **Some checks are still missing.** Thresholds are chosen on in-sample training scores ([`docs/development/REVIEW.md`](docs/development/REVIEW.md) M5; a fix is proposed in DECISIONS.md, P6).
 
 The full list is in [`docs/RESEARCH.md`](docs/RESEARCH.md) §6.
 

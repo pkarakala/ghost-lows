@@ -41,7 +41,7 @@ def table(path: Path):
 
 
 def warning_cell(w: pd.DataFrame | None, alarm: str, level: float, mix: str) -> str:
-    """Median warning before caught level 2 lows (run-level, with CI) and the miss rate."""
+    """Median warning before caught level 2 lows (patient-level, with CI) and the miss rate."""
     if w is None:
         return "–"
     r = w[
@@ -100,7 +100,7 @@ def section_rq1(summary: pd.DataFrame, mix: str = "default") -> list[str]:
     if w is not None:
         lines += [
             "",
-            "Warning time is the median over patient-runs of each run's median warning (onset minus first alarm, caught lows only), always shown with the miss rate (BENCHMARK.md §4). Its CIs resample patient-runs rather than patients, so they are too narrow (docs/development/REVIEW.md B2; a fix is proposed in DECISIONS.md). Simulated warning times are pessimistic, because the model's sensor lag is longer than measured in people (RESEARCH.md §6).",
+            "Warning time is the median over patients of each patient's median run-level warning (onset minus first alarm, caught lows only), with a patient-bootstrap CI, always shown with the miss rate (BENCHMARK.md §4). Amendment A10 (post hoc) moved the bootstrap from patient-runs to patients; the v0.1.0 values are kept next to the new ones in `tables/amendments/A10__warning_old_vs_new.csv`. Simulated warning times are pessimistic, because the model's sensor lag is longer than measured in people (RESEARCH.md §6).",
         ]
     return lines
 

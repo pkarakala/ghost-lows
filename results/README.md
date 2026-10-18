@@ -44,16 +44,16 @@ At the highest level (100% of nights), by cause and with lows caught:
 
 | Alarm | Compression | Other fault | Near event | Noise | Level 1 caught | Level 2 caught | Warning before caught level 2 lows, min (95% CI); miss rate |
 |---|---|---|---|---|---|---|---|
-| `floor_only` | 0.09 (0.07–0.11) | 0.05 (0.04–0.06) | 0.02 (0.01–0.03) | 0.04 (0.03–0.05) | 5% (4%–7%) | 36% (28%–43%) | -9 (-11 to -7); missed 64% |
-| `threshold` | 0.25 (0.21–0.29) | 0.37 (0.29–0.46) | 0.17 (0.14–0.19) | 0.57 (0.47–0.67) | 44% (40%–49%) | 86% (81%–91%) | 3 (0 to 4); missed 14% |
-| `trend` | 0.32 (0.30–0.35) | 0.43 (0.36–0.50) | 0.10 (0.08–0.12) | 0.68 (0.56–0.79) | 57% (54%–61%) | 90% (86%–93%) | 8 (4 to 10); missed 10% |
-| `baysal_gate` | 0.32 (0.30–0.35) | 0.43 (0.36–0.50) | 0.10 (0.08–0.12) | 0.68 (0.56–0.79) | 57% (54%–61%) | 90% (86%–93%) | 8 (4 to 10); missed 10% |
-| `matched_filter_causal_gate` | 0.32 (0.30–0.35) | 0.43 (0.36–0.50) | 0.10 (0.08–0.12) | 0.68 (0.56–0.79) | 57% (53%–61%) | 90% (86%–93%) | 6 (3 to 9); missed 10% |
-| `iforest_causal_gate` | 0.32 (0.30–0.35) | 0.43 (0.36–0.50) | 0.10 (0.08–0.12) | 0.68 (0.56–0.79) | 57% (54%–61%) | 90% (86%–93%) | 8 (4 to 10); missed 10% |
+| `floor_only` | 0.09 (0.07–0.11) | 0.05 (0.04–0.06) | 0.02 (0.01–0.03) | 0.04 (0.03–0.05) | 5% (4%–7%) | 36% (28%–43%) | -9 (-10 to -6); missed 64% |
+| `threshold` | 0.25 (0.21–0.29) | 0.37 (0.29–0.46) | 0.17 (0.14–0.19) | 0.57 (0.47–0.67) | 44% (40%–49%) | 86% (81%–91%) | 3 (1 to 5); missed 14% |
+| `trend` | 0.32 (0.30–0.35) | 0.43 (0.36–0.50) | 0.10 (0.08–0.12) | 0.68 (0.56–0.79) | 57% (54%–61%) | 90% (86%–93%) | 7 (2 to 11); missed 10% |
+| `baysal_gate` | 0.32 (0.30–0.35) | 0.43 (0.36–0.50) | 0.10 (0.08–0.12) | 0.68 (0.56–0.79) | 57% (54%–61%) | 90% (86%–93%) | 7 (2 to 11); missed 10% |
+| `matched_filter_causal_gate` | 0.32 (0.30–0.35) | 0.43 (0.36–0.50) | 0.10 (0.08–0.12) | 0.68 (0.56–0.79) | 57% (53%–61%) | 90% (86%–93%) | 6 (2 to 9); missed 10% |
+| `iforest_causal_gate` | 0.32 (0.30–0.35) | 0.43 (0.36–0.50) | 0.10 (0.08–0.12) | 0.68 (0.56–0.79) | 57% (54%–61%) | 90% (86%–93%) | 7 (2 to 11); missed 10% |
 
 Even with a PISA on 100% of nights, compression causes 0.32 (0.30–0.35) of `trend`'s 1.53 (1.33–1.73) false alarms per day (21%); noise with no fault or low nearby (0.68) and the other faults (0.43) cause more. In this simulator, compression is a minor share of false low alarms.
 
-Warning time is the median over patient-runs of each run's median warning (onset minus first alarm, caught lows only), always shown with the miss rate (BENCHMARK.md §4). Its CIs resample patient-runs rather than patients, so they are too narrow (docs/development/REVIEW.md B2; a fix is proposed in DECISIONS.md). Simulated warning times are pessimistic, because the model's sensor lag is longer than measured in people (RESEARCH.md §6).
+Warning time is the median over patients of each patient's median run-level warning (onset minus first alarm, caught lows only), with a patient-bootstrap CI, always shown with the miss rate (BENCHMARK.md §4). Amendment A10 (post hoc) moved the bootstrap from patient-runs to patients; the v0.1.0 values are kept next to the new ones in `tables/amendments/A10__warning_old_vs_new.csv`. Simulated warning times are pessimistic, because the model's sensor lag is longer than measured in people (RESEARCH.md §6).
 
 ### H1: do trend alarms degrade faster than threshold alarms?
 
@@ -72,8 +72,8 @@ Severity of all faults (PISA fraction, dropout, stale readings, drift, spikes) s
 | Alarm | severity 0 | severity 0.25 | severity 0.5 | severity 0.75 | severity 1 | Level 2 caught at 1 | Warning at 1, min; miss rate |
 |---|---|---|---|---|---|---|---|
 | `floor_only` | 0.10 (0.08–0.12) | 0.11 (0.09–0.14) | 0.15 (0.13–0.18) | 0.21 (0.18–0.25) | 0.33 (0.27–0.38) | 35% (29%–42%) | -8; missed 65% |
-| `threshold` | 1.12 (0.95–1.28) | 1.17 (1.00–1.34) | 1.26 (1.07–1.46) | 1.43 (1.20–1.65) | 1.69 (1.41–1.97) | 83% (78%–88%) | 3; missed 17% |
-| `trend` | 1.17 (1.00–1.34) | 1.24 (1.06–1.42) | 1.39 (1.20–1.58) | 1.67 (1.45–1.89) | 2.09 (1.82–2.36) | 89% (85%–93%) | 8; missed 11% |
+| `threshold` | 1.12 (0.95–1.28) | 1.17 (1.00–1.34) | 1.26 (1.07–1.46) | 1.43 (1.20–1.65) | 1.69 (1.41–1.97) | 83% (78%–88%) | 4; missed 17% |
+| `trend` | 1.17 (1.00–1.34) | 1.24 (1.06–1.42) | 1.39 (1.20–1.58) | 1.67 (1.45–1.89) | 2.09 (1.82–2.36) | 89% (85%–93%) | 9; missed 11% |
 | `gbm_time` | 1.20 (1.03–1.37) | 1.23 (1.05–1.41) | 1.32 (1.13–1.53) | 1.46 (1.25–1.69) | 1.73 (1.48–2.00) | 88% (83%–92%) | 8; missed 12% |
 | `gbm_time_ctx` | 1.19 (1.01–1.37) | 1.24 (1.05–1.43) | 1.32 (1.12–1.53) | 1.48 (1.26–1.72) | 1.72 (1.47–2.00) | 86% (81%–91%) | 9; missed 14% |
 

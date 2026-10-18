@@ -130,3 +130,55 @@ def test_warning_times_come_with_the_miss_rate():
     assert r["warning_median_min"] == pytest.approx(10.5)
     assert r["lo"] <= r["warning_median_min"] <= r["hi"]
     assert r["miss_rate"] == pytest.approx(0.25)
+
+
+def warning_rows(runs_per_patient: int) -> pd.DataFrame:
+    rows = []
+    for i in range(12):
+        group = ("adult", "child")[i % 2]
+        for seed in range(runs_per_patient):
+            rows.append(
+                {
+                    "alarm_name": "trend",
+                    "level": 1.0,
+                    "mix": "default",
+                    "patient_id": f"sim:{group}#{i + 1:03d}",
+                    "seed": seed,
+                    "warning_median_min_l2": 5.0 + 3 * i,
+                    "caught_l2": 1,
+                    "events_l2": 2,
+                }
+            )
+    return pd.DataFrame(rows)
+
+
+def test_warning_time_bootstrap_unit_is_the_patient():
+    """Hard rule 5 (amendment A10): giving every patient five identical runs instead of one adds
+    no information, so the estimate and CI must not change. A run-level bootstrap would narrow
+    the CI."""
+    from ghostlows.bench.analysis import warning_times
+
+    one, five = (warning_times(warning_rows(k), n_boot=400) for k in (1, 5))
+    cols = ["warning_median_min", "lo", "hi", "miss_rate", "patients"]
+    pd.testing.assert_frame_equal(one[cols], five[cols])
+    assert five["patients"].iloc[0] == 12 and five["runs"].iloc[0] == 60
+
+
+def test_warning_h1_and_h2_bootstraps_resample_patients(monkeypatch):
+    """Each call of the patient bootstrap gets one row per patient (hard rule 5)."""
+    from ghostlows.bench import analysis
+
+    real = analysis.bootstrap_ci
+    seen = []
+
+    def checked(per_patient, *args, **kwargs):
+        assert per_patient["patient_id"].is_unique, "bootstrap rows must be patients"
+        seen.append(len(per_patient))
+        return real(per_patient, *args, **kwargs)
+
+    monkeypatch.setattr(analysis, "bootstrap_ci", checked)
+    m = metrics_rows()
+    analysis.warning_times(warning_rows(5), n_boot=20)
+    analysis.context_contrasts(m, n_boot=20)
+    analysis.h1_contrast(m, n_boot=20)
+    assert len(seen) >= 3
