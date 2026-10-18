@@ -1,0 +1,9 @@
+# Benchmark smoke test: the sim_smoke cohort (2 patients x 2 days), two PISA levels, a handful
+# of alarms, leave-one-patient-out folds and a small bootstrap. Checks the pipeline end to end.
+name: smoke
+simulation: experiments/configs/sim_smoke.yaml
+pisa_fractions: [0.0, 1.0]
+severity: 0.5
+alarms: [floor_only, threshold, trend, baysal_gate, trend_combined, trend_combined_ctx, gbm]
+n_folds: 2
+n_boot: 50

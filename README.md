@@ -40,7 +40,27 @@ See [`docs/RESEARCH.md`](docs/RESEARCH.md). In short:
 - **RQ2.** At a fixed sensitivity on level 2 lows, how many compression false alarms does adding insulin and carb context remove, and how much of the effect is on compression versus other noise?
 - **RQ3.** Does a filter with an explicit "compressed" state beat the best discriminative model, and does either hold up on real data?
 
-## Repository layout (planned)
+## Quickstart
+
+Status: work in progress (phases 0–5 of [`docs/ROADMAP.md`](docs/ROADMAP.md) built; results not yet produced). Requires [uv](https://docs.astral.sh/uv/); Python 3.11 is installed automatically.
+
+```
+uv sync                                                    # install everything, simulator included
+uv run pytest -q                                           # tests
+uv run ghostlows benchmark --config experiments/configs/smoke.yaml   # end to end in a few minutes
+```
+
+**Score your own alarm.** Subclass `ghostlows.alarms.BaseAlarm`, return one score per sample from `_score_run` using only past CGM values, and run it through the same faults, cross-validation and scoring as the built-in alarms. [`examples/custom_alarm.py`](examples/custom_alarm.py) is a 20-line example, tested in CI:
+
+```
+uv run ghostlows score --alarm examples/custom_alarm.py:FallingBelow70 --config experiments/configs/smoke.yaml
+```
+
+**Data.** `uv run python scripts/download_data.py` fetches the public GlucoBench files (pinned and checksummed) into `data/` (never committed). See [`docs/DATA.md`](docs/DATA.md) for licences and the larger opt-in datasets.
+
+**Cite.** See [`CITATION.cff`](CITATION.cff); results should name the benchmark version (`ghostlows-bench v1`). Plans for papers and dataset releases: [`docs/PUBLICATION.md`](docs/PUBLICATION.md).
+
+## Repository layout
 
 ```
 src/ghostlows/
@@ -70,6 +90,9 @@ prompts/     step-by-step prompts for building this with Claude Code
 | [`docs/PRIVACY_AND_SAFETY.md`](docs/PRIVACY_AND_SAFETY.md) | Rules for the upload tool |
 | [`docs/CITATIONS.md`](docs/CITATIONS.md) and [`docs/references.bib`](docs/references.bib) | Every source, with links and verification status |
 | [`docs/CLINICAL_REVIEW.md`](docs/CLINICAL_REVIEW.md) | Claims the clinical co-lead must verify |
+| [`docs/SPEC_REVIEW.md`](docs/SPEC_REVIEW.md) and [`docs/DECISIONS.md`](docs/DECISIONS.md) | The critical review of the specs and the design decisions taken on it, with evidence |
+| [`docs/SIMULATION_NOTES.md`](docs/SIMULATION_NOTES.md) | What the simulator really does, and what the simulated cohort looks like |
+| [`docs/PUBLICATION.md`](docs/PUBLICATION.md) | Venues, citation, dataset release and usability plan |
 | [`prompts/00_START_HERE.md`](prompts/00_START_HERE.md) | **The implementation prompt** to paste into Claude Code, plus one prompt per phase |
 
 ## Team

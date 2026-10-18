@@ -17,6 +17,9 @@ dependencies = [
     "pandas>=2.1",
 ]
 
+[project.scripts]
+ghostlows = "ghostlows.cli:main"
+
 [project.optional-dependencies]
 bench = [
     "scipy>=1.11",
