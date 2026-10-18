@@ -1,0 +1,5 @@
+Index,Timestamp (YYYY-MM-DDThh:mm:ss),Event Type,Event Subtype,Patient Info,Device Info,Source Device ID,Glucose Value (mmol/L),Insulin Value (u),Carb Value (grams),Duration (hh:mm:ss),Glucose Rate of Change (mmol/L/min),Transmitter Time (Long Integer),Transmitter ID
+1,2026-01-13T00:00:00,EGV,,,,,5.5,,,,,,
+2,2026-01-13T00:05:00,EGV,,,,,3.9,,,,,,
+3,2026-01-13T00:10:00,EGV,,,,,Low,,,,,,
+4,2026-01-13T00:15:00,EGV,,,,,10.0,,,,,,

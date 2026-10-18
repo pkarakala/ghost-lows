@@ -7,7 +7,7 @@ No data is committed to this repository. Everything goes under `data/` (gitignor
 | Dataset | Population / device | Size | Access and licence | Use here | Get it |
 |---|---|---|---|---|---|
 | **Weinstock 2016** (via GlucoBench) | T1D older adults, Dexcom G4; recruited for a severe-hypoglycaemia study, so lows are over-represented (7.5% of readings <70, 3.8% <54) | 200 people; records span a median of 13.9 days (IQR 13.6–15.1) | CC BY-SA 4.0 (per GlucoBench) | Real overnight traces; semi-synthetic PISA injection; alarm counts on real data | `raw_data.zip` in [GlucoBench](https://github.com/IrinaStatsLab/GlucoBench) → `weinstock.csv`; original at [Jaeb](https://public.jaeb.org/dataset/537) |
-| **Dubosson 2018 / D1NAMO** (via GlucoBench) | T1D, with fast/slow insulin, food, heart rate. Food is recorded as **calories, not carbohydrate grams**, so COB needs an assumption | 9 people, ~3.7 days each | CC BY-SA 4.0 | Small real check of context features | GlucoBench `dubosson.csv` |
+| **Dubosson 2018 / D1NAMO** (via GlucoBench) | T1D, with fast/slow insulin, food, heart rate. Food is recorded as **calories, not carbohydrate grams**. In GlucoBench's file the insulin and calorie columns are **linearly interpolated between events** (e.g. 6.0, 5.83, 5.66 U), so each value depends on the next dose: not causal, unusable as alarm context. The loader drops them | 9 people, ~3.7 days each | CC BY-SA 4.0 | Glucose only from GlucoBench; a real context check needs the original D1NAMO event files | GlucoBench `dubosson.csv`; original at [Zenodo](https://doi.org/10.5281/zenodo.1421615) |
 | **Hall 2018**, **Colás 2019**, **Broll 2021** (via GlucoBench) | Mixed / non-T1D | 57 / 208 / 5 | CC BY 4.0 / CC BY 4.0 / GPL-2 | Parser and metrics tests; few lows | GlucoBench `hall.csv`, `colas.csv`, `iglu.csv` |
 | **DiaData** | T1D, 13 merged studies (REPLACE-BG, DCLP3, PEDAP, …). **Includes Weinstock 2016 (Jaeb 537) and D1NAMO**: deduplicate before combining with the GlucoBench sets | 1,720 people; 51 with heart rate | CC BY-NC 4.0 | Large real overnight corpus. Use the **raw** release: the preprocessed one interpolates gaps up to 120 min and removes IQR outliers, which erases dropouts and can remove real lows | [Zenodo 17285631](https://zenodo.org/records/17285631) (v3) |
 | **AZT1D** | T1D, Dexcom G6 + Control-IQ, insulin, carbs, pump sleep-mode flag | see paper | CC BY 4.0 | **Real-data context ablation** | [arXiv 2506.14789](https://arxiv.org/abs/2506.14789); data on [Mendeley](https://data.mendeley.com/datasets/gk9m674wcx/1) |
@@ -42,20 +42,24 @@ All loaders return one long table:
 
 | Column | Type | Notes |
 |---|---|---|
-| `patient_id` | str | prefixed by dataset, e.g. `weinstock:199` |
+| `patient_id` | str | prefixed by dataset, e.g. `weinstock:199`; uploads are `clarity:upload` / `libreview:upload` |
 | `time` | datetime64 (naive local time) | |
-| `glucose` | float, mg/dL | NaN for gaps; `Low`/`High` strings become the device limits with a flag |
-| `glucose_flag` | category | `ok`, `below_range`, `above_range` |
-| `source` | str | dataset or device name |
-| `insulin_bolus`, `insulin_basal`, `carbs` | float, optional | NaN when not available |
+| `glucose` | float, mg/dL | NaN on rows without a reading; `Low`/`High` strings and dataset sentinels become the device limits with a flag |
+| `glucose_flag` | category | `ok`, `below_range`, `above_range`, or `missing` (exactly when `glucose` is NaN) |
+| `source` | str | dataset or device name, e.g. `glucobench:weinstock`, `dexcom_clarity`, `libreview` |
+| `insulin_bolus`, `insulin_basal`, `carbs` | float, optional | units of insulin, grams of carbohydrate; NaN when not recorded |
 | `truth_glucose`, `fault_type`, `fault_id` | simulation only | |
+
+Rows are either **readings** (`glucose` set) or **events** (`glucose` NaN, `glucose_flag = missing`, and one of the insulin/carb columns set, at the event's own time). Events are not snapped to the reading grid, so context features can use exact dose times; metrics use reading rows only (`ghostlows.io.validate` checks the schema).
+
+**Censored values.** Readings outside the sensor's range are stored at the device limits, 40 and 400 mg/dL **[assumption, configurable]**, flagged `below_range` / `above_range`, so they count in TBR <54 and TAR >250. GlucoBench files encode them as sentinels, detected from pile-ups at the extremes: weinstock 39/401 (stored as 40/400), dubosson 39.6/399.6 (2.2/22.2 mmol/L), colas 40 **[assumption]**.
 
 ## 4. User exports (upload tool)
 
-**Dexcom Clarity CSV.** 14 columns: Index, Timestamp (YYYY-MM-DDThh:mm:ss), Event Type, Event Subtype, Patient Info, Device Info, Source Device ID, Glucose Value (mg/dL), Insulin Value (u), Carb Value (grams), Duration (hh:mm:ss), Glucose Rate of Change (mg/dL/min), Transmitter Time (Long Integer), Transmitter ID. Metadata rows sit above the readings; alert rows are mixed in; 5-minute readings; up to 90 days per export [UMich CGM exports]. Keep only `Event Type == "EGV"` for glucose. Values below/above range appear as `Low`/`High` text (confirm on a real G7 file). Timestamps have no timezone.
+**Dexcom Clarity CSV.** 14 columns: Index, Timestamp (YYYY-MM-DDThh:mm:ss), Event Type, Event Subtype, Patient Info, Device Info, Source Device ID, Glucose Value (mg/dL), Insulin Value (u), Carb Value (grams), Duration (hh:mm:ss), Glucose Rate of Change (mg/dL/min), Transmitter Time (Long Integer), Transmitter ID. Metadata rows sit above the readings; alert rows are mixed in; 5-minute readings; up to 90 days per export [UMich CGM exports]. Keep only `Event Type == "EGV"` for glucose. Values below/above range appear as `Low`/`High` text (confirm on a real G7 file). Timestamps have no timezone. As implemented: columns are found by name prefix, not position; `Insulin` rows become `insulin_bolus` (Fast-Acting) or `insulin_basal` (Long-Acting) events, `Carbs` rows become `carbs` events; alerts, calibrations and metadata rows are ignored, and names or other personal details are never read into the table. Exports in mmol/L (outside the US) are converted with 18 mg/dL per mmol/L **[assumption]**.
 
-**LibreView CSV.** Two header rows, then 19 columns including Device, Serial Number, Device Timestamp, Record Type, Historic Glucose mg/dL, Scan Glucose mg/dL, Strip Glucose mg/dL, insulin and carbs. Timestamps like `4/12/2023 14:30` [UMich CGM exports]. Record Type distinguishes historic, scan and strip rows.
+**LibreView CSV.** Two header rows, then 19 columns including Device, Serial Number, Device Timestamp, Record Type, Historic Glucose mg/dL, Scan Glucose mg/dL, Strip Glucose mg/dL, insulin and carbs. Timestamps like `4/12/2023 14:30` [UMich CGM exports]. Record Type distinguishes historic, scan and strip rows. As implemented: the header row is found by its `Device Timestamp` column; historic rows (Record Type 0) are the readings, scans (1) only on request; `LO`/`HI` become the device limits with a flag; insulin and carbohydrate entries become events. History is every 15 min on Libre 1/2 and every 5 min on Libre 3, so wear % uses the interval inferred from the data. **Date order depends on the export's locale**: a first field above 12 means day first, a second above 12 means month first; if neither occurs the order is ambiguous and month first (US) is assumed with a warning.
 
 **Dexcom API v3** (later, optional): OAuth 2.0; endpoints egvs, events, alerts, calibrations, devices, dataRange; data delayed 1 h (US) / 3 h (elsewhere); 30-day request window; sandbox user `SandboxUser7` for G7; Limited Access allows 5 users [Dexcom API docs].
 
-**Test fixtures:** create small synthetic Clarity and LibreView files by hand in `tests/fixtures/` (never real patient data). Replace with a de-identified real export when one is available, with the owner's consent.
+**Test fixtures:** create small synthetic Clarity and LibreView files by hand in `tests/fixtures/` (never real patient data). They are written by `tests/fixtures/make_fixtures.py` (deterministic; a test checks the committed files match it). Replace with a de-identified real export when one is available, with the owner's consent.

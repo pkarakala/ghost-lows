@@ -1,0 +1,11 @@
+patient_id,time,glucose,glucose_flag,source
+tiny:1,2026-01-13 00:00:00,40,below_range,fixture
+tiny:1,2026-01-13 00:05:00,50,ok,fixture
+tiny:1,2026-01-13 00:10:00,60,ok,fixture
+tiny:1,2026-01-13 00:15:00,70,ok,fixture
+tiny:1,2026-01-13 00:20:00,100,ok,fixture
+tiny:1,2026-01-13 00:25:00,180,ok,fixture
+tiny:1,2026-01-13 00:40:00,181,ok,fixture
+tiny:1,2026-01-13 00:45:00,250,ok,fixture
+tiny:1,2026-01-13 00:50:00,251,ok,fixture
+tiny:1,2026-01-13 00:55:00,400,above_range,fixture

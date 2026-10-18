@@ -73,7 +73,8 @@ Literature preparation for the paper is a separate, later step. This list exists
 
 | Key | Reference | Link | Status | Used for |
 |---|---|---|---|---|
-| Battelino 2019 | Battelino T, et al. International consensus on time in range. *Diabetes Care* 2019 | — | verify | TIR/TBR/TAR targets; dashboard metrics |
+| Battelino 2019 | Battelino T, et al. Clinical targets for CGM data interpretation: recommendations from the international consensus on time in range. *Diabetes Care* 2019 | [doi](https://doi.org/10.2337/dci19-0028) | verify | TIR/TBR/TAR targets; AGP; dashboard metrics |
+| Bergenstal 2018 | Bergenstal RM, et al. Glucose Management Indicator (GMI): a new term for estimating A1C from continuous glucose monitoring. *Diabetes Care* 2018;41(11):2275–2280 | [doi](https://doi.org/10.2337/dc18-1581) | opened (abstract) | GMI formula |
 | Battelino 2023 | Battelino T, et al. CGM consensus. *Lancet Diabetes Endocrinol* 2023 | [doi](https://doi.org/10.1016/S2213-8587(22)00319-9) | opened | Event definition (≥15 min) |
 | IHSG 2017 | International Hypoglycaemia Study Group. *Diabetes Care* 2017 | — | verify | Hypoglycaemia levels |
 | Garg 2022 | Garg SK, et al. Dexcom G7 accuracy. *Diabetes Technol Ther* 2022 | [doi](https://doi.org/10.1089/dia.2022.0011) | opened | G7 MARD; alerts |
