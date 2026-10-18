@@ -11,6 +11,7 @@ results/README.md.
 from __future__ import annotations
 
 import argparse
+import os
 import shutil
 import subprocess
 import sys
@@ -47,6 +48,12 @@ def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__.split("\n\n")[0])
     parser.add_argument("--force", action="store_true")
     parser.add_argument("--only", nargs="*", help="subset of config names")
+    parser.add_argument(
+        "--workers",
+        type=int,
+        default=max(1, min(6, (os.cpu_count() or 2) - 1)),
+        help="processes for fold fits and evaluations (results do not depend on it)",
+    )
     args = parser.parse_args()
     names = args.only or CONFIGS
     for name in names:
@@ -56,7 +63,9 @@ def main() -> None:
             continue
         t0 = time.time()
         print(f"run       {name}", flush=True)
-        run_benchmark(BenchConfig.load(REPO / "experiments" / "configs" / f"{name}.yaml"), out)
+        config = BenchConfig.load(REPO / "experiments" / "configs" / f"{name}.yaml")
+        config.workers = args.workers
+        run_benchmark(config, out)
         subprocess.run(
             [sys.executable, str(REPO / "experiments" / "make_figures.py"), str(out)], check=True
         )

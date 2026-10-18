@@ -70,6 +70,7 @@ class BenchConfig:
     delta: float = 0.0  # D5 non-inferiority margin
     n_boot: int = 2000
     fold_seed: int = 0
+    workers: int = 1  # processes for the fold x mix fits and evaluations (results identical)
     pisa_fractions: list[float] | None = None  # deprecated alias of `levels`
 
     @classmethod
@@ -192,6 +193,74 @@ def reference_sensitivity(train, events, faults, windows, level: int = 2) -> flo
     return float(ref_l2["caught"].mean()) if len(ref_l2) else float("nan")
 
 
+def fit_fold(mix, fold, alarms, tr, tr_ev, tr_faults, delta, windows, train_level):
+    """Fit and threshold every alarm for one mix and fold on its training patients (D5, D19).
+    Returns ([(alarm, threshold)], threshold rows)."""
+    reference = reference_sensitivity(tr, tr_ev, tr_faults, windows)
+    entries, rows = [], []
+    for alarm in alarms:  # a fresh copy per fold and mix: independent models
+        threshold, info = alarm.default_threshold, {"feasible": True, "estimable": True}
+        if is_learned(alarm):
+            alarm.fit(alarm_frame(tr, alarm, with_label=True))
+            threshold, info = training_threshold(
+                alarm, alarm_frame(tr, alarm), tr, tr_ev, tr_faults, reference, delta, windows
+            )
+        entries.append((alarm, threshold))
+        rows.append(
+            {
+                "mix": mix,
+                "fold": fold,
+                "alarm_name": alarm.name,
+                "threshold": threshold,
+                "train_level": train_level,
+                "reference_sens_l2": reference,
+                "feasible": info.get("feasible"),
+                "estimable": info.get("estimable"),
+                "l2_events_train": info.get("l2_events"),
+                "train_sens_l2": info.get("train_sens_l2"),
+                "train_false_per_day": info.get("train_false_per_day"),
+                "fitted": json.dumps(alarm.describe()) if hasattr(alarm, "describe") else "",
+            }
+        )
+    return entries, rows
+
+
+def evaluate_fold(entries, te, te_ev, te_faults, te_truth, fold, windows, level, pisa_fraction):
+    """Per-run metrics of every frozen alarm of one mix and fold on its test patients."""
+    hours = run_hours(te)
+    frames = []
+    for alarm, threshold in entries:
+        fired, cls, scored = fire_and_score(
+            alarm, alarm_frame(te, alarm), threshold, te_ev, te_faults, te, windows
+        )
+        m = per_run_metrics(cls, scored, hours, [alarm.name])
+        fda = fda_rates(fired, te_truth, windows=windows)
+        if len(fda):
+            m = m.merge(fda, on=[*RUN_KEYS, "alarm_name"], how="left")
+        frames.append(m.assign(level=level, pisa_fraction=pisa_fraction, fold=fold))
+    return frames
+
+
+def run_tasks(func, arg_iter, workers: int, kwargs: dict):
+    """func(*args, **kwargs) for each args, results in order. With workers > 1 the tasks run in
+    worker processes, at most 2 x workers in flight so that their inputs are built lazily."""
+    if workers <= 1:
+        for args in arg_iter:
+            yield func(*args, **kwargs)
+        return
+    from collections import deque
+    from concurrent.futures import ProcessPoolExecutor
+
+    with ProcessPoolExecutor(max_workers=workers) as pool:
+        pending = deque()
+        for args in arg_iter:
+            pending.append(pool.submit(func, *args, **kwargs))
+            if len(pending) >= 2 * workers:
+                yield pending.popleft().result()
+        while pending:
+            yield pending.popleft().result()
+
+
 def run_benchmark(config: BenchConfig, out_dir: Path, extra_alarms=()) -> dict[str, pd.DataFrame]:
     """Run `config` (plus any user alarms in `extra_alarms`) and write the outputs to `out_dir`."""
     from ..sim.run import SimConfig, load, run
@@ -222,73 +291,49 @@ def run_benchmark(config: BenchConfig, out_dir: Path, extra_alarms=()) -> dict[s
     train_obs["label"] = low_labels(train_obs, events)
 
     alarms_all = select_alarms(config.alarms) + list(extra_alarms)
+    fold_ids = sorted(set(folds.values()))
+    tasks = [(mix, fold) for mix in mixes for fold in fold_ids]
 
     # ---- fit once per fold and mix at the training level, then freeze (D19)
-    fitted: dict[tuple, list[tuple[BaseAlarm, float]]] = {}
-    thresholds = []
-    for mix in mixes:
-        for fold in sorted(set(folds.values())):
-            ids = [p for p, f in folds.items() if f != fold]
-            tr, tr_ev = subset(train_obs, mix, ids), subset(events, mix, ids)
-            tr_faults = subset(train_faults, mix, ids)
-            reference = reference_sensitivity(tr, tr_ev, tr_faults, windows)
-            entries = []
-            for alarm in copy.deepcopy(alarms_all):  # independent models per fold and mix
-                threshold, info = alarm.default_threshold, {"feasible": True, "estimable": True}
-                if is_learned(alarm):
-                    alarm.fit(alarm_frame(tr, alarm, with_label=True))
-                    threshold, info = training_threshold(
-                        alarm,
-                        alarm_frame(tr, alarm),
-                        tr,
-                        tr_ev,
-                        tr_faults,
-                        reference,
-                        config.delta,
-                        windows,
-                    )
-                entries.append((alarm, threshold))
-                thresholds.append(
-                    {
-                        "mix": mix,
-                        "fold": fold,
-                        "alarm_name": alarm.name,
-                        "threshold": threshold,
-                        "train_level": train_level,
-                        "reference_sens_l2": reference,
-                        "feasible": info.get("feasible"),
-                        "estimable": info.get("estimable"),
-                        "l2_events_train": info.get("l2_events"),
-                        "train_sens_l2": info.get("train_sens_l2"),
-                        "train_false_per_day": info.get("train_false_per_day"),
-                        "fitted": json.dumps(alarm.describe())
-                        if hasattr(alarm, "describe")
-                        else "",
-                    }
-                )
-            fitted[(mix, fold)] = entries
+    def fit_args(mix, fold):
+        ids = [p for p, f in folds.items() if f != fold]
+        train = (subset(train_obs, mix, ids), subset(events, mix, ids))
+        return (mix, fold, copy.deepcopy(alarms_all), *train, subset(train_faults, mix, ids))
+
+    fit_kw = {"delta": config.delta, "windows": windows, "train_level": train_level}
+    fitted, thresholds = {}, []
+    for (mix, fold), (entries, rows) in zip(
+        tasks,
+        run_tasks(fit_fold, (fit_args(*t) for t in tasks), config.workers, fit_kw),
+        strict=True,
+    ):
+        fitted[(mix, fold)] = entries
+        thresholds += rows
 
     # ---- evaluate the frozen alarms across the sweep
     metrics = []
     for level in config.levels:
         test_config = config.fault_config(level)
         observed, faults = apply_faults(samples, test_config, seed=config.fault_seed)
-        for (mix, fold), entries in fitted.items():
+
+        def eval_args(mix, fold, observed=observed, faults=faults):
             ids = [p for p, f in folds.items() if f == fold]
-            te, te_ev = subset(observed, mix, ids), subset(events, mix, ids)
-            te_faults, te_truth = subset(faults, mix, ids), subset(truth, mix, ids)
-            hours = run_hours(te)
-            for alarm, threshold in entries:
-                fired, cls, scored = fire_and_score(
-                    alarm, alarm_frame(te, alarm), threshold, te_ev, te_faults, te, windows
-                )
-                m = per_run_metrics(cls, scored, hours, [alarm.name])
-                fda = fda_rates(fired, te_truth, windows=windows)
-                if len(fda):
-                    m = m.merge(fda, on=[*RUN_KEYS, "alarm_name"], how="left")
-                metrics.append(
-                    m.assign(level=level, pisa_fraction=test_config.pisa_fraction, fold=fold)
-                )
+            return (
+                fitted[(mix, fold)],
+                subset(observed, mix, ids),
+                subset(events, mix, ids),
+                subset(faults, mix, ids),
+                subset(truth, mix, ids),
+            )
+
+        eval_kw = {
+            "windows": windows,
+            "level": level,
+            "pisa_fraction": test_config.pisa_fraction,
+        }
+        args = (eval_args(*t) + (t[1],) for t in tasks)
+        for frames in run_tasks(evaluate_fold, args, config.workers, eval_kw):
+            metrics += frames
     metrics_df = pd.concat(metrics, ignore_index=True)
     summary = summarise(metrics_df, config.n_boot)
     thresholds_df = pd.DataFrame(thresholds)

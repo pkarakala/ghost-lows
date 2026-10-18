@@ -99,4 +99,6 @@ Choose each alarm's threshold on the **training** patients only: θ\* minimises 
 - `config.yaml`, `git_commit.txt`, `benchmark_version.txt`, `assumptions.md` (auto-collected `# ASSUMPTION:` lines)
 - `thresholds.csv` (per fold and mix: chosen threshold, training reference sensitivity, feasibility), `contrasts_h2.csv` and `contrast_h1.csv` (the pre-registered contrasts), `meta.json` (training fault level and the realistic-PISA calibration)
 
+Fold fits and evaluations can run in parallel processes (`workers` in the config, `--workers` on the command line); results do not depend on it (a test compares serial and parallel runs).
+
 `experiments/run_all.py` (`make all`) runs every config in `experiments/configs/` that produces results (`rq1_pisa_sweep`, `rq1_all_faults`, `robust_*`), draws the figures, copies the headline figures and tables to `results/figures/` and `results/tables/` (committed) and writes `results/README.md`.

@@ -131,3 +131,23 @@ def test_example_alarm_fires_only_when_low_and_falling():
     )
     events = alarm.alarms(run)
     assert events["time"].tolist() == [times[3]]
+
+
+def test_parallel_workers_give_identical_results(tiny):
+    tmp, sim_cfg = tiny
+    outs = {}
+    for workers in (1, 2):
+        config = pipeline.BenchConfig(
+            name=f"tiny_w{workers}",
+            simulation=str(sim_cfg),
+            levels=[0.0, 1.0],
+            alarms=["trend", "gbm", "baysal_gate", "kalman_pisa_cgm"],
+            n_folds=2,
+            n_boot=20,
+            workers=workers,
+        )
+        outs[workers] = pipeline.run_benchmark(config, tmp / f"w{workers}")
+    keys = ["alarm_name", "level", "patient_id", "seed", "mix"]
+    a, b = (outs[w]["metrics"].sort_values(keys).reset_index(drop=True) for w in (1, 2))
+    pd.testing.assert_frame_equal(a, b)
+    pd.testing.assert_frame_equal(outs[1]["thresholds"], outs[2]["thresholds"])

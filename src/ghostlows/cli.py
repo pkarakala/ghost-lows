@@ -42,6 +42,7 @@ def main(argv=None) -> None:
     p_bench = sub.add_parser("benchmark", help="run the benchmark from a config")
     p_bench.add_argument("--config", required=True)
     p_bench.add_argument("--out")
+    p_bench.add_argument("--workers", type=int, help="processes for fold fits (default: config)")
     p_score = sub.add_parser("score", help="score your own alarm with a benchmark config")
     p_score.add_argument("--alarm", required=True, help="path/to/file.py:ClassName")
     p_score.add_argument("--config", required=True)
@@ -59,6 +60,8 @@ def main(argv=None) -> None:
     from .bench.pipeline import REPO, BenchConfig, run_benchmark
 
     config = BenchConfig.load(args.config)
+    if getattr(args, "workers", None):
+        config.workers = args.workers
     extra = []
     if args.command == "score":
         alarm = load_alarm(args.alarm)

@@ -17,8 +17,11 @@ def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__.split("\n\n")[0])
     parser.add_argument("--config", required=True)
     parser.add_argument("--out", help="output folder (default: results/<name>-<UTC time>)")
+    parser.add_argument("--workers", type=int, help="processes for fold fits (default: config)")
     args = parser.parse_args()
     config = BenchConfig.load(args.config)
+    if args.workers:
+        config.workers = args.workers
     stamp = datetime.now(UTC).strftime("%Y%m%dT%H%M%SZ")
     out = Path(args.out) if args.out else REPO / "results" / f"{config.name}-{stamp}"
     t0 = time.time()
