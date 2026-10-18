@@ -120,6 +120,62 @@ def section_h2(h2: pd.DataFrame | None, level: float | None) -> list[str]:
     return lines + [""]
 
 
+def section_age_groups() -> list[str]:
+    """Results by age group as well as pooled (D14)."""
+    s = table(TABLES / f"{MAIN}__summary_by_age_group.csv")
+    h1 = table(TABLES / f"{MAIN}__contrast_h1_by_age_group.csv")
+    if s is None:
+        return []
+    lines = ["### By age group (D14)", ""]
+    if h1 is not None and len(h1):
+        lines += [
+            "H1 slope difference (trend − threshold) by age group:",
+            "",
+            "| Mix | Adolescents | Adults | Children |",
+            "|---|---|---|---|",
+        ]
+        for mix, g in h1.groupby("mix"):
+            g = g.set_index("age_group")
+            cells = [
+                fmt_ci(g.loc[a, "median_slope_diff"], g.loc[a, "lo"], g.loc[a, "hi"])
+                if a in g.index
+                else "–"
+                for a in ("adolescent", "adult", "child")
+            ]
+            lines.append(f"| {mix} | " + " | ".join(cells) + " |")
+        lines.append("")
+    top = s["level"].max()
+    d = s[(s["mix"] == "default") & (s["level"] == top)]
+    alarms = [
+        a
+        for a in (
+            "threshold",
+            "trend",
+            "gbm_time",
+            "gbm_time_ctx",
+            "trend_combined_time",
+            "trend_combined_time_ctx",
+        )
+        if a in set(d["alarm_name"])
+    ]
+    lines += [
+        f"False alarms per day and level 2 lows caught by age group (default mix, PISA on {top:.0%} of nights):",
+        "",
+        "| Alarm | Adolescents | Adults | Children |",
+        "|---|---|---|---|",
+    ]
+    for alarm in alarms:
+        g = d[d["alarm_name"] == alarm].set_index("age_group")
+        cells = [
+            f"{ci(g.loc[a], 'false_per_day')}; {ci(g.loc[a], 'sens_l2', pct=True)}"
+            if a in g.index
+            else "–"
+            for a in ("adolescent", "adult", "child")
+        ]
+        lines.append(f"| `{alarm}` | " + " | ".join(cells) + " |")
+    return lines + [""]
+
+
 def section_robustness() -> list[str]:
     lines = ["### Robustness arms (default mix)", ""]
     rows = []
@@ -403,6 +459,7 @@ def main() -> None:
             "",
             *section_h1(table(TABLES / f"{MAIN}__contrast_h1.csv")),
             *section_h2(table(TABLES / f"{MAIN}__contrasts_h2.csv"), meta.get("train_level")),
+            *section_age_groups(),
             *section_robustness(),
             *section_rq3(
                 table(TABLES / "rq3_kalman__contrasts_rq3.csv"),

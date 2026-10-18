@@ -20,8 +20,9 @@ from pathlib import Path
 
 import pandas as pd
 
-from ghostlows.bench.analysis import RQ3_MODELS, rq3_contrasts
-from ghostlows.bench.pipeline import BenchConfig, run_benchmark
+from ghostlows.bench.analysis import RQ3_MODELS, h1_contrast, rq3_contrasts
+from ghostlows.bench.pipeline import BenchConfig, run_benchmark, summarise
+from ghostlows.bench.stats import age_group
 
 REPO = Path(__file__).resolve().parents[1]
 CONFIGS = [
@@ -72,6 +73,8 @@ def main() -> None:
         print(f"done      {name} in {time.time() - t0:.0f} s", flush=True)
 
     pair_rq3()
+    for name in names:
+        by_age_group(REPO / "results" / name)
     figures, tables = REPO / "results" / "figures", REPO / "results" / "tables"
     figures.mkdir(parents=True, exist_ok=True)
     tables.mkdir(parents=True, exist_ok=True)
@@ -88,6 +91,8 @@ def main() -> None:
             "contrasts_h2.csv",
             "contrast_h1.csv",
             "contrasts_rq3.csv",
+            "summary_by_age_group.csv",
+            "contrast_h1_by_age_group.csv",
             "thresholds.csv",
             "meta.json",
             "git_commit.txt",
@@ -97,6 +102,25 @@ def main() -> None:
     subprocess.run(
         [sys.executable, str(REPO / "experiments" / "make_results_readme.py")], check=True
     )
+
+
+def by_age_group(out: Path) -> None:
+    """Results by age group as well as pooled (D14): the summary and the H1 contrast per group,
+    written next to the run's other outputs (patient-bootstrap CIs within each group)."""
+    if not (out / "metrics.csv").exists() or (out / "summary_by_age_group.csv").exists():
+        return
+    m = pd.read_csv(out / "metrics.csv")
+    m["age_group"] = m["patient_id"].map(age_group)
+    n_boot = BenchConfig.load(out / "config.yaml").n_boot
+    summaries, h1 = [], []
+    for group, g in m.groupby("age_group"):
+        summaries.append(summarise(g, n_boot).assign(age_group=group))
+        if g["level"].nunique() > 1:
+            h1.append(h1_contrast(g, n_boot=n_boot).assign(age_group=group))
+    pd.concat(summaries).to_csv(out / "summary_by_age_group.csv", index=False)
+    if h1:
+        pd.concat(h1).to_csv(out / "contrast_h1_by_age_group.csv", index=False)
+    print(f"by age    {out.name}", flush=True)
 
 
 def pair_rq3(base: str = "rq1_pisa_sweep", kalman: str = "rq3_kalman") -> None:
