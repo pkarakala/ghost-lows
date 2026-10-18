@@ -94,12 +94,29 @@ def section_rq1(summary: pd.DataFrame, mix: str = "default") -> list[str]:
             f"{ci(r, 'false_near_event_per_day')} | {ci(r, 'false_noise_per_day')} | "
             f"{ci(r, 'sens_l1', pct=True)} | {ci(r, 'sens_l2', pct=True)} | {warning_cell(w, alarm, top, mix)} |"
         )
+    lines += cause_share(s, top)
     if w is not None:
         lines += [
             "",
-            "Warning time is the median over patient-runs of each run's median warning (onset minus first alarm, caught lows only), always shown with the miss rate (BENCHMARK.md §4). Simulated warning times are pessimistic, because the model's sensor lag is longer than measured in people (RESEARCH.md §6).",
+            "Warning time is the median over patient-runs of each run's median warning (onset minus first alarm, caught lows only), always shown with the miss rate (BENCHMARK.md §4). Its CIs resample patient-runs rather than patients, so they are too narrow (docs/development/REVIEW.md B2; a fix is proposed in DECISIONS.md). Simulated warning times are pessimistic, because the model's sensor lag is longer than measured in people (RESEARCH.md §6).",
         ]
     return lines
+
+
+def cause_share(s: pd.DataFrame, top: float, alarm: str = "trend") -> list[str]:
+    """What share of an alarm's false alarms compression causes at the highest PISA level."""
+    g = s[(s["alarm_name"] == alarm) & (s["level"] == top)]
+    if g.empty:
+        return []
+    r = g.iloc[0]
+    share = r["false_compression_per_day"] / r["false_per_day"]
+    return [
+        "",
+        f"Even with a PISA on {top:.0%} of nights, compression causes {ci(r, 'false_compression_per_day')} "
+        f"of `{alarm}`'s {ci(r, 'false_per_day')} false alarms per day ({share:.0%}); noise with no fault or low nearby "
+        f"({r['false_noise_per_day']:.2f}) and the other faults ({r['false_other_fault_per_day']:.2f}) cause more. "
+        "In this simulator, compression is a minor share of false low alarms.",
+    ]
 
 
 def section_h1(h1: pd.DataFrame | None) -> list[str]:
@@ -114,7 +131,20 @@ def section_h1(h1: pd.DataFrame | None) -> list[str]:
         lines.append(
             f"| {r['mix']} | {r['median_slope_diff']:.2f} ({r['lo']:.2f}–{r['hi']:.2f}) | {'yes' if r['supported'] else 'no'} |"
         )
-    return lines + [""]
+    return lines + ["", h1_magnitude(h1), ""]
+
+
+def h1_magnitude(h1: pd.DataFrame, mix: str = "default") -> str:
+    """The H1 slope difference in plain words: extra false alarms with a PISA on every night."""
+    r = h1[h1["mix"] == mix]
+    if r.empty:
+        return ""
+    d = float(r["median_slope_diff"].iloc[0])
+    return (
+        f"Size of the effect ({mix} mix): going from no compressed nights to a PISA on every night "
+        f"adds {d:.2f} more false alarms per day to `trend` than to `threshold`, about one extra "
+        f"false alarm every {1 / d:.0f} days. Supported, but small."
+    )
 
 
 def section_h2(h2: pd.DataFrame | None, level: float | None) -> list[str]:
@@ -140,7 +170,26 @@ def section_h2(h2: pd.DataFrame | None, level: float | None) -> list[str]:
             f"| `{r['detector']}` | {r['mix']} | {r['count_context']:.0f} | {r['count_base']:.0f} | "
             f"{r['rate_ratio']:.2f} ({r['lo']:.2f}–{r['hi']:.2f}) | {r['reading']} |"
         )
-    return lines + [""]
+    return lines + ["", h2_levels_note(h2.dropna(subset=["rate_ratio"])), ""]
+
+
+def h2_levels_note(h: pd.DataFrame) -> str:
+    """Whether the H2 reading depends on the PISA level (the estimand does not fix one)."""
+    pos = h[h["level"] > 0]
+    n_read = pos.groupby(["detector", "mix"])["reading"].nunique()
+    levels = sorted(pos["level"].unique())
+    span = f"{levels[0]:.0%}–{levels[-1]:.0%}" if levels else ""
+    text = (
+        "The pre-registered H2 estimand does not name a PISA level; the table shows the highest, "
+        "as the reporting code at the tag `protocol-v1` already did. "
+    )
+    if len(n_read) and (n_read == 1).all():
+        return (
+            text
+            + f"Every reading is the same at every PISA level from {span} (`contrasts_h2.csv`)."
+        )
+    changed = ", ".join(f"`{d}` ({m})" for d, m in n_read[n_read > 1].index)
+    return text + f"Readings change across PISA levels {span} for: {changed} (`contrasts_h2.csv`)."
 
 
 def section_all_faults() -> list[str]:
@@ -204,7 +253,7 @@ def same_series(s: pd.DataFrame, a: str, b: str, col: str = "false_per_day") -> 
 
 
 def gates_note(s: pd.DataFrame) -> list[str]:
-    """Say when the operating point switched the published gates off, or nearly off."""
+    """Say when the published gates suppressed nothing, or almost nothing, at the operating point."""
     gates = [
         a
         for a in ("baysal_gate", "matched_filter_causal_gate", "iforest_causal_gate")
@@ -228,10 +277,12 @@ def gates_note(s: pd.DataFrame) -> list[str]:
     if near:
         text += "; ".join(near) + ". "
     text += (
-        "The pre-registered operating point (D5, δ = 0) allows no loss of sensitivity against "
-        "`trend`, and on the training patients almost every suppression a gate could make cost a "
-        "caught low, so D5 switched the gates off or nearly off. The δ = 0.05 arm shows what they "
-        "do when a small loss is allowed."
+        "At the pre-registered operating point (D5, δ = 0), which allows no loss of training "
+        "sensitivity against `trend`, the thresholds chosen for these gates suppress no or almost "
+        "no trend alarms (`thresholds.csv`). This describes the operating point, not what the "
+        "detectors can do: without curves across thresholds (BENCHMARK.md §4, not yet produced; "
+        "docs/development/REVIEW.md B1) it is not known whether a gate would remove false alarms "
+        "at a small cost in sensitivity. The δ = 0.05 arm gives one such point."
     )
     return ["", text]
 
@@ -364,7 +415,7 @@ def section_rq3(
     levels = sorted(r["level"].unique())
     show = [levels[0], levels[-1]]
     lines += [
-        f"{mix.capitalize()} mix, which the filter's development did not use (amendment A3). Ratios below 1 and positive sensitivity differences favour the first alarm; 95% paired patient-bootstrap CIs. The comparator is chosen in each fold on training patients only; the pool and how often each was chosen are in brackets. Exploratory: no decision rule.",
+        f"{mix.capitalize()} mix, which the filter's development did not use (amendment A3). Ratios below 1 and positive sensitivity differences favour the first alarm; 95% paired patient-bootstrap CIs. The comparator is chosen in each fold on training patients only; the pool and how often each was chosen are in brackets, and the choice uses in-sample training false alarms. Exploratory: no decision rule. The filter's pressure mode, like the matched filter, uses the same PISA model that generates the injected artifacts, and the τ-mismatch arms do not include the Kalman alarms, so this comparison favours them (docs/development/REVIEW.md M6).",
         "",
         "| Contrast | First vs second | Measure | "
         + " | ".join(f"PISA nights {lv:.0%}" for lv in show)
@@ -423,7 +474,8 @@ def section_summary(meta: dict) -> list[str]:
         lines.append(
             "- **H1** (trend alarms degrade faster than threshold alarms as compression nights increase; median per-patient slope difference, false alarms/day per unit PISA fraction): "
             + "; ".join(parts)
-            + "."
+            + ". "
+            + h1_magnitude(h1)
         )
     h2 = table(TABLES / f"{MAIN}__contrasts_h2.csv")
     if h2 is not None and len(h2):
@@ -442,7 +494,7 @@ def section_summary(meta: dict) -> list[str]:
         if {"high", "standard"} <= set(sec.columns):
             closer = (np.log(sec["high"]).abs() < np.log(sec["standard"]).abs()).sum()
             lines.append(
-                f"- **H2, secondary** (the ratio is closer to 1 on the high-perturbation mix than on the standard mix): {int(closer)} of {sec[['high', 'standard']].dropna().shape[0]} detectors."
+                f"- **H2, secondary** (the ratio is closer to 1 on the high-perturbation mix than on the standard mix): {int(closer)} of {sec[['high', 'standard']].dropna().shape[0]} detectors (point estimates; no CI on the difference)."
             )
     az = table(TABLES / "real__azt1d_contrasts_h2.csv")
     az_meta = read_json(TABLES / "real__azt1d_meta.json")
@@ -464,6 +516,7 @@ def section_summary(meta: dict) -> list[str]:
                     if flat
                     else ""
                 )
+                + " AZT1D users are on automated insulin delivery, not the open-loop target population (D9)."
             )
     rq3 = table(TABLES / "rq3_kalman__contrasts_rq3.csv")
     if rq3 is not None and len(rq3):
@@ -485,12 +538,14 @@ def section_real() -> list[str]:
     if s is None:
         return lines + ["Not run yet: `uv run python experiments/real_data.py`.", ""]
     lines += [
-        f"### Semi-synthetic RQ1 (co-primary, D16): {meta.get('dataset', 'Weinstock 2016')}",
+        f"### Semi-synthetic RQ1 (D16): {meta.get('dataset', 'Weinstock 2016')}",
         "",
         f"{meta.get('patients')} people, {meta.get('days', float('nan')):.0f} days. Reference lows are taken from the un-injected CGM: "
         f"{meta.get('reference_l1_events')} level 1, {meta.get('reference_l2_events')} level 2. {meta.get('labelled', '')}",
         "",
-        "| Alarm | PISA nights | False alarms/day | Compression false alarms/day | Level 1 caught | Level 2 caught |",
+        "**Read this table for the compression column only.** The reference lows come from the same CGM the alarms read, and outside the injected PISAs the two are identical. Lows caught (†) is therefore near-circular: `threshold` catches every level 1 low and every alarm catches every level 2 low by construction (amendment A5), and the learned alarms are trained to predict their own input falling below 70 mg/dL. Lows caught and total false alarms do not rank alarms on real data. What this track measures is the false alarms caused by the injected PISAs, and how they grow with the share of PISA nights; only that column supports the co-primary role D16 gives the track.",
+        "",
+        "| Alarm | PISA nights | False alarms/day | Compression false alarms/day | Level 1 caught † | Level 2 caught † |",
         "|---|---|---|---|---|---|",
     ]
     for _, r in s.sort_values(["alarm_name", "level"]).iterrows():
@@ -580,9 +635,26 @@ def section_h3() -> list[str]:
         if len(readings) and (readings == "no meaningful reduction").all():
             lines += [
                 "",
-                f"On the matched mix (`{matched}`) the simulation itself shows no meaningful context benefit, so both ratios sit near 1 and H3 is uninformative: there is no simulated benefit for real data to shrink. What AZT1D does show is that recorded, user-entered context did not reduce compression false alarms on real nights either.",
+                f"On the matched mix (`{matched}`) the simulation itself shows no meaningful context benefit, so both ratios sit near 1 and H3 is uninformative: there is no simulated benefit for real data to shrink.",
             ]
+    lines += ["", azt1d_note(a)]
     return lines + [""]
+
+
+def azt1d_note(a: pd.DataFrame) -> str:
+    """What the AZT1D ratios alone can and cannot say."""
+    ok = a.dropna(subset=["rate_ratio"])
+    if ok.empty:
+        return ""
+    widest = (ok["hi"] - ok["lo"]).idxmax()
+    w = ok.loc[widest]
+    all_one = bool(((ok["lo"] <= 1) & (ok["hi"] >= 1)).all())
+    return (
+        ("On AZT1D every CI includes 1" if all_one else "On AZT1D not every CI includes 1")
+        + f"; the widest, `{widest}` ({w['lo']:.2f}–{w['hi']:.2f}), does not exclude a modest benefit. "
+        "AZT1D users are on automated insulin delivery (Control-IQ), not the open-loop population "
+        "RQ2 targets (D9), and the artifacts are injected, not real."
+    )
 
 
 def limitations() -> list[str]:
@@ -603,12 +675,12 @@ def main() -> None:
     lines = [
         "# Results",
         "",
-        "Generated by `experiments/make_results_readme.py` from the tables in `results/tables/`; regenerate everything with `make all`.",
+        "Generated by `experiments/make_results_readme.py` from the tables in `results/tables/`; regenerate everything with `make results`.",
         "Benchmark version: `ghostlows-bench v1`. Simulated cohort: 30 virtual patients (UVA/Padova 2008 via simglucose), 14 days, 5 seeds, three scenario mixes. Confidence intervals are 95% patient-bootstrap intervals over this cohort, not a population (BENCHMARK.md §6).",
         "",
     ]
     if summary is None:
-        lines += ["No results yet: run `make all`.", ""]
+        lines += ["No results yet: run `make results`.", ""]
     else:
         realistic = meta.get("realistic_pisa") or {}
         lines += [
