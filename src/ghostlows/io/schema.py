@@ -76,7 +76,7 @@ def finalize(df: pd.DataFrame) -> pd.DataFrame:
     df["glucose_flag"] = pd.Categorical(df["glucose_flag"], categories=FLAGS)
     df["patient_id"] = df["patient_id"].astype(str)
     df["source"] = df["source"].astype(str)
-    df["time"] = pd.to_datetime(df["time"])
+    df["time"] = pd.to_datetime(df["time"]).astype("datetime64[ns]")
     extra = [c for c in df.columns if c not in COLUMNS]
     df = df[COLUMNS + extra].sort_values(["patient_id", "time"], kind="stable")
     return df.reset_index(drop=True)
