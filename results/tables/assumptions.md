@@ -1,7 +1,7 @@
 # Assumptions collected from the code
 
-- `src/ghostlows/alarms/base.py:21` `REFRACTORY_MIN = 30.0`: BENCHMARK.md §1
-- `src/ghostlows/alarms/base.py:22` `FLICKER_MIN = 15.0`: BENCHMARK.md §1
+- `src/ghostlows/alarms/base.py:19` `REFRACTORY_MIN = 30.0`: BENCHMARK.md §1
+- `src/ghostlows/alarms/base.py:20` `FLICKER_MIN = 15.0`: BENCHMARK.md §1
 - `src/ghostlows/alarms/detectors.py:29` `_MEDIAN = pisa_model.from_size(0.0, pisa_model.DEPTH.median, pisa_model.DURATION`: template = drop phase of the median Facchinetti PISA at 5-min sampling, compared with first differences over the same span; Idi 2023 is retrospective (D7).
 - `src/ghostlows/alarms/detectors.py:67` `y = np.asarray(cgm, float)`: which five features, and their windows (Idi 2024's own set is retrospective)
 - `src/ghostlows/alarms/kalman_pisa.py:52` `TUNE_GRID = {`: grid for the noise settings (BENCHMARK.md §2); a sensor error variance of 0 is the white-noise model, so the grid nests it

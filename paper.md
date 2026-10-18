@@ -19,7 +19,7 @@ bibliography: paper.bib
 
 # Summary
 
-Continuous glucose monitors (CGMs) warn people with diabetes when their glucose is low or about to be. Some of those warnings are false. The best-documented cause is pressure on the sensor during sleep, a pressure-induced sensor attenuation (PISA) or "compression low" [@Mensh2013; @Facchinetti2016]. False alarms at night wake people and erode trust in the alarm. Inside automated insulin delivery they can also suspend insulin without need [@Baysal2014].
+Continuous glucose monitors (CGMs) warn people with diabetes when their glucose is low or about to be. Some of those warnings are false. The best-documented cause is pressure on the sensor during sleep, a pressure-induced sensor attenuation (PISA) or "compression low" [@Mensh2013; @Facchinetti2016]. False alarms contribute to alarm fatigue [@Shivers2013]. Inside automated insulin delivery they can also suspend insulin without need [@Baysal2014].
 
 Ghost Lows is a Python benchmark that scores real-time low-glucose alarms on what matters to the person wearing the sensor: how many lows the alarm catches, how many false alarms it raises per day and why, and how many minutes of warning it gives. It scores them while the sensor misbehaves. It runs a virtual cohort through the UVA/Padova 2008 model [@Kovatchev2009] as implemented in simglucose [@simglucose]. On top of the simulated sensor it injects a mixed fault suite: PISAs from a published model [@Facchinetti2016], dropouts, stale readings, drift and spikes. The faults never change the reference glucose, so every false alarm can be attributed to its cause. A semi-synthetic track injects the same artifacts into real CGM records [@Weinstock2016; @GlucoBench2024; @AZT1D2025].
 

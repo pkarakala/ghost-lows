@@ -8,8 +8,8 @@ Citations in [brackets] resolve to entries in [`CITATIONS.md`](CITATIONS.md). It
 |---|---|---|
 | **PISA / compression low** | A transient, mostly downward deviation of the CGM signal caused by pressure on the sensor site, typically during sleep. | [Mensh 2013; Facchinetti 2016; Baysal 2014] |
 | **Ghost low** | A CGM low reading, or a low alarm, caused by a sensor artifact rather than by low blood glucose. Not an established term; we define it here and map it to PISA plus the other faults in the suite. | This project |
-| **Level 1 / level 2 hypoglycaemia** | Glucose <70 mg/dL / <54 mg/dL. **[clinical review]** | [IHSG 2017; Battelino 2019] |
-| **True low event (simulation)** | Plasma glucose below the threshold for at least 15 consecutive minutes, ending after at least 15 consecutive minutes at or above it, computed on the 1-minute plasma signal (D1, D11). **[clinical review]** | [Battelino 2023] |
+| **Level 1 / level 2 hypoglycaemia** | Glucose <70 mg/dL / <54 mg/dL. **[clinical review CR6]** | [IHSG 2017; Battelino 2019] |
+| **True low event (simulation)** | Plasma glucose below the threshold for at least 15 consecutive minutes, ending after at least 15 consecutive minutes at or above it, computed on the 1-minute plasma signal (D1, D11). **[clinical review CR6]** | [Battelino 2023] |
 | **CGM hypoglycaemic event (real data)** | The same rule applied to CGM readings: a run below the threshold spanning at least 15 minutes (D11). | [Battelino 2023] |
 | **Real-time alarm** | A decision at time *t* that uses only data up to *t*. | This project |
 | **Context** | Insulin on board (IOB) and carbohydrates on board (COB), computed only from recorded doses and announced carbohydrates, never from simulator truth. Time of day is *not* context: every CGM user has it, so it is a separate arm of the ablation (D2). | This project |

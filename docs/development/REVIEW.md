@@ -217,4 +217,80 @@ The main scientific claims, though, rest on one operating point with no trade-of
 
 ## Status
 
-To be filled in when the Phase 2 fixes are complete.
+Phase 2 ran on 2026-10-18 (commits `cfd80b8`..HEAD).
+
+**Results.**
+- No number in `results/tables/` changed.
+- `results/README.md` was regenerated from the committed tables. Every number in it is unchanged; only prose and derived wording were added.
+- `results/tables/assumptions.md` is now regenerated from the current code.
+
+**Tests.**
+- 178 passed: 175 before, plus three new rule and default tests.
+- The browser tests pass locally (`pytest -m browser`, 2 passed).
+- ruff is clean.
+
+The project lead was away for part of Phase 2. Choices made in that time are logged in [`../decisions_pending.md`](../decisions_pending.md).
+
+### Fixed
+
+| Finding | What changed | Commit |
+|---|---|---|
+| B3 | The real-data section says lows caught is near-circular and that only the compression column is informative. The column headers are marked †. | `7448bc8` |
+| B5 | One accurate disclosure in the README, CONTRIBUTIONS.md and paper.md, consistent with `DECISIONS.md:3`, which was reworded. The trailer sentence now says "every commit". | `b2b9d06` |
+| M1 | Amendment A9 records the post-A3 Kalman change, the five-fold check and the pre-A6 cohort. CHANGELOG and paper.md no longer claim that every change was logged beforehand. | `59f44a5`, `b2b9d06` |
+| M2, M10 | The README is restructured: problem, contribution, key results with CIs, limitations, how to run. The results README gives compression's share of false alarms and the H1 effect size in plain words. | `7448bc8`, `3632757` |
+| M4 | H3 text: AZT1D users are on automated insulin delivery (AID); the widest CI is named; "did not reduce" is removed. | `7448bc8` |
+| M8 | All 31 DOI entries in `references.bib` now hold their registry record. Every DOI resolved to the intended paper. `paper.bib` already matched the registry. `AZT1D data 2025` was added. The other 31 entries are marked "verify before citing". | `fb543d4` |
+| M9 | The generated Reproducibility section in `results/README.md` covers which commit produced which table, what `make reproduce` covers, and the cache-key caveat. ROADMAP phase 10 is qualified, and paper.md no longer says "one command". | `498ae63`, `b2b9d06` |
+| M11 | DATA.md states the limits for 15-min sampling and daylight saving. The app warns on exports sampled less often than every 5 min. | `498ae63`, `47f2b67` |
+| B1, B2, M3, M5, M6, M7 (text) | Each is stated where readers meet it: results README notes, and new RESEARCH.md §6 limitations. Fixes are proposed as P1–P7 (see below). | `7448bc8`, `498ae63` |
+| m1–m4 | Stale cross-references fixed; the Lobo rate is 74.8 h everywhere; DiaData is described as not used; `make results` is used consistently. | `498ae63`, `fb543d4` |
+| m5 | CLINICAL-REVIEW markers added for CR2, CR3, CR6/7, CR8, CR9/16, CR12, CR13 and CR17. Missing SOURCE and ASSUMPTION markers added. The collector bug is fixed. A test now checks CR ids. | `9b75f11` |
+| m6 (part) | SESOI, label horizon, D10 windows and the refractory period are configurable. The defaults are pinned by a test, and a smoke run is byte-identical before and after. | `b1fc821` |
+| m7 | Clinical claims in the README moved to RESEARCH.md §4, tagged CR5. Untagged "[clinical review]" markers now carry ids. The "wake people" claim in paper.md is replaced by a cited one [Shivers 2013]. | `3632757`, this commit |
+| m8 | App wording: the fingerstick sentence replaces "felt real" and is shown on every report; "flagged episodes"; no "ghost low" in the sample table; the browser test forbids these phrases. | `47f2b67` |
+| m11 | Unused constants removed. Makefile targets added for the orphan scripts. The faults figure is referenced from SIMULATION.md. | `5f5cec4`, `498ae63` |
+| m13 | `docs/PUBLICATION.md` deleted. Its facts were moved to the README, `results/README.md` and this file. | `498ae63` |
+
+**Correction to this review.** m10 said the H2 readings are identical at every PISA level. That holds on the default mix only. On the standard mix, `gbm`'s reading changes across levels. The generated note in `results/README.md` says so.
+
+### Left for the project lead
+
+**Decisions.** Proposed amendments P1–P9 in [`../DECISIONS.md`](../DECISIONS.md):
+
+| Proposal | Changes results? |
+|---|---|
+| P1 patient-level warning-time CIs | yes |
+| P2 threshold-free curves | yes |
+| P3 the upload report's "without" column | yes |
+| P4 label horizon in the window arms | — |
+| P5 treatment-rule arm | yes |
+| P6 out-of-fold thresholds | yes |
+| P7 fuller robustness arms | yes |
+| P8 per-fold training PISA level | yes |
+| P9 unreported specified outputs | yes |
+
+**Configurability not done.** `HypoTreatment` is not exposed, because exposing it would change the cohort cache key. `MIN_L2_EVENTS`, `TAIL_FRACTIONS` and the retro flag constants stay module constants (decisions_pending.md #1–2).
+
+**Citations.**
+- Unused keys: Del Favero 2014, Baysal ACC 2013, MetaboNet 2026, Glucose-ML 2025, Tidepool, Eichenlaub 2024, Kaylor 2022, US 2026/0096748. Keep or drop them.
+- The 31 bib placeholders without a DOI: patents, CFR, CDC, web pages, arXiv-only benchmarks.
+- The full texts of Facchinetti 2016 and Lobo 2026; the code relies on their abstracts.
+
+**Names.** The git author is "Pranav Reddy"; elsewhere the name is "Pranav Karakala Reddy". `CITATION.cff` has no ORCID or co-authors (m14).
+
+**Outside the repository** (moved from the deleted PUBLICATION.md):
+1. Turn on the Zenodo–GitHub integration and publish a GitHub release from `v0.1.0`. Add the DOI to `CITATION.cff` and the README.
+2. Confirm the CC BY 4.0 licence for `dist/ghostlows-bench-v1.zip` (`make package`). Upload it as a Zenodo dataset and add its DOI to `docs/DATA.md` and `CITATION.cff`.
+3. Complete the affiliation in `paper.md`. JOSS reviews a tagged release with a DOI.
+4. Request the Padova dual-sensor dataset with PISA labels [Idi 2024]. It is the only labelled real data, and the request has a long lead time.
+5. Optional: mirror `protocol-v1` on OSF.
+
+### Needs the clinical co-lead (Cohen Ferrari)
+
+- **CR12, B4/P3:** the upload report's "without possible compression artifacts" column and the flag wording, before the next app release.
+- **CR9/CR16:** the SESOI and the zero-loss cost asymmetry. Every headline result depends on that operating point.
+- **CR17, M3/P5:** the treatment rule and its coupling to the alarm thresholds.
+- **CR14:** whether the device's urgent-low alarm behaves like the ungated floor.
+- **CR6, CR2, CR3:** thresholds and the event rule; PISA size on G6/G7; PISA frequency.
+- **CR5:** the new tag on the AID rebound claim in RESEARCH.md §4.

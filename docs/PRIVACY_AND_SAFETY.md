@@ -5,7 +5,7 @@ These are requirements, not suggestions.
 ## Safety
 
 1. **Retrospective only.** The tool analyses past data. It never runs live, never connects to a device's alarms, and never suggests silencing an alarm.
-2. **Wording.** Flagged events are labelled **"possible compression artifact"**. The tool must never say a low "was not real", "was fake" or "can be ignored". Every page with flags shows: *"If you are unsure whether a low is real, check with a fingerstick and treat according to your care plan."* **[clinical review]**
+2. **Wording.** Flagged events are labelled **"possible compression artifact"**. The tool must never say a low "was not real", "was fake" or "can be ignored". Every page with flags shows: *"If you are unsure whether a low is real, check with a fingerstick and treat according to your care plan."* **[clinical review CR12]**
 3. **Show both numbers.** Time below range is shown with and without possible artifacts, side by side, never only the lower one.
 4. **Disclaimer** on every page: research software, not a medical device, not for treatment decisions.
 5. **Method transparency.** Each flag shows why it was raised (drop rate, depth, duration, time of night) and names the published method used.
