@@ -26,7 +26,7 @@ The first complete release of the benchmark (`ghostlows-bench v1`). Results: [`r
 
 ### Amendments after the pre-registration tag `protocol-v1`
 
-All are logged with dates, evidence and reasons in [`docs/DECISIONS.md`](docs/DECISIONS.md). All were made before any benchmark result on the cohort they affect.
+All are logged with dates, evidence and reasons in [`docs/DECISIONS.md`](docs/DECISIONS.md). *Corrected 2026-10-18:* this list first said all were made before any benchmark result on the cohort they affect. That is not true of A1, which was found in a first run of the Weinstock real-data track, or of A5, which was made after that run. A9 records a change to the Kalman filter that was not logged at the time.
 
 - A1: the published gates are tuned by the operating-point rule, as D5 specifies. Before this, two of them never suppressed an alarm.
 - A2: finer candidate thresholds in the range where low alarms operate.
