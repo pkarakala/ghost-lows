@@ -1,0 +1,8 @@
+# Full simulated cohort: 30 patients x 14 days x 5 seeds x 3 scenario mixes (SIMULATION.md §1, §3).
+# Therapy settings come from the per-patient calibration (D17); its seeds are disjoint from these.
+name: sim_full
+patients: all
+days: 14
+seeds: [1, 2, 3, 4, 5]
+mixes: [standard, default, high]
+calibration: experiments/configs/calibration_v1.yaml

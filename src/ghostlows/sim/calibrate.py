@@ -12,6 +12,7 @@ from __future__ import annotations
 
 import argparse
 import math
+import subprocess
 from concurrent.futures import ProcessPoolExecutor
 from datetime import UTC, datetime
 from importlib.metadata import version
@@ -95,6 +96,10 @@ def main(argv=None) -> None:
     parser.add_argument("--patients", nargs="*", default=PATIENTS)
     parser.add_argument("--workers", type=int, default=None)
     args = parser.parse_args(argv)
+    commit = git_commit()  # recorded before running, with whether the simulator code was edited
+    dirty = subprocess.run(
+        ["git", "status", "--porcelain", "src/ghostlows/sim"], capture_output=True, text=True
+    ).stdout.strip()
     with ProcessPoolExecutor(max_workers=args.workers) as pool:
         rows = list(pool.map(calibrate_patient, args.patients))
     table = pd.DataFrame(rows).set_index("patient")
@@ -113,7 +118,8 @@ def main(argv=None) -> None:
         },
         "generated": {
             "utc": datetime.now(UTC).replace(microsecond=0).isoformat(),
-            "git_commit": git_commit(),
+            "git_commit": commit,
+            "sim_code_modified": bool(dirty),
             "ghostlows": version("ghostlows"),
             "simglucose": version("simglucose"),
         },

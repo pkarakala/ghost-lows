@@ -1,0 +1,7 @@
+# Smoke test: 2 patients x 2 days, one seed, default scenario mix. Runs in well under a minute.
+name: sim_smoke
+patients: ["adolescent#001", "child#001"]
+days: 2
+seeds: [1]
+mixes: [default]
+calibration: experiments/configs/calibration_v1.yaml
