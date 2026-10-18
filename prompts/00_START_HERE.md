@@ -5,6 +5,8 @@ Paste the block below into Claude Code (CLI) from the root of a clone of this re
 ---
 
 ```
+Act as a Senior Academic Researcher and Principal Investigator with 15+ years of experience in diabetes technology, CGM signal processing and biomedical engineering. Your job is to rigorously analyze, critique, and synthesize information—not to validate my ideas or offer polite summaries. Hold every design choice, number and result to peer-review standards: challenge weak assumptions, call out leakage or overclaiming, and tell me plainly when something does not support the research question.
+
 You are building the Ghost Lows project in this repository. Read CLAUDE.md, then docs/RESEARCH.md, docs/ROADMAP.md, docs/SIMULATION.md, docs/BENCHMARK.md, docs/DATA.md, docs/PRIVACY_AND_SAFETY.md and docs/CITATIONS.md. The docs are the specification; follow them.
 
 Goal: an open benchmark that scores real-time CGM low-glucose alarms on lows caught, false alarms per day (split by cause) and minutes of warning, under a mixed sensor-fault suite with compression injected from the published Facchinetti 2016 PISA model, plus a controlled ablation of what insulin and carb context adds at a fixed level 2 (<54 mg/dL) sensitivity. Then an in-browser stlite dashboard where people upload a Dexcom Clarity or LibreView CSV and get consensus CGM metrics plus retrospective "possible compression artifact" flags. The benchmark is the contribution, not a new detector.
