@@ -30,6 +30,14 @@ def lag_minutes(samples: pd.DataFrame, events: pd.DataFrame) -> np.ndarray:
     return np.asarray(out)
 
 
+def treatments_per_day(samples: pd.DataFrame) -> float:
+    """Rescue treatments (A6) per patient-day; NaN for cohorts simulated without treatment."""
+    if "rescue_carbs" not in samples:
+        return float("nan")
+    days = len(samples) * 5 / 1440
+    return float((samples["rescue_carbs"] > 0).sum() / days)
+
+
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__.split("\n\n")[0])
     parser.add_argument("--config", required=True)
@@ -48,9 +56,9 @@ def main() -> None:
     print(
         "| Mix | Runs outside model validity | Median TBR <70 (plasma) | Median TBR <54 | "
         "Level-1 events | Level-2 events | Nocturnal level-2 | Patients with no level-2 event | "
-        "Leak AUC (IOB) | Leak AUC (COB) | Night share 70–95 mg/dL |"
+        "Leak AUC (IOB) | Leak AUC (COB) | Night share 70–95 mg/dL | Treatments per day |"
     )
-    print("|---|---|---|---|---|---|---|---|---|---|---|")
+    print("|---|---|---|---|---|---|---|---|---|---|---|---|")
     for mix in config.mixes:
         r = runs[runs["mix"] == mix]
         ev = events[events["mix"] == mix]
@@ -70,7 +78,8 @@ def main() -> None:
             f"{r['tbr54_truth_pct'].median():.1f}% | {int((ev['level'] == 1).sum())} | {len(l2)} | "
             f"{int(is_night(l2['onset']).sum())} | "
             f"{int((per_patient_l2 == 0).sum())} of {len(per_patient_l2)} | "
-            f"{leak_auc(s, ev, 'iob'):.2f} | {leak_auc(s, ev, 'cob'):.2f} | {band.median():.0%} |"
+            f"{leak_auc(s, ev, 'iob'):.2f} | {leak_auc(s, ev, 'cob'):.2f} | {band.median():.0%} | "
+            f"{treatments_per_day(s):.2f} |"
         )
 
     print("\nLevel-2 events by age group (all mixes):\n")
