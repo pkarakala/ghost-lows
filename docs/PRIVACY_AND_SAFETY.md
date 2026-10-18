@@ -18,6 +18,13 @@ These are requirements, not suggestions.
 4. **Downloads are local.** Any report or CSV the user downloads is generated in the browser.
 5. **No data collection for research** until an IRB has approved a protocol with informed consent and de-identification.
 
+## As implemented (phase 8)
+
+- **Flags are conservative.** A detection becomes a "possible compression artifact" flag only if two published CGM-only methods agree (the Baysal 2014 rules and a matched filter for the Facchinetti 2016 PISA shape after Idi 2023) and it starts at night (23:00–07:00), when compression is most common. On the synthetic test export, either method alone also fired on a genuine-looking daytime fall to 54 mg/dL, and a flag must not hide a real low from time below range. Detections that are not flags are listed under "Detections that are not flags" and change no number. **[clinical review CR12]**
+- **Both numbers.** Time below 70 and below 54 mg/dL are shown with all readings and without readings inside flags, side by side.
+- **Network.** The page (`app/`) contacts only cdn.jsdelivr.net (the pinned stlite 1.9.2 runtime and Pyodide), pypi.org and files.pythonhosted.org (Python packages). The browser test `tests/test_app_browser.py` uploads the synthetic export and fails if any request URL or body contains the file's contents, or if any other host is contacted. Streamlit's usage statistics are turned off.
+- **Storage.** The app writes nothing to browser storage.
+
 ## Regulatory context (not legal advice)
 
 - HIPAA covers healthcare providers, plans and their business associates; a public research tool generally is not one, but the FTC Health Breach Notification Rule (expanded in 2024 to health apps) and state laws such as Washington's My Health My Data Act can apply to apps that collect health data. Browser-only processing avoids collecting it.

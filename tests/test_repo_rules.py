@@ -54,15 +54,56 @@ def test_relative_imports_resolve(tmp_path):
     }
 
 
-def test_pyodide_subpackages_import_only_pyodide_safe_modules():
-    bad = []
-    for sub in PYODIDE_SUBPACKAGES:
-        for path in sorted((SRC / sub).rglob("*.py")):
-            package = ".".join(path.relative_to(SRC.parent).parts[:-1])
-            for module in sorted(imported_modules(path, package)):
-                if not pyodide_safe(module):
-                    bad.append(f"{path.relative_to(ROOT)}: {module}")
-    assert not bad, "non-Pyodide imports in Pyodide-safe subpackages:\n" + "\n".join(bad)
+def module_file(module: str) -> Path | None:
+    """Source file of a ghostlows module (package -> its __init__.py)."""
+    rel = Path(*module.split("."))
+    for candidate in (SRC.parent / rel.with_suffix(".py"), SRC.parent / rel / "__init__.py"):
+        if candidate.exists():
+            return candidate
+    return None
+
+
+def test_pyodide_closure_imports_only_pyodide_safe_modules():
+    """Everything the upload app can reach (io, metrics, retro and every ghostlows module they
+    import, with their packages' __init__) imports only the stdlib, numpy and pandas."""
+    queue = [f"ghostlows.{sub}" for sub in PYODIDE_SUBPACKAGES]
+    queue += [
+        ".".join(p.relative_to(SRC.parent).with_suffix("").parts)
+        for sub in PYODIDE_SUBPACKAGES
+        for p in (SRC / sub).rglob("*.py")
+        if p.name != "__init__.py"
+    ]
+    seen, bad = set(), []
+    while queue:
+        module = queue.pop()
+        if module in seen:
+            continue
+        seen.add(module)
+        path = module_file(module)
+        if path is None:
+            continue
+        # importing a module runs its parent packages' __init__ first
+        parts = module.split(".")
+        queue += [".".join(parts[:i]) for i in range(2, len(parts))]
+        package = module if path.name == "__init__.py" else ".".join(parts[:-1])
+        for imported in imported_modules(path, package):
+            top = imported.split(".")[0]
+            if top == "ghostlows":
+                queue.append(imported)
+                # `from package import name` may import a submodule called name
+                queue += [f"{imported}.{n}" for n in _imported_names(path, imported)]
+            elif top not in PYODIDE_ALLOWED and top not in sys.stdlib_module_names:
+                bad.append(f"{path.relative_to(ROOT)}: {imported}")
+    assert not bad, "non-Pyodide imports reachable from the upload app:\n" + "\n".join(bad)
+
+
+def _imported_names(path: Path, module: str) -> list[str]:
+    tree = ast.parse(path.read_text(), filename=str(path))
+    names = []
+    for node in ast.walk(tree):
+        if isinstance(node, ast.ImportFrom) and node.module and module.endswith(node.module):
+            names += [a.name for a in node.names]
+    return names
 
 
 def citation_keys() -> set[str]:

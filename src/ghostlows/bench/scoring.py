@@ -217,7 +217,8 @@ def fda_rates(
         sel = dict(zip(keys, key, strict=True))
         tt = _minutes(tr["time"])
         g = tr["truth_glucose"].to_numpy(float)
-        step = int(round(windows.fda_reference_every))
+        spacing = float(np.median(np.diff(tt))) if len(tt) > 1 else 1.0  # 1 min sim, 5 min real
+        step = max(1, int(round(windows.fda_reference_every / spacing)))
         ref_t, ref_low = tt[::step], g[::step] < threshold
         low_t = tt[g < threshold]
         for name, a in _select(alarms, sel).groupby("alarm_name"):

@@ -37,6 +37,8 @@ sim = [
 ]
 
 [dependency-groups]
+# Browser test of the upload app (tests/test_app_browser.py); not installed by default
+browser = ["playwright>=1.45"]
 dev = [
     "ghostlows[bench,sim]",
     "pytest>=8",
@@ -60,6 +62,8 @@ select = ["E", "F", "W", "I", "UP", "B"]
 [tool.ruff.lint.per-file-ignores]
 # Markdown templates: long lines are the content, not code
 "experiments/make_results_readme.py" = ["E501"]
+"experiments/real_data.py" = ["E501"]
+"app/streamlit_app.py" = ["E501"]
 
 [tool.ruff.format]
 # Ruff also formats Python blocks inside Markdown; the specs in docs/ keep their own layout.
@@ -67,7 +71,8 @@ exclude = ["*.md"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
-addopts = "-m 'not network'"
+addopts = "-m 'not network and not browser'"
 markers = [
     "network: needs internet access (deselected by default; run with -m network)",
+    "browser: loads the upload app in Chromium (needs the browser group and network)",
 ]
