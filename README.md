@@ -121,4 +121,4 @@ Code: MIT (see `LICENSE`). Datasets keep their own licences (see `docs/DATA.md`)
 
 ## How this was made
 
-Research question, study design, decisions and interpretation: Pranav Karakala Reddy. Clinical review: [name to be added] (in progress). Software was implemented with AI coding agents under the author's direction; the author specified, reviewed and tested all code and results. Documentation was drafted with AI assistance and edited by the author. See [`CONTRIBUTIONS.md`](CONTRIBUTIONS.md).
+Research question, study design and interpretation: Pranav Karakala Reddy. Decisions: many were proposed by AI agents and accepted by the author; see docs/DECISIONS.md. Clinical review: Cohen Ferrari (in progress). Software was implemented with AI coding agents under the author's direction; the author specified, reviewed and tested all code and results. Documentation was drafted with AI assistance and edited by the author. See [`CONTRIBUTIONS.md`](CONTRIBUTIONS.md).
