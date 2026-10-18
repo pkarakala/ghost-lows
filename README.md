@@ -2,122 +2,97 @@
 
 **An open benchmark for real-time CGM low-glucose alarms under sensor faults, and a measurement of what insulin and carbohydrate context adds.**
 
-> **Not a medical device. Not for treatment decisions.** This project is research software. Nothing it produces should be used to decide whether to treat, ignore or silence a low glucose reading. If a reading looks wrong, confirm with a fingerstick and follow your care team's advice.
+> **Not a medical device. Not for treatment decisions.** This is research software. Nothing it produces should be used to decide whether to treat, ignore or silence a low glucose reading. If a reading looks wrong, confirm with a fingerstick and follow your care team's advice.
 
 ## The problem
 
-Continuous glucose monitors (CGMs) such as the Dexcom G7 and FreeStyle Libre sometimes report low glucose that is not real. The best documented cause is pressure on the sensor during sleep, known in the literature as a **pressure-induced sensor attenuation (PISA)** or **compression low** [Mensh 2013; Facchinetti 2016]. In this project, a **ghost low** means a CGM low reading or low alarm caused by a sensor artifact rather than by low blood glucose. Compression is the main artifact studied, alongside signal dropout, drift and stale readings.
+Continuous glucose monitors (CGMs) sometimes report low glucose when blood glucose is not low. The best-documented cause is pressure on the sensor during sleep, known as a **pressure-induced sensor attenuation (PISA)** or **compression low** [Mensh 2013; Facchinetti 2016]. Such readings cause false overnight alarms [Shivers 2013] and, inside automated insulin delivery, needless insulin suspensions [Baysal 2014].
 
-Compression lows are typically shallow (median depth 24 mg/dL) and short (median 45 min) [Facchinetti 2016], occur mostly overnight, and are long enough to meet the consensus definition of a CGM hypoglycaemic event [Battelino 2023]. They cause false overnight alarms, which contribute to alarm fatigue [Shivers 2013], and inside automated insulin delivery they can trigger needless insulin suspensions followed by high morning glucose [Baysal 2014].
+Detectors for compression lows exist. However, each was evaluated on its own data with its own metrics, and mostly retrospectively. Prior work is listed in [`docs/RESEARCH.md`](docs/RESEARCH.md) §4.
 
-## What is already known
+## What this project contributes
 
-Detecting compression lows is **not** new:
+1. **An open, alarm-level benchmark.** It scores real-time low alarms on *lows caught*, *false alarms per day* (split by cause) and *minutes of warning*, while the severity of a mixed fault suite (compression, dropout, stale readings, drift, spikes) is varied. Faults never touch the reference glucose.
+2. **A controlled ablation of insulin and carb context.** The same published detectors (threshold, trend, Baysal rules, matched filter, isolation forest, gradient boosting) are run with and without insulin- and carbs-on-board, at a pre-registered operating point.
+3. **A simulation that reduces, and measures, the insulin "leak".** In a standard simulator, insulin causes every low. Here, unannounced exercise, sensitivity changes and meal errors make some lows less predictable from recorded insulin. How much insulin still explains is reported as a leak AUC (0.63–0.69 across the three mixes). Compression is injected from the published PISA model [Facchinetti 2016].
+4. **A browser-only upload report** that flags a *possible compression artifact* in Dexcom Clarity or LibreView exports. It implements published methods; the research contribution is the benchmark.
 
-- Real-time, rule-based PISA detection on real data [Baysal 2014].
-- Machine-learning detectors, including gradient boosting [Navarathna 2023] and a prospective detector of PISA onset scored by PR-AUC [Lobo 2026].
-- Retrospective detectors that use CGM values only: matched filter [Idi 2023], isolation forest on simulated data and on 36 adults wearing two sensors [Idi 2024], and a Bayesian smoothness approach [Manzoni 2025].
-- Model-based sensor-fault detection using insulin and meal inputs [Facchinetti 2013; Turksoy 2017], and fault-tolerant prediction with insulin and carbs [Sanchez 2025].
-- Patents on PISA-aware alarm handling [US 2024/0139415; US 2024/0138770] and on gating low alarms with insulin and carb context [US 11,406,331; US 9,119,528; US 10,231,659].
-- A commercial multi-sensor approach with no published metrics [Trinity Biotech 2026].
+Hypotheses H1–H3 were pre-registered in the git tag `protocol-v1`. Every later change is a dated amendment in [`docs/DECISIONS.md`](docs/DECISIONS.md).
 
-## What this project does that is new
+## Key results (`ghostlows-bench v1`)
 
-1. **An open, alarm-level benchmark.** No published suite scores each real-time low alarm on *lows caught*, *false alarms per day* and *minutes of warning* together, while the severity of a *mixed* fault suite (compression, dropout, drift, stale readings) is varied. Existing fault-injection testbeds target controller faults or generic faults with no PISA model [Zhou 2021; APS_TestBed 2022], and existing CGM benchmarks are forecasting benchmarks with no sensor faults [GlucoBench 2024; GlucoFM-Bench 2026; MetaboNet-Bench 2026]. Detector metrics such as sensitivity with false positives per day already exist [Idi 2024; Manzoni 2025]; the novelty is scoring *alarms in real time* across *several fault types at once*.
-2. **A controlled ablation of physiological context.** The same published detectors (threshold, trend, Baysal rules, matched filter, isolation forest, gradient boosting) are run with and without insulin-on-board and carbs-on-board, at a fixed safety level on level 2 lows (<54 mg/dL). The detectors exist; a controlled measurement of what insulin and carb context adds *at alarm time* does not.
-3. **A simulation that does not leak the answer.** In a standard simulator every low is caused by the insulin model, so insulin features look unrealistically strong. The scenarios here add unannounced exercise, insulin-sensitivity changes and missed or miscounted meals so that some lows are not predictable from insulin, and compression is injected from the published PISA model [Facchinetti 2016] instead of hand-made shapes.
-4. **An open, privacy-preserving upload tool** that runs entirely in the browser, computes the consensus CGM metrics [Battelino 2019] and retrospectively flags *possible compression artifacts* using published CGM-only methods. The tool implements published work; the research contribution is the benchmark.
+Simulated cohort: 30 virtual patients (UVA/Padova 2008 via simglucose), 14 days, 5 seeds, default scenario mix. 95% CIs come from a patient bootstrap and describe this cohort, not a population. Full tables: [`results/README.md`](results/README.md).
 
-A hidden-state filter with an explicit "compressed" state is included as a stretch entry. It is only a modest opening given prior model-based work [Facchinetti 2013; Turksoy 2017; Mahmoudi 2017].
+- **Compression is a minor share of false alarms (RQ1).** Even with a PISA every night, compression causes 0.32 (0.30–0.35) of the trend alarm's 1.53 (1.33–1.73) false alarms per day. Noise (0.68) and the other faults (0.43) cause more. The trend alarm catches 90% (86–93%) of level 2 lows.
+- **Trend alarms degrade faster than threshold alarms (H1, supported), but only slightly.** The slope difference is 0.09 (0.07–0.10) false alarms per day per unit fraction of compressed nights: about one extra false alarm every 11 days with compression every night.
+- **Context did not meaningfully reduce compression false alarms (H2).** For all six detectors, the rate ratio with versus without insulin and carb context lies between 0.94 and 1.00. For example, gradient boosting gives 0.96 (0.92–1.00) and the trend combiner 0.94 (0.90–0.96), all above the pre-registered smallest effect of interest (0.75).
+- **Both findings hold at one operating point.** At the pre-registered operating point (no loss of level 2 sensitivity against the trend alarm), the published compression gates suppressed no or almost no alarms. Allowing a 5-point loss, the isolation-forest gate gives 1.27 (1.08–1.45) false alarms per day against trend's 1.39 at half of nights compressed. Curves across thresholds are not yet produced, so these results are tied to that operating point.
+- **The real-data check is uninformative (H3).** On real AZT1D nights with injected artifacts, all ratios include 1. The matched simulation shows no benefit to shrink, and AZT1D users are on automated insulin delivery rather than the open-loop target population.
+- **The compressed state adds nothing (RQ3, exploratory).** A Kalman filter with an explicit compressed state raises fewer false alarms than the best discriminative alarm: ratio 0.88 (0.80–0.98). The same filter without the compressed state does as well: 1.05 (0.93–1.18).
 
-Novelty was assessed on 2026-10-18 from abstracts, full texts where available, and a patent scan; see [`docs/CITATIONS.md`](docs/CITATIONS.md) for what was and was not read.
+## Limitations
 
-## Research questions
+- **Simulated lows are the weakest part.** The 2008 model has no counter-regulation. Virtual patients treat lows at the same cut-offs the alarms use (≤55 mg/dL at night, <70 by day), which shapes how deep and how long simulated lows are.
+- **The cohort is small and smooth.** It has 30 virtual patients and one smooth sensor-noise model. Results describe this cohort, not people with diabetes.
+- **No real compression is labelled.** The real-data tracks inject artifacts into real CGM. Their lows caught is near-circular, because the reference lows come from the same CGM; only the injected-compression false alarms are informative.
+- **Some inputs are unverified.** The PISA model's time constant and the realistic PISA frequency come from abstracts (Facchinetti 2016, Lobo 2026). Clinical review of thresholds and wording is in progress.
+- **Some checks are still missing.** Thresholds are chosen on in-sample training scores, and warning-time CIs resample runs rather than patients ([`docs/development/REVIEW.md`](docs/development/REVIEW.md); fixes proposed in DECISIONS.md).
 
-See [`docs/RESEARCH.md`](docs/RESEARCH.md). In short:
+The full list is in [`docs/RESEARCH.md`](docs/RESEARCH.md) §6.
 
-- **RQ1.** How much do compression and other sensor faults degrade existing low alarms on lows caught, false alarms per day and warning time?
-- **RQ2.** At a fixed sensitivity on level 2 lows, how many compression false alarms does adding insulin and carb context remove, and how much of the effect is on compression versus other noise?
-- **RQ3.** Does a filter with an explicit "compressed" state beat the best discriminative model, and does either hold up on real data?
+## Run it
 
-## Try the upload report
-
-**[pkarakala.github.io/ghost-lows](https://pkarakala.github.io/ghost-lows/)** reads a Dexcom Clarity or LibreView CSV export inside your browser tab and shows the consensus metrics, the ambulatory glucose profile, daily traces and nights with a *possible compression artifact*, each with the reasons it was flagged and time below range with and without the flagged readings. There is no server and no analytics: the file never leaves the tab ([`docs/PRIVACY_AND_SAFETY.md`](docs/PRIVACY_AND_SAFETY.md)). The first load downloads the Python runtime and takes up to a minute. **Try it with sample data** shows the full report for a synthetic 14-day export, which you can also download to see what a Clarity export looks like. A flag needs two published methods to agree and the episode to start at night. It is not proof: on simulated data the flags catch about a third of injected artifacts and also fall on other dips, including some real lows (PRIVACY_AND_SAFETY.md). A low that felt real was worth treating.
-
-## Quickstart
-
-Status: release `v0.1.0` ([`CHANGELOG.md`](CHANGELOG.md)). Every phase of [`docs/ROADMAP.md`](docs/ROADMAP.md) is done, and the results are in [`results/README.md`](results/README.md). Requires [uv](https://docs.astral.sh/uv/); Python 3.11 is installed automatically.
+Requires [uv](https://docs.astral.sh/uv/); Python 3.11 is installed automatically.
 
 ```
-uv sync                                                    # install everything, simulator included
-uv run pytest -q                                           # tests
+uv sync                                                              # install, simulator included
+uv run pytest -q                                                     # tests
 uv run ghostlows benchmark --config experiments/configs/smoke.yaml   # end to end in a few minutes
 ```
 
-**Score your own alarm.** Subclass `ghostlows.alarms.BaseAlarm`, return one score per sample from `_score_run` using only past CGM values, and run it through the same faults, cross-validation and scoring as the built-in alarms. [`examples/custom_alarm.py`](examples/custom_alarm.py) is a 20-line example, tested in CI:
+**Score your own alarm.** Subclass `ghostlows.alarms.BaseAlarm` and return one score per sample from `_score_run`, using only past CGM values. It then runs through the same faults, cross-validation and scoring as the built-in alarms. [`examples/custom_alarm.py`](examples/custom_alarm.py) is tested in CI:
 
 ```
 uv run ghostlows score --alarm examples/custom_alarm.py:FallingBelow70 --config experiments/configs/smoke.yaml
 ```
 
-**Data.** `uv run python scripts/download_data.py` fetches the public GlucoBench files (pinned and checksummed) into `data/` (never committed); `--azt1d` adds AZT1D (776 MB) for the real-data context check. See [`docs/DATA.md`](docs/DATA.md) for licences and the larger opt-in datasets.
+**Reproduce the results.**
+- `make data data-azt1d` downloads pinned, checksummed data into `data/`; it is never committed. Licences are in [`docs/DATA.md`](docs/DATA.md).
+- `make results` simulates the cohort (about 2 h), runs the real-data track and every benchmark config (hours), and regenerates `results/`.
+- `make reproduce` re-runs the headline sweep in a clean checkout of the commit that produced it, from the cached cohort.
 
-**Reproduce the results.** [`results/README.md`](results/README.md) holds every headline table and figure, generated from the committed tables in `results/tables/`. To regenerate them from scratch:
+[`results/README.md`](results/README.md) says what was reproduced, and from which commits.
+
+## Upload report
+
+**[pkarakala.github.io/ghost-lows](https://pkarakala.github.io/ghost-lows/)** reads a Dexcom Clarity or LibreView CSV inside your browser tab. It shows the consensus metrics [Battelino 2019], the ambulatory glucose profile, daily traces, and nights with a *possible compression artifact*, with the reasons for each flag.
+- **Privacy.** There is no server and no analytics; the file never leaves the tab ([`docs/PRIVACY_AND_SAFETY.md`](docs/PRIVACY_AND_SAFETY.md)).
+- **How a flag is made.** A flag needs two published methods to agree and must start at night.
+- **How often flags are wrong.** On simulated data, the flags catch about a third of injected artifacts and also fall on other dips, including some real lows.
+- **What to do.** If you are unsure whether a low is real, check with a fingerstick and treat according to your care plan.
+- **Sample data.** *Try it with sample data* shows the report for a synthetic 14-day export.
+
+## Repository
 
 ```
-make data data-azt1d    # pinned, checksummed downloads
-make results            # simulate the cohort (about 2 h), real-data track, every benchmark config (hours)
-make reproduce          # a clean checkout of the commit behind the headline tables reproduces them
+src/ghostlows/  io (export and dataset loaders), metrics (consensus CGM metrics), sim (simglucose engine),
+                faults (PISA, dropout, stale, drift, spikes), alarms, bench (events, scoring, CV, CIs),
+                retro (upload-report flags)
+experiments/    configs and scripts behind every table and figure
+results/        README with every headline table; committed aggregate tables and figures
+app/            the browser report (stlite / Pyodide), no server
+docs/           specifications: RESEARCH, SIMULATION, BENCHMARK, DATA, PRIVACY_AND_SAFETY, CITATIONS,
+                CLINICAL_REVIEW, DECISIONS; development records in docs/development/
+paper.md        Journal of Open Source Software draft
 ```
 
-**Cite.** See [`CITATION.cff`](CITATION.cff); results should name the benchmark version (`ghostlows-bench v1`). Plans for papers and dataset releases: [`docs/PUBLICATION.md`](docs/PUBLICATION.md).
+## Cite
 
-## Repository layout
-
-```
-src/ghostlows/
-  io/        Dexcom Clarity, LibreView and dataset loaders -> one common table
-  metrics/   consensus CGM metrics (TIR, TBR, TAR, CV, GMI, AGP)
-  sim/       simglucose wrapper, 5-min sensor, realistic scenarios
-  faults/    PISA (Facchinetti model), dropout, drift, stale readings, mixed suite
-  alarms/    threshold, trend, Baysal, matched filter, isolation forest, boosting (+ context), Kalman filter
-  bench/     event detection, alarm scoring, cross-validation, confidence intervals
-  retro/     retrospective "possible compression artifact" flagging for uploads
-experiments/ configs and scripts that produce every table and figure
-results/     README with the headline results; committed aggregate tables and figures
-scripts/     pinned data download, app build, reproducibility check
-app/         in-browser dashboard (stlite / Pyodide), no server
-paper.md     Journal of Open Source Software paper draft (paper.bib)
-tests/
-docs/        research plan, roadmap, simulation, benchmark, data, privacy, citations
-```
-
-## Documents
-
-| File | What it holds |
-|---|---|
-| [`results/README.md`](results/README.md) | The results: every headline table and figure, with the reading of each hypothesis |
-| [`docs/RESEARCH.md`](docs/RESEARCH.md) | Definitions, research questions, hypotheses, novelty summary |
-| [`docs/ROADMAP.md`](docs/ROADMAP.md) | Build phases with acceptance criteria |
-| [`docs/SIMULATION.md`](docs/SIMULATION.md) | Simulator, scenarios and fault-suite specification |
-| [`docs/BENCHMARK.md`](docs/BENCHMARK.md) | Alarms, metrics, operating point and statistics |
-| [`docs/DATA.md`](docs/DATA.md) | Datasets, licences, download steps, export formats |
-| [`docs/PRIVACY_AND_SAFETY.md`](docs/PRIVACY_AND_SAFETY.md) | Rules for the upload tool |
-| [`docs/CITATIONS.md`](docs/CITATIONS.md) and [`docs/references.bib`](docs/references.bib) | Every source, with links and verification status |
-| [`docs/CLINICAL_REVIEW.md`](docs/CLINICAL_REVIEW.md) | Claims the clinical co-lead must verify |
-| [`docs/development/SPEC_REVIEW.md`](docs/development/SPEC_REVIEW.md) and [`docs/DECISIONS.md`](docs/DECISIONS.md) | The critical review of the specs and the design decisions taken on it, with evidence |
-| [`docs/SIMULATION_NOTES.md`](docs/SIMULATION_NOTES.md) | What the simulator really does, and what the simulated cohort looks like |
-| [`docs/PUBLICATION.md`](docs/PUBLICATION.md) | Venues, citation, dataset release and usability plan |
-| [`docs/development/`](docs/development/) | Development records: the phase-by-phase build instructions and the review of the specs made before any code |
-
-## Team
-
-- Engineering: Pranav Karakala Reddy.
-- Clinical and biology fact-checking: clinical co-lead (see `docs/CLINICAL_REVIEW.md`).
+See [`CITATION.cff`](CITATION.cff). Results should name the benchmark version (`ghostlows-bench v1`). Sources are in [`docs/CITATIONS.md`](docs/CITATIONS.md) and [`docs/references.bib`](docs/references.bib).
 
 ## Licence
 
-Code: MIT (see `LICENSE`). Datasets keep their own licences (see `docs/DATA.md`); none are redistributed in this repository.
+Code: MIT (`LICENSE`). Datasets keep their own licences ([`docs/DATA.md`](docs/DATA.md)); none is redistributed here.
 
 ## How this was made
 

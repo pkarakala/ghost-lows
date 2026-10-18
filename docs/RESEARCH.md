@@ -45,6 +45,22 @@ Null results are results. The benchmark is the contribution whichever way H2 com
 
 ## 4. What is new, and why
 
+**Prior work** (moved here from the README):
+- **Mechanism and size.** Compression lows are typically shallow (median depth 24 mg/dL) and short (median 45 min) [Facchinetti 2016]. They occur mostly overnight. They are long enough to meet the consensus definition of a CGM hypoglycaemic event [Battelino 2023]. They cause false overnight alarms, which contribute to alarm fatigue [Shivers 2013]. Inside automated insulin delivery they can trigger needless insulin suspensions followed by high morning glucose [Baysal 2014] **[clinical review CR5]**.
+- **Rule-based detection.** Real-time, rule-based PISA detection on real data [Baysal 2014].
+- **Machine learning.** Machine-learning detectors include gradient boosting [Navarathna 2023]. A prospective detector of PISA onset is scored by PR-AUC [Lobo 2026].
+- **Retrospective, CGM-only detectors.**
+  - Matched filter [Idi 2023].
+  - Isolation forest, on simulated data and on 36 adults wearing two sensors [Idi 2024].
+  - A Bayesian smoothness approach [Manzoni 2025].
+- **Model-based fault detection.** Model-based sensor-fault detection uses insulin and meal inputs [Facchinetti 2013; Turksoy 2017]. Fault-tolerant prediction uses insulin and carbs [Sanchez 2025].
+- **Patents.**
+  - On PISA-aware alarm handling [US 2024/0139415; US 2024/0138770].
+  - On gating low alarms with insulin and carb context [US 11,406,331; US 9,119,528; US 10,231,659].
+- **Commercial.** A commercial multi-sensor approach with no published metrics [Trinity Biotech 2026].
+
+Novelty was assessed on 2026-10-18 from abstracts, full texts where available, and a patent scan; see `CITATIONS.md` for what was and was not read.
+
 **Summary.** Compression-low detection itself is established [Baysal 2014; Navarathna 2023; Idi 2023; Idi 2024; Manzoni 2025; Lobo 2026], and detecting it from CGM values alone is well covered. What does not exist is:
 
 1. **An open benchmark that scores low alarms, not detectors.** Prior work reports detector metrics such as sensitivity, false positives per day or PR-AUC [Idi 2024; Manzoni 2025; Lobo 2026]. [Lobo 2026] detects PISA onset prospectively, to inform "canceling of hypoglycemia alarms", but scores the detector by PR-AUC. None scores each real-time *alarm* on lows caught, false alarms per day and minutes of warning together, under a *mixed* fault suite with adjustable severity. Fault-injection testbeds exist for controllers and generic faults but have no PISA model [Zhou 2021; APS_TestBed 2022]. CGM benchmarks are about forecasting and have no sensor faults [GlucoBench 2024; GlucoFM-Bench 2026; MetaboNet-Bench 2026]. *To check before claiming:* whether the commercial UVA/Padova simulator's sensor models include PISA (Facchinetti 2016 aims to add these artifacts to simulators; see also US 10,546,659), and the full text of [Lobo 2026] (PMC13486385).
