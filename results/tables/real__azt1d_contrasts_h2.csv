@@ -1,0 +1,19 @@
+detector,level,mix,cause,count_context,count_base,rate_ratio,lo,hi,reading
+baysal,0.0,azt1d,compression,0.0,0.0,,,,not estimable
+baysal,0.5,azt1d,compression,96.0,96.0,1.0,1.0,1.0,no meaningful reduction
+baysal,1.0,azt1d,compression,198.0,197.0,1.0050761421319796,0.9884376260250034,1.023258530754184,no meaningful reduction
+iforest_causal,0.0,azt1d,compression,0.0,0.0,,,,not estimable
+iforest_causal,0.5,azt1d,compression,163.0,161.0,1.0124223602484472,1.0,1.0303030303030303,no meaningful reduction
+iforest_causal,1.0,azt1d,compression,332.0,331.0,1.0030211480362539,1.0,1.010000626566416,no meaningful reduction
+matched_filter_causal,0.0,azt1d,compression,0.0,0.0,,,,not estimable
+matched_filter_causal,0.5,azt1d,compression,157.0,157.0,1.0,0.9829545454545454,1.019364388794567,no meaningful reduction
+matched_filter_causal,1.0,azt1d,compression,316.0,318.0,0.9937106918238994,0.9858326588425739,1.0,no meaningful reduction
+threshold,0.0,azt1d,compression,0.0,0.0,,,,not estimable
+threshold,0.5,azt1d,compression,41.0,40.0,1.025,1.0,1.0571428571428572,no meaningful reduction
+threshold,1.0,azt1d,compression,84.0,84.0,1.0,1.0,1.0,no meaningful reduction
+trend,0.0,azt1d,compression,0.0,0.0,,,,not estimable
+trend,0.5,azt1d,compression,54.0,55.0,0.9818181818181818,0.9384375,1.0,no meaningful reduction
+trend,1.0,azt1d,compression,106.0,107.0,0.9906542056074766,0.9557472959685349,1.021282315259666,no meaningful reduction
+gbm,0.0,azt1d,compression,0.0,0.0,,,,not estimable
+gbm,0.5,azt1d,compression,33.0,29.0,1.1379310344827587,1.0,1.45,no meaningful reduction
+gbm,1.0,azt1d,compression,72.0,71.0,1.0140845070422535,0.8428383458646617,1.2133571428571428,no meaningful reduction

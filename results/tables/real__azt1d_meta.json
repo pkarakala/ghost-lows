@@ -1,0 +1,11 @@
+{
+  "dataset": "AZT1D 2025 (Mendeley gk9m674wcx v1): adults with type 1 diabetes on Control-IQ, Dexcom G6",
+  "patients": 25,
+  "days": 1060.65625,
+  "reference_l1_events": 544,
+  "reference_l2_events": 106,
+  "leak_auc_iob": 0.593733720108678,
+  "leak_auc_cob": 0.5686151802578765,
+  "context": "IOB and COB from user-entered boluses and carbs only; automatic boluses and basal respond to the CGM and are left out (D9)",
+  "labelled": "Nothing is labelled as PISA. Injected PISAs are known exactly; real compression artifacts in the reference count as true lows, and Control-IQ already suspended insulin for some of them, which the reference cannot show."
+}

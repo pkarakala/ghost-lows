@@ -1,0 +1,10 @@
+{
+  "dataset": "Weinstock 2016 via GlucoBench (Dexcom G4, older adults, case-control for severe hypoglycaemia)",
+  "patients": 200,
+  "days": 3082.086805555555,
+  "reference_l1_events": 2764,
+  "reference_l2_events": 1550,
+  "event_rule_min": 15,
+  "labelled": "Nothing is labelled as PISA in the real data. Injected PISAs are known exactly; real compression artifacts in the reference are not, so they count as true lows.",
+  "face_validity": "results/tables/real__face_validity.csv"
+}

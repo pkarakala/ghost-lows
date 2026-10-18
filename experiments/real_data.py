@@ -290,10 +290,10 @@ def face_validity(sim_samples: pd.DataFrame, real_grid: pd.DataFrame, out: Path)
     )
     fig, axes = plt.subplots(1, 4, figsize=(15, 3.6), facecolor=SURFACE)
     panels = [
-        (shapes, "fall_rate", "CGM fall rate in the 30 min before a nocturnal low (mg/dL/min)"),
-        (shapes, "nadir", "Nadir of nocturnal lows (mg/dL)"),
-        (shapes, "duration_min", "Duration of nocturnal lows (min)"),
-        (band, "night_70_95", "Share of the night at 70-95 mg/dL, per person"),
+        (shapes, "fall_rate", "CGM fall rate in the 30 min before\na nocturnal low (mg/dL/min)"),
+        (shapes, "nadir", "Nadir of nocturnal lows\n(mg/dL)"),
+        (shapes, "duration_min", "Duration of nocturnal lows\n(min)"),
+        (band, "night_70_95", "Share of the night at 70-95 mg/dL,\nper person"),
     ]
     for ax, (data, col, title) in zip(axes, panels, strict=True):
         for source, color in (

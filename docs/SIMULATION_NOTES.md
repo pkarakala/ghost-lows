@@ -79,3 +79,15 @@ Recorded per the working rule "if something is blocked, record it here and move 
 | Clinical review (CR1–CR16) | Needs a clinician | Thresholds, the floor, the SESOI and the flag rule stay marked as assumptions | Clinical co-lead |
 
 AZT1D was listed as a manual download until 2026-10-18. Mendeley Data's public API serves the CC BY 4.0 archive with a published SHA-256, so `scripts/download_data.py --azt1d` now fetches it (DATA.md §2).
+
+### Face validity against real CGM (Phase 7, D16)
+
+`experiments/real_data.py` compares nocturnal level-1 lows on the CGM in the default mix with those in Weinstock 2016 (`results/figures/real__face_validity.png`, `results/tables/real__face_validity.csv`). Medians, simulated vs. real:
+
+- **Fall rate** in the 30 min before the low: −0.40 vs. −0.47 mg/dL/min. The two distributions nearly coincide.
+- **Nadir:** 57 vs. 47 mg/dL. About a third of the real lows reach the G4's floor of 40 mg/dL, which simulated lows rarely do.
+- **Duration:** 45 vs. 65 min. Simulated lows end within 3 h because the virtual patients treat them; real nocturnal lows in these older adults last up to 10 h.
+- **Share of the night at 70–95 mg/dL:** 16% vs. 6%.
+- **Time below 70:** 2.9% vs. 4.8%.
+
+Reading: simulated lows arrive the way real ones do, but are shallower and shorter. Two things widen that gap and are not simulator flaws. Weinstock is a case–control cohort of older adults selected for severe hypoglycaemia, and the virtual patients' treatment rule cuts lows short. So the comparison bounds, rather than proves, realism. It is also why the semi-synthetic track, which uses real low shapes, is co-primary for RQ1.
