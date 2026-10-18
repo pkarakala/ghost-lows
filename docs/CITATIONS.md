@@ -21,7 +21,7 @@ Literature preparation for the paper is a separate, later step. This list exists
 | Helton 2011 | Helton KL, et al. Biomechanics of the sensor-tissue interface. *J Diabetes Sci Technol* 2011 | [doi](https://doi.org/10.1177/193229681100500318) | opened | Pressure and micromotion review |
 | Facchinetti 2016 | Facchinetti A, et al. Modeling transient disconnections and compression artifacts of CGM sensors. *Diabetes Technol Ther* 2016 | [doi](https://doi.org/10.1089/dia.2015.0250) | opened (abstract) | **PISA model**: median 45 min, 24 mg/dL; first-order shape |
 | Baysal 2014 | Baysal N, et al. A novel method to detect pressure-induced sensor attenuations (PISA) in an artificial pancreas. *J Diabetes Sci Technol* 2014 | [doi](https://doi.org/10.1177/1932296814553267) | opened | Rule-based real-time detector; rate thresholds; AID suspensions |
-| Lobo 2026 | Lobo B. (UVA) Real-time detection of PISA onset. *J Diabetes Sci Technol*, online Aug 2026 | [doi](https://doi.org/10.1177/19322968261469536) | opened (abstract only) | Frequency (1 per 73 h); strongest recent baseline |
+| Lobo 2026 | Lobo B. (UVA) Real-time detection of PISA onset. *J Diabetes Sci Technol*, online Aug 2026 | [doi](https://doi.org/10.1177/19322968261469536) | opened (abstract only) | Frequency (1 per 74.8 h: 1,260 PISAs below 85 mg/dL in 94,201 h, abstract counts); strongest recent baseline |
 
 ## Detectors and fault detection
 
@@ -52,8 +52,9 @@ Literature preparation for the paper is a separate, later step. This list exists
 | Glucose-ML 2025 | Glucose-ML dataset collection | [arXiv 2507.14077](https://arxiv.org/abs/2507.14077) | opened | Dataset catalogue |
 | DiaData 2026 | Cinar B, Maleshkova M. DiaData v3. Zenodo 2026 | [Zenodo](https://zenodo.org/records/17285631) | opened | Dataset |
 | AZT1D 2025 | AZT1D: a real-world dataset for T1D | [arXiv 2506.14789](https://arxiv.org/abs/2506.14789); [data](https://data.mendeley.com/datasets/gk9m674wcx/1) | opened | Real-data context ablation |
+| AZT1D data 2025 | Khamesian S, et al. AZT1D dataset, Mendeley Data v1 | [doi](https://doi.org/10.17632/gk9m674wcx.1) | opened | The data record itself, cited in paper.md |
 | OhioT1DM | Marling C, Bunescu R. OhioT1DM dataset | [site](https://webpages.charlotte.edu/rbunescu/data/ohiot1dm/OhioT1DM-dataset.html) | opened | Dataset (DUA) |
-| Weinstock 2016 | Weinstock RS, et al. Severe hypoglycemia in older adults with T1D (Jaeb) | [Jaeb](https://public.jaeb.org/dataset/537) | verify | Dataset via GlucoBench |
+| Weinstock 2016 | Weinstock RS, et al. Severe hypoglycemia in older adults with T1D (Jaeb) | [doi](https://doi.org/10.2337/dc15-1426); [Jaeb](https://public.jaeb.org/dataset/537) | verify (DOI record checked 2026-10-18) | Dataset via GlucoBench |
 | Dubosson 2018 | Dubosson F, et al. D1NAMO dataset | [Zenodo](https://doi.org/10.5281/zenodo.1421615) | verify | Dataset via GlucoBench |
 | Hall 2018 | Hall H, et al. Glucotypes. *PLoS Biol* 2018 | [journal](https://journals.plos.org/plosbiology/article?id=10.1371/journal.pbio.2005143) | verify | Dataset via GlucoBench |
 | Colás 2019 | Colás A, et al. *PLoS One* 2019 | [journal](https://journals.plos.org/plosone/article?id=10.1371/journal.pone.0225817) | verify | Dataset via GlucoBench |
@@ -66,7 +67,7 @@ Literature preparation for the paper is a separate, later step. This list exists
 | Key | Reference | Link | Status | Used for |
 |---|---|---|---|---|
 | simglucose | Xie J. simglucose v0.2.11 (UVA/Padova 2008 in Python) | [code](https://github.com/jxx123/simglucose) | opened (source) | Simulator |
-| Kovatchev 2009 | Kovatchev BP, et al. In silico preclinical trials (UVA/Padova simulator). *J Diabetes Sci Technol* 2009 | — | verify | Simulator model |
+| Kovatchev 2009 | Kovatchev BP, et al. In silico preclinical trials (UVA/Padova simulator). *J Diabetes Sci Technol* 2009 | [doi](https://doi.org/10.1177/193229680900300106) | verify (DOI record checked 2026-10-18) | Simulator model |
 | Breton 2008 | Breton M, Kovatchev B. Analysis, modeling, and simulation of the accuracy of continuous glucose sensors. *J Diabetes Sci Technol* 2008;2(5):853–862 | [doi](https://doi.org/10.1177/193229680800200517) | opened (abstract, PMID 19750186, PMC2740661) | simglucose noise model; CGM sensor error is non-white and consecutive errors are highly interdependent (ARMA noise). Basis of the sensor-error state in `kalman_pisa` |
 | Basu 2013 | Basu A, et al. Time lag of glucose from intravascular to interstitial compartment. *Diabetes* 2013 | [doi](https://doi.org/10.2337/db13-1132) | opened | Blood-to-ISF lag |
 | Dalla Man 2014 | Dalla Man C, Micheletto F, Lv D, Breton M, Kovatchev B, Cobelli C. The UVA/PADOVA type 1 diabetes simulator: new features. *J Diabetes Sci Technol* 2014;8(1):26–34 | [doi](https://doi.org/10.1177/1932296813514502) | opened (full text, PMC4454102) | 2013 hypoglycaemia and glucagon models, absent from simglucose; their parameter values are not published |

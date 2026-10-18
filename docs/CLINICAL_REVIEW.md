@@ -4,7 +4,7 @@ Tick each item once it has been checked against the full text or with a clinicia
 
 - [ ] **CR1. Mechanism.** Reduced local blood flow from compression causes PISAs. [Mensh 2013] says "presumably"; is there direct physiological evidence? [Helton 2011]
 - [ ] **CR2. Size and duration.** Median depth 24 mg/dL, duration 45 min [Facchinetti 2016, Dexcom G4]. Do these hold for G6/G7, children, arm vs. abdomen?
-- [ ] **CR3. Frequency.** How many nights per week a typical user has a PISA. Only figures found: ~one per 73 h below 85 mg/dL [Lobo 2026]; "once every 5 to 6 days" quoted in [Trinity Biotech 2026].
+- [ ] **CR3. Frequency.** How many nights per week a typical user has a PISA. Only figures found: ~one per 74.8 h below 85 mg/dL [Lobo 2026, abstract counts]; "once every 5 to 6 days" quoted in [Trinity Biotech 2026].
 - [ ] **CR4. Labels.** [Baysal 2014] labels were made by an engineer, not a clinician; acceptable as a reference standard?
 - [ ] **CR5. AID impact.** Needless suspensions and rebound highs [Baysal 2014; Altnickel 2026]. Any data for Control-IQ, 780G, Omnipod 5?
 - [ ] **CR6. Hypoglycaemia levels** (<70, <54, level 3 severe) [IHSG 2017] and the event definition (≥15 min below threshold) [Battelino 2023].
