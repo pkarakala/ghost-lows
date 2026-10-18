@@ -1,5 +1,6 @@
 """Loaders for datasets and device exports into the common schema (DATA.md §3). Pyodide-safe."""
 
+from .azt1d import load_azt1d
 from .clarity import load_clarity
 from .glucobench import load_glucobench
 from .libreview import load_libreview
@@ -28,6 +29,7 @@ __all__ = [
     "COLUMNS",
     "FLAGS",
     "detect_export",
+    "load_azt1d",
     "load_clarity",
     "load_export",
     "load_glucobench",

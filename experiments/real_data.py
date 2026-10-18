@@ -7,6 +7,11 @@
    reference: its lows are the "true" lows, and false alarms caused by injected artifacts are
    attributable exactly. Real, unlabelled PISAs already in the reference bias sensitivity.
 2. Face validity: simulated nocturnal lows and overnight glucose against the same real CGM.
+3. H3 (AZT1D, D6, D9): the H2 contrast on semi-synthetic AZT1D nights, with IOB and COB built
+   from user-entered boluses and carbs only (automatic boluses and basal respond to the CGM),
+   and the realised leak AUC next to the simulated mixes' (D3).
+
+    uv run python experiments/real_data.py --dataset azt1d   # or weinstock (default: both)
 
 Writes results/real/ (gitignored) and copies tables and figures to results/tables and
 results/figures.
@@ -26,8 +31,17 @@ import matplotlib.pyplot as plt  # noqa: E402
 import numpy as np  # noqa: E402
 import pandas as pd  # noqa: E402
 
-from ghostlows.alarms import benchmark_alarms, stretch_alarms  # noqa: E402
-from ghostlows.bench.events import EVENT_MIN, LEVEL_THRESHOLDS, detect_events, is_night, low_labels  # noqa: E402
+from ghostlows.alarms import DETECTORS, benchmark_alarms, stretch_alarms  # noqa: E402
+from ghostlows.alarms.base import minutes  # noqa: E402
+from ghostlows.bench.analysis import context_contrasts  # noqa: E402
+from ghostlows.bench.events import (
+    EVENT_MIN,
+    LEVEL_THRESHOLDS,
+    detect_events,
+    is_night,
+    leak_auc,
+    low_labels,
+)  # noqa: E402
 from ghostlows.bench.pipeline import (  # noqa: E402
     alarm_frame,
     fire_and_score,
@@ -38,7 +52,7 @@ from ghostlows.bench.pipeline import (  # noqa: E402
 from ghostlows.bench.scoring import Windows, fda_rates, per_run_metrics, run_hours  # noqa: E402
 from ghostlows.bench.stats import patient_folds  # noqa: E402
 from ghostlows.faults.suite import inject_real  # noqa: E402
-from ghostlows.io import load_glucobench  # noqa: E402
+from ghostlows.io import load_azt1d, load_glucobench  # noqa: E402
 
 REPO = Path(__file__).resolve().parents[1]
 OUT = REPO / "results" / "real"
@@ -52,6 +66,17 @@ ALARMS = [
     "gbm",
     "gbm_time",
     "kalman_pisa_cgm",  # RQ3: does the model-based filter hold up on real CGM? (amendment A3)
+]
+# H3: the H2 arms (CGM + time vs. CGM + time + IOB/COB) for every detector, plus the trend
+# reference and the Kalman filter with and without inputs (RQ3)
+H3_ALARMS = [
+    "floor_only",
+    "trend",
+    *[f"{d}_combined{arm}" for d in DETECTORS for arm in ("_time", "_time_ctx")],
+    "gbm_time",
+    "gbm_time_ctx",
+    "kalman_pisa",
+    "kalman_pisa_cgm",
 ]
 INK, MUTED, GRID, SURFACE = "#0b0b0b", "#52514e", "#e4e3df", "#fcfcfb"
 SIM_COLOR, REAL_COLOR = "#2a78d6", "#eb6834"
@@ -109,9 +134,10 @@ def inject(grid: pd.DataFrame, per_night: float, seed: int) -> tuple[pd.DataFram
     )
 
 
-def semi_synthetic(grid, events, levels, windows, seed=0, n_folds=2, n_boot=2000):
-    """Frozen alarms (fitted on half the patients at per-night 0.5) evaluated across levels."""
-    alarms_all = [a for a in benchmark_alarms(seed=0) + stretch_alarms() if a.name in ALARMS]
+def semi_synthetic(grid, events, levels, windows, seed=0, n_folds=2, n_boot=2000, names=None):
+    """Frozen alarms (fitted on the training folds at per-night 0.5) evaluated across levels."""
+    names = ALARMS if names is None else names
+    alarms_all = [a for a in benchmark_alarms(seed=0) + stretch_alarms() if a.name in names]
     folds = patient_folds(grid["patient_id"].unique(), n_folds, seed)
     train_obs, train_faults = inject(grid, 0.5, seed)
     train_obs["label"] = low_labels(train_obs, events)
@@ -162,6 +188,55 @@ def semi_synthetic(grid, events, levels, windows, seed=0, n_folds=2, n_boot=2000
                 metrics.append(m.assign(level=level, pisa_fraction=level, fold=fold))
     metrics = pd.concat(metrics, ignore_index=True)
     return metrics, summarise(metrics, n_boot)
+
+
+def azt1d_grid() -> pd.DataFrame:
+    """AZT1D on the 5-min grid with IOB and COB from user-entered boluses and carbs only (D9)."""
+    from ghostlows.sim.context import cob, iob
+
+    raw = load_azt1d()
+    grid = to_grid(raw, "azt1d")
+    parts = []
+    for pid, g in grid.groupby("patient_id", sort=False):
+        r = raw[raw["patient_id"] == pid]
+        b, c = r[r["insulin_bolus"] > 0], r[r["carbs"] > 0]
+        q = minutes(g["time"])
+        parts.append(
+            g.assign(
+                iob=iob(minutes(b["time"]), b["insulin_bolus"].to_numpy(), q),
+                cob=cob(minutes(c["time"]), c["carbs"].to_numpy(), q),
+            )
+        )
+    return pd.concat(parts, ignore_index=True)
+
+
+def run_azt1d(args, windows) -> dict:
+    """H3 on semi-synthetic AZT1D nights (5 leave-patients-out folds), and the leak AUC (D3)."""
+    grid = azt1d_grid()
+    events = reference_events(grid)
+    metrics, summary = semi_synthetic(
+        grid, events, args.levels, windows, n_folds=5, n_boot=args.n_boot, names=H3_ALARMS
+    )
+    contrasts = context_contrasts(metrics, n_boot=args.n_boot)
+    for name, frame in (("metrics", metrics), ("summary", summary), ("contrasts_h2", contrasts)):
+        frame.to_csv(OUT / f"azt1d_{name}.csv", index=False)
+    meta = {
+        "dataset": "AZT1D 2025 (Mendeley gk9m674wcx v1): adults with type 1 diabetes on Control-IQ, Dexcom G6",
+        "patients": int(grid["patient_id"].nunique()),
+        "days": float(run_hours(grid.assign(cgm_observed=grid["glucose"]))["hours"].sum() / 24),
+        "reference_l1_events": int((events["level"] == 1).sum()),
+        "reference_l2_events": int((events["level"] == 2).sum()),
+        "leak_auc_iob": leak_auc(grid, events, "iob"),
+        "leak_auc_cob": leak_auc(grid, events, "cob"),
+        "context": "IOB and COB from user-entered boluses and carbs only; automatic boluses and basal "
+        "respond to the CGM and are left out (D9)",
+        "labelled": "Nothing is labelled as PISA. Injected PISAs are known exactly; real compression "
+        "artifacts in the reference count as true lows, and Control-IQ already suspended insulin for "
+        "some of them, which the reference cannot show.",
+    }
+    (OUT / "azt1d_meta.json").write_text(json.dumps(meta, indent=2, default=float) + "\n")
+    print(contrasts.round(3).to_string(index=False))
+    return meta
 
 
 def low_shapes(frame: pd.DataFrame, value: str, source: str) -> pd.DataFrame:
@@ -261,8 +336,18 @@ def main() -> None:
     parser.add_argument(
         "--face-only", action="store_true", help="only redo the face-validity check"
     )
+    parser.add_argument("--dataset", choices=["weinstock", "azt1d", "all"], default="all")
     args = parser.parse_args()
     OUT.mkdir(parents=True, exist_ok=True)
+    tables, figures = REPO / "results" / "tables", REPO / "results" / "figures"
+    tables.mkdir(parents=True, exist_ok=True)
+    figures.mkdir(parents=True, exist_ok=True)
+    if args.dataset in ("azt1d", "all") and not args.face_only:
+        print(json.dumps(run_azt1d(args, Windows()), indent=2, default=float))
+        for name in ("azt1d_summary.csv", "azt1d_contrasts_h2.csv", "azt1d_meta.json"):
+            shutil.copy(OUT / name, tables / f"real__{name}")
+    if args.dataset == "azt1d":
+        return
     real = to_grid(load_glucobench("weinstock"), "weinstock")
     events = reference_events(real)
     windows = Windows()
@@ -295,9 +380,6 @@ def main() -> None:
     except Exception as exc:  # pragma: no cover - reported, not hidden
         meta["face_validity"] = f"not run: {exc}"
     (OUT / "meta.json").write_text(json.dumps(meta, indent=2) + "\n")
-    tables, figures = REPO / "results" / "tables", REPO / "results" / "figures"
-    tables.mkdir(parents=True, exist_ok=True)
-    figures.mkdir(parents=True, exist_ok=True)
     for name in ("summary.csv", "face_validity.csv", "meta.json"):
         if (OUT / name).exists():
             shutil.copy(OUT / name, tables / f"real__{name}")

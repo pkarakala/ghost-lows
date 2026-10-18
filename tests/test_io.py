@@ -173,3 +173,51 @@ def test_fixtures_match_their_generator(tmp_path):
     module.main(tmp_path)
     for path in sorted(tmp_path.iterdir()):
         assert path.read_bytes() == (FIXTURES / path.name).read_bytes(), path.name
+
+
+AZT1D_HEADER = (
+    "EventDateTime,DeviceMode,BolusType,Basal,CorrectionDelivered,"
+    "TotalBolusInsulinDelivered,FoodDelivered,CarbSize,CGM"
+)
+
+
+def test_azt1d_keeps_user_boluses_apart_and_drops_unresolvable_readings(tmp_path):
+    import zipfile
+
+    rows = [
+        "2026-01-05 00:04:00,,,,,,,,151",
+        "2026-01-05 00:04:00,,,,,,,,151",  # exact duplicate row
+        "2026-01-05 00:09:00,sleep,,0.8,,,,,40",
+        "2026-01-05 00:14:00,,,,,,,,160",
+        "2026-01-05 00:14:00,,,,,,,,120",  # two different readings at one time
+        "2026-01-05 00:19:00,,Automatic Bolus/Correction,,1.2,1.2,0.0,0.0,180",
+        "2026-01-05 00:24:00,,Standard,,0.0,4.0,4.0,40.0,400",
+        "2026-01-05 00:29:00,sleepsleep,Extended 50.00%/3.00,,0.0,1.5,1.5,36.0,170",
+        "2026-01-05 00:34:00,0,0,0.5,0.0,0.0,0.0,0,165",
+    ]
+    other = (
+        "EventDateTime,Basal,BolusType,CarbSize,CorrectionDelivered,FoodDelivered,"
+        "Readings (CGM / BGM),TotalBolusInsulinDelivered,DeviceMode\n"
+        "2026-01-05 00:00:00,,,,,,99,,exercise\n"
+    )
+    archive = tmp_path / "azt1d.zip"
+    with zipfile.ZipFile(archive, "w") as z:
+        z.writestr(
+            "AZT1D 2025/CGM Records/Subject 1/Subject 1.csv", "\n".join([AZT1D_HEADER, *rows])
+        )
+        z.writestr("AZT1D 2025/CGM Records/Subject 2/Subject 2.csv", other)
+        z.writestr("AZT1D 2025/Visual Statistics/Subject 1/notes.csv", "not a record")
+    df = gio.load_azt1d(archive)
+    gio.validate(df)
+    s1 = df[df["patient_id"] == "azt1d:1"]
+    assert len(s1) == 8
+    clash = s1[s1["time"] == pd.Timestamp("2026-01-05 00:14")]
+    assert len(clash) == 2 and clash["glucose"].isna().all()
+    assert s1.loc[s1["glucose_flag"] == "below_range", "glucose"].tolist() == [40.0]
+    assert s1.loc[s1["glucose_flag"] == "above_range", "glucose"].tolist() == [400.0]
+    assert s1["insulin_bolus"].sum() == pytest.approx(5.5)  # standard + extended, user-entered
+    assert s1["insulin_bolus_auto"].sum() == pytest.approx(1.2)
+    assert s1["carbs"].sum() == pytest.approx(76.0)
+    assert set(s1["device_mode"]) == {"", "sleep"}
+    s2 = df[df["patient_id"] == "azt1d:2"]
+    assert s2["glucose"].tolist() == [99.0] and s2["device_mode"].tolist() == ["exercise"]
