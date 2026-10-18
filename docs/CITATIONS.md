@@ -2,6 +2,8 @@
 
 Every claim in this repository's docs, code comments and results cites a key from this file. Add new sources here first (and to `references.bib`), then cite them.
 
+In code, write `# SOURCE: <key>`. Separate several keys with `;`; a key may be followed by a locator, as in `# SOURCE: Baysal 2014 (Table 1)`. `tests/test_repo_rules.py` fails if a key is not in this file.
+
 **Status column**
 - **opened**: abstract or full text was opened during the 2026-10-18 review; link checked then.
 - **ref-only**: seen in reference lists or summaries only; not opened.
