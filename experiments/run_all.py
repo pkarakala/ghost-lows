@@ -17,11 +17,15 @@ import sys
 import time
 from pathlib import Path
 
+import pandas as pd
+
+from ghostlows.bench.analysis import RQ3_MODELS, rq3_contrasts
 from ghostlows.bench.pipeline import BenchConfig, run_benchmark
 
 REPO = Path(__file__).resolve().parents[1]
 CONFIGS = [
     "rq1_pisa_sweep",
+    "rq3_kalman",
     "rq1_all_faults",
     "robust_lag6",
     "robust_tau5",
@@ -58,6 +62,7 @@ def main() -> None:
         )
         print(f"done      {name} in {time.time() - t0:.0f} s", flush=True)
 
+    pair_rq3()
     figures, tables = REPO / "results" / "figures", REPO / "results" / "tables"
     figures.mkdir(parents=True, exist_ok=True)
     tables.mkdir(parents=True, exist_ok=True)
@@ -73,6 +78,7 @@ def main() -> None:
             "summary.csv",
             "contrasts_h2.csv",
             "contrast_h1.csv",
+            "contrasts_rq3.csv",
             "thresholds.csv",
             "meta.json",
         ):
@@ -81,6 +87,22 @@ def main() -> None:
     subprocess.run(
         [sys.executable, str(REPO / "experiments" / "make_results_readme.py")], check=True
     )
+
+
+def pair_rq3(base: str = "rq1_pisa_sweep", kalman: str = "rq3_kalman") -> None:
+    """RQ3 contrasts from the Kalman run and the main run's discriminative alarms (same cohort,
+    folds, faults and training level), written into the Kalman run's folder."""
+    a, b = REPO / "results" / base, REPO / "results" / kalman
+    if not ((a / "metrics.csv").exists() and (b / "metrics.csv").exists()):
+        return
+    m_base, m_kal = pd.read_csv(a / "metrics.csv"), pd.read_csv(b / "metrics.csv")
+    t_base, t_kal = pd.read_csv(a / "thresholds.csv"), pd.read_csv(b / "thresholds.csv")
+    keep = ~m_base["alarm_name"].isin(set(m_kal["alarm_name"]))
+    metrics = pd.concat([m_base[keep], m_kal[m_kal["alarm_name"].isin(RQ3_MODELS)]])
+    thresholds = pd.concat([t_base, t_kal])
+    n_boot = BenchConfig.load(REPO / "experiments" / "configs" / f"{kalman}.yaml").n_boot
+    rq3_contrasts(metrics, thresholds, n_boot=n_boot).to_csv(b / "contrasts_rq3.csv", index=False)
+    print(f"paired    {kalman} with {base} for RQ3", flush=True)
 
 
 if __name__ == "__main__":

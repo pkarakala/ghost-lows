@@ -33,6 +33,8 @@ How much do compression and other sensor faults degrade existing low alarms (thr
 
 Does a filter with an explicit "compressed" hidden state plus insulin and meal inputs [after Facchinetti 2013; Turksoy 2017] beat the best discriminative detector, and does either hold up on real data?
 
+*Operationalised (exploratory, amendment A3; no decision rule).* `kalman_pisa` against the discriminative alarm with the same inputs (the five `_combined_ctx` arms and `gbm_ctx`), chosen in each fold as the one with the fewest false alarms per day on that fold's training patients at its D5 operating point; test results play no part in the choice. The CGM-only `kalman_pisa_cgm` is compared in the same way with the CGM-only arms and `gbm`. Estimands, per mix and fault level with a paired patient bootstrap: the ratio of false alarms (all, and compression), and the difference in level 2 sensitivity. Two ablations: `kalman_pisa` against `kalman_nopisa` (what the compressed state adds) and against `kalman_pisa_cgm` (what the inputs add). The headline is the default mix. On real data, `kalman_pisa_cgm` runs on the semi-synthetic Weinstock track alongside the CGM-only alarms.
+
 ## 3. Hypotheses (fixed before running the full benchmark; frozen by the git tag `protocol-v1`)
 
 - **H1 (fault impact).** For each CGM-only alarm, the per-patient least-squares slope of false alarms per day against the fraction of compressed nights is summarised across patients (median, 95% patient-bootstrap CI). That false alarms rise for threshold alarms follows by construction, because artifacts only lower the CGM, so this is a check, not a finding. The hypothesis is that **trend alarms degrade faster**: the paired slope difference (trend − threshold) is positive, with a CI that excludes 0.

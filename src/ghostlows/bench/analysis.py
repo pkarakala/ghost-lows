@@ -1,9 +1,11 @@
-"""Pre-registered contrasts for H1-H2 (RESEARCH.md §3, D6).
+"""Pre-registered contrasts for H1-H2 (RESEARCH.md §3, D6) and the exploratory RQ3 contrasts.
 
 H2: rate ratio of compression false alarms per night, [CGM + time + IOB/COB] over [CGM + time],
 per detector and scenario mix, with a paired patient bootstrap (same patients, faults and seeds
 in both arms). H1: per-patient least-squares slope of false alarms per day against the fraction
-of compressed nights, trend minus threshold.
+of compressed nights, trend minus threshold. RQ3 (amendment A3): each Kalman alarm against the
+discriminative alarm with the same inputs that had the fewest false alarms on the training
+patients of each fold, plus the two ablations of the Kalman filter.
 """
 
 from __future__ import annotations
@@ -116,3 +118,116 @@ def h1_contrast(
             }
         )
     return pd.DataFrame(rows)
+
+
+# ------------------------------------------------------------------ RQ3 (exploratory, A3)
+
+RQ3_MODELS = {"kalman_pisa": "_ctx", "kalman_nopisa": "_ctx", "kalman_pisa_cgm": ""}
+RQ3_ABLATIONS = {
+    "compressed state": ("kalman_pisa", "kalman_nopisa"),
+    "insulin and carb inputs": ("kalman_pisa", "kalman_pisa_cgm"),
+}
+RQ3_COUNTS = ["n_false", "false_compression", "caught_l2", "events_l2"]
+
+
+def discriminative_pool(names, inputs: str) -> list[str]:
+    """Discriminative alarms with the given inputs ('' = CGM only, '_ctx' = CGM + IOB/COB, no
+    time of day): the five combiner arms and gbm."""
+    return sorted(n for n in set(names) if n.endswith("_combined" + inputs) or n == "gbm" + inputs)
+
+
+def select_comparators(thresholds: pd.DataFrame, pool: list[str]) -> pd.DataFrame:
+    """Per mix and fold, the pool alarm with the fewest training false alarms per day at its
+    operating point, among those meeting the D5 sensitivity constraint (all if none does);
+    ties go to the higher training sensitivity, then the name. Test results are not used."""
+    t = thresholds[thresholds["alarm_name"].isin(pool)].copy()
+    rows = []
+    for (mix, fold), g in t.groupby(["mix", "fold"]):
+        ok = g[g["feasible"].astype(bool)] if g["feasible"].astype(bool).any() else g
+        best = ok.sort_values(
+            ["train_false_per_day", "train_sens_l2", "alarm_name"], ascending=[True, False, True]
+        ).iloc[0]
+        rows.append({"mix": mix, "fold": fold, "comparator": best["alarm_name"]})
+    return pd.DataFrame(rows, columns=["mix", "fold", "comparator"])
+
+
+def _paired(metrics: pd.DataFrame, a: pd.DataFrame, b: pd.DataFrame, n_boot: int) -> list[dict]:
+    """Ratios of false alarms (all, compression) and the difference in level 2 sensitivity,
+    a versus b, per fault level and mix, with a paired patient bootstrap."""
+    keys = ["level", "mix", "patient_id"]
+    pa = a.groupby(keys)[RQ3_COUNTS].sum().add_suffix("_a")
+    pb = b.groupby(keys)[RQ3_COUNTS].sum().add_suffix("_b")
+    both = pa.join(pb, how="inner").reset_index()
+
+    def ratio(col):
+        def f(df):
+            den = df[f"{col}_b"].sum()
+            return float(df[f"{col}_a"].sum() / den) if den > 0 else float("nan")
+
+        return f
+
+    def sens_diff(df):
+        ea, eb = df["events_l2_a"].sum(), df["events_l2_b"].sum()
+        if ea == 0 or eb == 0:
+            return float("nan")
+        return float(df["caught_l2_a"].sum() / ea - df["caught_l2_b"].sum() / eb)
+
+    rows = []
+    for (level, mix), g in both.groupby(["level", "mix"]):
+        g = g.drop(columns=["level", "mix"])
+        for measure, stat in (
+            ("false alarms, ratio", ratio("n_false")),
+            ("compression false alarms, ratio", ratio("false_compression")),
+            ("level 2 sensitivity, difference", sens_diff),
+        ):
+            est, lo, hi = bootstrap_ci(g, stat, n_boot=n_boot)
+            rows.append(
+                {
+                    "level": level,
+                    "mix": mix,
+                    "measure": measure,
+                    "estimate": est,
+                    "lo": lo,
+                    "hi": hi,
+                }
+            )
+    return rows
+
+
+def rq3_contrasts(
+    metrics: pd.DataFrame, thresholds: pd.DataFrame, n_boot: int = 2000
+) -> pd.DataFrame:
+    """Exploratory RQ3 contrasts (amendment A3): Kalman alarm versus the training-selected best
+    discriminative alarm with the same inputs, and the Kalman ablations. Empty without Kalman
+    alarms."""
+    columns = ["contrast", "a", "b", "level", "mix", "measure", "estimate", "lo", "hi"]
+    names = set(metrics["alarm_name"])
+    rows = []
+    for model, inputs in RQ3_MODELS.items():
+        pool = discriminative_pool(names, inputs)
+        if model not in names or not pool or "train_false_per_day" not in thresholds:
+            continue
+        chosen = select_comparators(thresholds, pool)
+        b = metrics.merge(
+            chosen.rename(columns={"comparator": "alarm_name"}), on=["mix", "fold", "alarm_name"]
+        )
+        picks = "; ".join(f"{k}: {v}" for k, v in chosen["comparator"].value_counts().items())
+        for r in _paired(metrics, metrics[metrics["alarm_name"] == model], b, n_boot):
+            rows.append(
+                {
+                    "contrast": "versus best discriminative",
+                    "a": model,
+                    "b": f"best of {inputs or 'CGM-only'} pool ({picks})",
+                    **r,
+                }
+            )
+    for label, (a, b) in RQ3_ABLATIONS.items():
+        if a in names and b in names:
+            for r in _paired(
+                metrics,
+                metrics[metrics["alarm_name"] == a],
+                metrics[metrics["alarm_name"] == b],
+                n_boot,
+            ):
+                rows.append({"contrast": f"ablation: {label}", "a": a, "b": b, **r})
+    return pd.DataFrame(rows, columns=columns)

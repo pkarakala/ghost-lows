@@ -12,6 +12,7 @@ from ghostlows.alarms import (
     TrendAlarm,
     benchmark_alarms,
     fire_events,
+    stretch_alarms,
     view,
 )
 from ghostlows.alarms.detectors import baysal_flags, matched_filter_score
@@ -53,7 +54,7 @@ def train():
 
 @pytest.fixture(scope="module")
 def fitted(train):
-    alarms = benchmark_alarms(seed=0)
+    alarms = benchmark_alarms(seed=0) + stretch_alarms()
     for a in alarms:
         a.fit(train.drop(columns="truth"))
     return {a.name: a for a in alarms}
@@ -67,7 +68,7 @@ def test_labels_mark_ongoing_and_upcoming_lows(train):
     assert run.loc[below, "time"] - run.loc[first, "time"] >= pd.Timedelta("25min")
 
 
-@pytest.mark.parametrize("name", [a.name for a in benchmark_alarms()])
+@pytest.mark.parametrize("name", [a.name for a in benchmark_alarms() + stretch_alarms()])
 def test_every_alarm_is_causal(name, fitted):
     """Changing samples after a cutoff never changes scores (or alarms) up to the cutoff."""
     alarm = fitted[name]
@@ -190,6 +191,17 @@ def test_context_arms_see_context_and_cgm_arms_do_not(fitted):
         fitted["trend_combined_ctx"].score(changed),
         equal_nan=True,
     )
+
+
+def test_kalman_fit_chooses_from_its_grid(fitted):
+    from ghostlows.alarms.kalman_pisa import TUNE_GRID
+
+    for name in ("kalman_pisa", "kalman_pisa_cgm"):
+        params = fitted[name].params
+        for key, grid in TUNE_GRID.items():
+            assert getattr(params, key) in grid, (name, key)
+    assert fitted["kalman_pisa"].params.gain_insulin >= 0  # insulin lowers glucose
+    assert fitted["kalman_pisa_cgm"].params.gain_insulin == 0  # no inputs, no gains
 
 
 def test_view_hides_truth_and_faults():

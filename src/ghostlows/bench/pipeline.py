@@ -21,10 +21,10 @@ import numpy as np
 import pandas as pd
 import yaml
 
-from ..alarms import BaseAlarm, TrendAlarm, benchmark_alarms, view
+from ..alarms import BaseAlarm, TrendAlarm, benchmark_alarms, stretch_alarms, view
 from ..faults import FaultConfig, apply_faults
 from ..faults.calibrate import realistic_fraction
-from .analysis import context_contrasts, h1_contrast
+from .analysis import context_contrasts, h1_contrast, rq3_contrasts
 from .events import low_labels, true_events
 from .scoring import (
     CAUSES,
@@ -96,6 +96,17 @@ def is_learned(alarm: BaseAlarm) -> bool:
     return bool(getattr(alarm, "learned", False)) or any(tag in alarm.name for tag in LEARNED)
 
 
+def select_alarms(names: list[str] | str) -> list[BaseAlarm]:
+    """`all` is the pre-registered set; a list may also name the stretch alarms (RQ3)."""
+    if names == "all":
+        return benchmark_alarms(seed=0)
+    known = benchmark_alarms(seed=0) + stretch_alarms()
+    unknown = set(names) - {a.name for a in known}
+    if unknown:
+        raise ValueError(f"unknown alarm(s) in config: {sorted(unknown)}")
+    return [a for a in known if a.name in names]
+
+
 def alarm_frame(df: pd.DataFrame, alarm: BaseAlarm, with_label: bool = False) -> pd.DataFrame:
     v = view(df, "cgm_observed", context=alarm.uses_context)
     return v.assign(label=df["label"]) if with_label else v
@@ -145,7 +156,10 @@ def training_threshold(alarm, frame, train_obs, events, faults, reference_sens, 
         candidates, lambda t: evaluate(t)[0], lambda t: evaluate(t)[1], reference_sens, delta
     )
     n_l2 = int((events["level"] == 2).sum())
-    info.update(l2_events=n_l2, estimable=n_l2 >= MIN_L2_EVENTS)
+    sens, fpd = evaluate(theta)
+    info.update(
+        l2_events=n_l2, estimable=n_l2 >= MIN_L2_EVENTS, train_sens_l2=sens, train_false_per_day=fpd
+    )
     return theta, info
 
 
@@ -203,10 +217,7 @@ def run_benchmark(config: BenchConfig, out_dir: Path, extra_alarms=()) -> dict[s
     train_obs, train_faults = apply_faults(samples, train_config, seed=config.fault_seed)
     train_obs["label"] = low_labels(train_obs, events)
 
-    alarms_all = benchmark_alarms(seed=0)
-    if config.alarms != "all":
-        alarms_all = [a for a in alarms_all if a.name in config.alarms]
-    alarms_all += list(extra_alarms)
+    alarms_all = select_alarms(config.alarms) + list(extra_alarms)
 
     # ---- fit once per fold and mix at the training level, then freeze (D19)
     fitted: dict[tuple, list[tuple[BaseAlarm, float]]] = {}
@@ -244,6 +255,8 @@ def run_benchmark(config: BenchConfig, out_dir: Path, extra_alarms=()) -> dict[s
                         "feasible": info.get("feasible"),
                         "estimable": info.get("estimable"),
                         "l2_events_train": info.get("l2_events"),
+                        "train_sens_l2": info.get("train_sens_l2"),
+                        "train_false_per_day": info.get("train_false_per_day"),
                     }
                 )
             fitted[(mix, fold)] = entries
@@ -271,8 +284,10 @@ def run_benchmark(config: BenchConfig, out_dir: Path, extra_alarms=()) -> dict[s
                 )
     metrics_df = pd.concat(metrics, ignore_index=True)
     summary = summarise(metrics_df, config.n_boot)
+    thresholds_df = pd.DataFrame(thresholds)
     extras = {
-        "thresholds": pd.DataFrame(thresholds),
+        "thresholds": thresholds_df,
+        "contrasts_rq3": rq3_contrasts(metrics_df, thresholds_df, n_boot=config.n_boot),
         "contrasts_h2": context_contrasts(metrics_df, n_boot=config.n_boot),
         "contrast_h1": (
             h1_contrast(metrics_df, n_boot=config.n_boot)

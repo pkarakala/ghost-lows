@@ -26,7 +26,7 @@ import matplotlib.pyplot as plt  # noqa: E402
 import numpy as np  # noqa: E402
 import pandas as pd  # noqa: E402
 
-from ghostlows.alarms import benchmark_alarms  # noqa: E402
+from ghostlows.alarms import benchmark_alarms, stretch_alarms  # noqa: E402
 from ghostlows.bench.events import EVENT_MIN, LEVEL_THRESHOLDS, detect_events, is_night, low_labels  # noqa: E402
 from ghostlows.bench.pipeline import (  # noqa: E402
     alarm_frame,
@@ -51,6 +51,7 @@ ALARMS = [
     "iforest_causal_gate",
     "gbm",
     "gbm_time",
+    "kalman_pisa_cgm",  # RQ3: does the model-based filter hold up on real CGM? (amendment A3)
 ]
 INK, MUTED, GRID, SURFACE = "#0b0b0b", "#52514e", "#e4e3df", "#fcfcfb"
 SIM_COLOR, REAL_COLOR = "#2a78d6", "#eb6834"
@@ -110,7 +111,7 @@ def inject(grid: pd.DataFrame, per_night: float, seed: int) -> tuple[pd.DataFram
 
 def semi_synthetic(grid, events, levels, windows, seed=0, n_folds=2, n_boot=2000):
     """Frozen alarms (fitted on half the patients at per-night 0.5) evaluated across levels."""
-    alarms_all = [a for a in benchmark_alarms(seed=0) if a.name in ALARMS]
+    alarms_all = [a for a in benchmark_alarms(seed=0) + stretch_alarms() if a.name in ALARMS]
     folds = patient_folds(grid["patient_id"].unique(), n_folds, seed)
     train_obs, train_faults = inject(grid, 0.5, seed)
     train_obs["label"] = low_labels(train_obs, events)

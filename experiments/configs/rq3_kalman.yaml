@@ -1,0 +1,14 @@
+# RQ3 (exploratory; amendment A3 in docs/DECISIONS.md): the multiple-model Kalman filter with a
+# compressed state, and its two ablations (no insulin/carb inputs; no compressed state). Same
+# cohort, folds, faults, training level and operating-point rule as rq1_pisa_sweep, so
+# experiments/run_all.py pairs these alarms with that run's discriminative alarms: each fold's
+# comparator is the one with the same inputs and the fewest training false alarms.
+name: rq3_kalman
+simulation: experiments/configs/sim_full.yaml
+sweep: pisa
+levels: [0.0, 0.1, 0.25, 0.5, 0.75, 1.0]
+severity: 0.5
+train_level: realistic
+alarms: [trend, kalman_pisa, kalman_pisa_cgm, kalman_nopisa]
+n_folds: 5
+n_boot: 2000

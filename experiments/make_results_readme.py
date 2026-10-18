@@ -143,6 +143,48 @@ def section_robustness() -> list[str]:
     ]
 
 
+def section_rq3(
+    rq3: pd.DataFrame | None, kalman: pd.DataFrame | None, mix: str = "default"
+) -> list[str]:
+    lines = ["### RQ3 (exploratory): a Kalman filter with an explicit compressed state", ""]
+    if rq3 is None or rq3.empty:
+        return lines + ["Not run yet.", ""]
+    r = rq3[rq3["mix"] == mix]
+    levels = sorted(r["level"].unique())
+    show = [levels[0], levels[-1]]
+    lines += [
+        f"{mix.capitalize()} mix, which the filter's development did not use (amendment A3). Ratios below 1 and positive sensitivity differences favour the first alarm; 95% paired patient-bootstrap CIs. The comparator is chosen in each fold on training patients only; the pool and how often each was chosen are in brackets. Exploratory: no decision rule.",
+        "",
+        "| Contrast | First vs second | Measure | "
+        + " | ".join(f"PISA nights {lv:.0%}" for lv in show)
+        + " |",
+        "|---|---|---|" + "---|" * len(show),
+    ]
+    for (contrast, a, b, measure), g in r.groupby(["contrast", "a", "b", "measure"], sort=False):
+        g = g.set_index("level")
+        cells = [
+            f"{g.loc[lv, 'estimate']:.2f} ({g.loc[lv, 'lo']:.2f}–{g.loc[lv, 'hi']:.2f})"
+            if lv in g.index and pd.notna(g.loc[lv, "estimate"])
+            else "–"
+            for lv in show
+        ]
+        lines.append(f"| {contrast} | `{a}` vs {b} | {measure} | " + " | ".join(cells) + " |")
+    if kalman is not None:
+        k = kalman[(kalman["mix"] == mix) & (kalman["level"] == kalman["level"].max())]
+        lines += [
+            "",
+            f"Kalman alarms at {k['level'].max():.0%} PISA nights: false alarms/day, compression false alarms/day, level 2 caught.",
+            "",
+            "| Alarm | False alarms/day | Compression false alarms/day | Level 2 caught |",
+            "|---|---|---|---|",
+        ]
+        for _, row in k.sort_values("alarm_name").iterrows():
+            lines.append(
+                f"| `{row['alarm_name']}` | {ci(row, 'false_per_day')} | {ci(row, 'false_compression_per_day')} | {ci(row, 'sens_l2', pct=True)} |"
+            )
+    return lines + [""]
+
+
 def limitations() -> list[str]:
     text = (REPO / "docs" / "RESEARCH.md").read_text()
     m = re.search(r"## 6\. Known limitations to state up front\n(.*?)\n## 7", text, flags=re.S)
@@ -186,6 +228,10 @@ def main() -> None:
             *section_h1(table(TABLES / f"{MAIN}__contrast_h1.csv")),
             *section_h2(table(TABLES / f"{MAIN}__contrasts_h2.csv"), meta.get("train_level")),
             *section_robustness(),
+            *section_rq3(
+                table(TABLES / "rq3_kalman__contrasts_rq3.csv"),
+                table(TABLES / "rq3_kalman__summary.csv"),
+            ),
             "## Figures",
             "",
         ]

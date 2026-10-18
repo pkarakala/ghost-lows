@@ -18,7 +18,7 @@ ROOT = Path(__file__).resolve().parents[1]
 
 
 @pytest.fixture(scope="module")
-def result(tmp_path_factory):
+def tiny(tmp_path_factory):
     tmp = tmp_path_factory.mktemp("bench")
     sim_run.DATA = tmp  # cache the tiny cohort outside data/
     sim_cfg = tmp / "sim.yaml"
@@ -33,6 +33,12 @@ def result(tmp_path_factory):
             }
         )
     )
+    return tmp, sim_cfg
+
+
+@pytest.fixture(scope="module")
+def result(tiny):
+    tmp, sim_cfg = tiny
     config = pipeline.BenchConfig(
         name="tiny",
         simulation=str(sim_cfg),
@@ -44,6 +50,37 @@ def result(tmp_path_factory):
     example = load_alarm(str(ROOT / "examples" / "custom_alarm.py") + ":FallingBelow70")
     out = tmp / "out"
     return pipeline.run_benchmark(config, out, extra_alarms=[example]), out
+
+
+def test_rq3_kalman_alarms_and_contrasts_run_end_to_end(tiny):
+    tmp, sim_cfg = tiny
+    alarms = ["trend", "kalman_pisa", "kalman_pisa_cgm", "kalman_nopisa", "trend_combined"]
+    alarms += ["trend_combined_ctx"]
+    config = pipeline.BenchConfig(
+        name="tiny_rq3",
+        simulation=str(sim_cfg),
+        levels=[0.0, 1.0],
+        alarms=alarms,
+        n_folds=2,
+        n_boot=20,
+    )
+    res = pipeline.run_benchmark(config, tmp / "rq3")
+    assert set(res["metrics"]["alarm_name"]) == set(alarms)
+    t = res["thresholds"]
+    assert t.loc[t["alarm_name"] == "kalman_pisa", "train_false_per_day"].notna().all()
+    c = res["contrasts_rq3"]
+    assert {"versus best discriminative", "ablation: compressed state"} <= set(c["contrast"])
+    best = c[c["contrast"] == "versus best discriminative"]
+    assert set(best["a"]) == {"kalman_pisa", "kalman_nopisa", "kalman_pisa_cgm"}
+    assert best.loc[best["a"] == "kalman_pisa", "b"].str.contains("trend_combined_ctx").all()
+    assert best.loc[best["a"] == "kalman_pisa_cgm", "b"].str.contains("trend_combined:").all()
+    assert (tmp / "rq3" / "contrasts_rq3.csv").exists()
+
+
+def test_unknown_alarm_names_are_an_error():
+    with pytest.raises(ValueError, match="unknown alarm"):
+        pipeline.select_alarms(["trend", "trnd"])
+    assert "kalman_pisa" not in {a.name for a in pipeline.select_alarms("all")}
 
 
 def test_outputs_follow_benchmark_spec(result):

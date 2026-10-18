@@ -1,6 +1,7 @@
 """Real-time low-glucose alarms behind a common causal interface (docs/BENCHMARK.md §1-2)."""
 
 from .base import FLOOR_MG_DL, Alarm, BaseAlarm, fire_events, view
+from .kalman_pisa import KalmanParams, KalmanPisaAlarm
 from .learned import ARMS, DETECTORS, CombinedAlarm, GatedAlarm, GBMAlarm
 from .rules import FloorOnlyAlarm, ThresholdAlarm, TrendAlarm
 
@@ -25,6 +26,17 @@ def benchmark_alarms(seed: int = 0) -> list:
     return alarms
 
 
+def stretch_alarms() -> list:
+    """Alarms outside the pre-registered set of `benchmark_alarms` (RQ3, amendment A3): the
+    multiple-model Kalman filter with a compressed state, without inputs, and without the
+    compressed state. A config selects them by name; `alarms: all` does not include them."""
+    return [
+        KalmanPisaAlarm(inputs=True),
+        KalmanPisaAlarm(inputs=False),
+        KalmanPisaAlarm(inputs=True, pressure=False),
+    ]
+
+
 __all__ = [
     "ARMS",
     "DETECTORS",
@@ -35,9 +47,12 @@ __all__ = [
     "FloorOnlyAlarm",
     "GBMAlarm",
     "GatedAlarm",
+    "KalmanParams",
+    "KalmanPisaAlarm",
     "ThresholdAlarm",
     "TrendAlarm",
     "benchmark_alarms",
     "fire_events",
+    "stretch_alarms",
     "view",
 ]
