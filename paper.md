@@ -44,6 +44,10 @@ The intended users are researchers who develop or evaluate CGM alarms and artifa
 
 The 2008 simulator lacks the 2013 model's hypoglycaemia nonlinearity and glucagon counter-regulation, so simulated lows are the weakest part of the cohort. The semi-synthetic real-data track exists to check them. Without counter-regulation, untreated simulated lows run on until the insulin wears off, so the virtual patients treat lows with a fixed rule taken from public-health advice, and that rule shapes how long and how deep simulated lows are. The simulated sensor error is smooth, so sample-level noise is gentler than a real sensor's. No public dataset labels real compression artifacts: real-data results use injected artifacts, and real artifacts in the reference count as true lows. The PISA model's time constant is an assumption, pending the full text of @Facchinetti2016, and is swept in robustness arms. The realistic PISA frequency comes from the abstract of @Lobo2026. Confidence intervals describe the simulated cohort, not a population. The software is a research tool, not a medical device, and must not be used to decide whether to treat a low.
 
+# AI usage disclosure
+
+Research question, study design, decisions and interpretation: Pranav Karakala Reddy. Clinical review: [name to be added] (in progress). Software was implemented with AI coding agents under the author's direction; the author specified, reviewed and tested all code and results. Documentation was drafted with AI assistance and edited by the author.
+
 # Acknowledgements
 
 We thank the teams who made their data and software public: the Jaeb Center for Health Research and the authors of the study of severe hypoglycaemia in older adults [@Weinstock2016]; the GlucoBench curators [@GlucoBench2024]; the AZT1D authors [@AZT1Ddata]; and the author of simglucose [@simglucose]. Much of the code and documentation was written with an AI coding assistant (Claude, Anthropic), as recorded in the commit history; design decisions and amendments are logged in `docs/DECISIONS.md`.

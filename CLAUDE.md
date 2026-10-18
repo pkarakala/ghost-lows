@@ -38,7 +38,7 @@ scripts/download_data.py
 app/            # stlite app + index.html
 tests/          # pytest; fixtures in tests/fixtures/ (synthetic only)
 docs/           # specs (source of truth for behaviour)
-prompts/        # phase prompts
+docs/development/  # phase prompts and the spec review (development records)
 ```
 
 ## Commands

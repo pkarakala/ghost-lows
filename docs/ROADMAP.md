@@ -1,8 +1,8 @@
 # Roadmap
 
-Each phase ends with passing tests and a commit. Prompts for each phase are in [`../prompts/`](../prompts/). Phases 0 to 8 are the end-to-end core; phase 9 is a stretch.
+Each phase ends with passing tests and a commit. Phases 0 to 8 are the end-to-end core; phase 9 is a stretch.
 
-Before starting a phase, resolve the open items in [`SPEC_REVIEW.md`](SPEC_REVIEW.md) tagged with that phase number.
+Before starting a phase, resolve the open items in [`SPEC_REVIEW.md`](development/SPEC_REVIEW.md) tagged with that phase number.
 
 | Phase | Goal | Done when |
 |---|---|---|
