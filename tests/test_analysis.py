@@ -107,3 +107,26 @@ def test_per_run_counts_are_integers_even_from_object_columns():
     m = per_run_metrics(classified, pd.DataFrame(), hours, ["a"])
     assert m["n_floor"].tolist() == [1] and m["n_false"].tolist() == [1]
     assert m["n_floor"].dtype.kind == "i" and m["n_false"].dtype.kind == "i"
+
+
+def test_warning_times_come_with_the_miss_rate():
+    from ghostlows.bench.analysis import warning_times
+
+    rows = []
+    for i in range(6):
+        rows.append(
+            {
+                "alarm_name": "trend",
+                "level": 1.0,
+                "mix": "default",
+                "patient_id": f"sim:adult#{i + 1:03d}",
+                "warning_median_min_l2": 8.0 + i,
+                "caught_l2": 3,
+                "events_l2": 4,
+            }
+        )
+    w = warning_times(pd.DataFrame(rows), n_boot=50)
+    r = w[w["low_level"] == 2].iloc[0]
+    assert r["warning_median_min"] == pytest.approx(10.5)
+    assert r["lo"] <= r["warning_median_min"] <= r["hi"]
+    assert r["miss_rate"] == pytest.approx(0.25)

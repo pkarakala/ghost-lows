@@ -62,7 +62,7 @@ Reimplementations of published methods follow the papers as closely as their tex
 | **Matching (D12)** | An alarm matches the first event with alarm time in [onset − 30 min, event end]. An event is **caught** if a matched alarm falls in [onset − 30, onset + 15] **[assumption on windows]**. Matched alarms after onset + 15 are **late**, not false. Sensitivity analysis: early window 20/30/45 min, late bound 15/30 min |
 | **Lows caught** (sensitivity) | Share of true low events caught, per level |
 | **False alarms per day** | Unmatched alarms per 24 h of wear, **split by cause** (D10), assigned at the alarm in this order: *compression* if a PISA was active in [t − 30, t] min; *other fault* if another fault was; *near-event* if within 60 min after a true low ends or 30–60 min before an onset; otherwise *noise* **[assumption on windows]**. Counts per night equal counts per 24 h of wear (D13) |
-| **Warning time** | Onset time minus first alarm time, for caught events. Report the median **together with** the miss rate, never alone |
+| **Warning time** | Onset time minus first alarm time, for caught events. Report the median **together with** the miss rate, never alone. As implemented: the median over patient-runs of each run's median warning, with a patient-bootstrap CI (`warning.csv`), because event-level warnings are not stored |
 | **Late announcement** | For level 2 lows whose non-floor alarm was suppressed or missed: time from onset to the first alarm, usually the floor (D4) |
 | **Flicker** | Re-fires within 15 min |
 | **Detection latency** | For gated detectors: time from PISA onset to the gate first flagging it (D7) |

@@ -38,6 +38,22 @@ def table(path: Path):
     return pd.read_csv(path) if path.exists() else None
 
 
+def warning_cell(w: pd.DataFrame | None, alarm: str, level: float, mix: str) -> str:
+    """Median warning before caught level 2 lows (run-level, with CI) and the miss rate."""
+    if w is None:
+        return "–"
+    r = w[
+        (w["alarm_name"] == alarm)
+        & (w["level"] == level)
+        & (w["mix"] == mix)
+        & (w["low_level"] == 2)
+    ]
+    if r.empty or pd.isna(r["warning_median_min"].iloc[0]):
+        return "–"
+    r = r.iloc[0]
+    return f"{r['warning_median_min']:.0f} ({r['lo']:.0f} to {r['hi']:.0f}); missed {r['miss_rate']:.0%}"
+
+
 def section_rq1(summary: pd.DataFrame, mix: str = "default") -> list[str]:
     s = summary[(summary["mix"] == mix) & summary["alarm_name"].isin(CGM_ONLY)]
     levels = sorted(s["level"].unique())
@@ -63,9 +79,10 @@ def section_rq1(summary: pd.DataFrame, mix: str = "default") -> list[str]:
         "",
         f"At the highest level ({top:.0%} of nights), by cause and with lows caught:",
         "",
-        "| Alarm | Compression | Other fault | Near event | Noise | Level 1 caught | Level 2 caught |",
-        "|---|---|---|---|---|---|---|",
+        "| Alarm | Compression | Other fault | Near event | Noise | Level 1 caught | Level 2 caught | Warning before caught level 2 lows, min (95% CI); miss rate |",
+        "|---|---|---|---|---|---|---|---|",
     ]
+    w = table(TABLES / f"{MAIN}__warning.csv")
     for alarm in CGM_ONLY:
         g = s[(s["alarm_name"] == alarm) & (s["level"] == top)]
         if g.empty:
@@ -74,8 +91,13 @@ def section_rq1(summary: pd.DataFrame, mix: str = "default") -> list[str]:
         lines.append(
             f"| `{alarm}` | {ci(r, 'false_compression_per_day')} | {ci(r, 'false_other_fault_per_day')} | "
             f"{ci(r, 'false_near_event_per_day')} | {ci(r, 'false_noise_per_day')} | "
-            f"{ci(r, 'sens_l1', pct=True)} | {ci(r, 'sens_l2', pct=True)} |"
+            f"{ci(r, 'sens_l1', pct=True)} | {ci(r, 'sens_l2', pct=True)} | {warning_cell(w, alarm, top, mix)} |"
         )
+    if w is not None:
+        lines += [
+            "",
+            "Warning time is the median over patient-runs of each run's median warning (onset minus first alarm, caught lows only), always shown with the miss rate (BENCHMARK.md §4). Simulated warning times are pessimistic, because the model's sensor lag is longer than measured in people (RESEARCH.md §6).",
+        ]
     return lines
 
 

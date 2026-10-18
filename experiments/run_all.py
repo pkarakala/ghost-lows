@@ -20,7 +20,7 @@ from pathlib import Path
 
 import pandas as pd
 
-from ghostlows.bench.analysis import RQ3_MODELS, h1_contrast, rq3_contrasts
+from ghostlows.bench.analysis import RQ3_MODELS, h1_contrast, rq3_contrasts, warning_times
 from ghostlows.bench.pipeline import BenchConfig, run_benchmark, summarise
 from ghostlows.bench.stats import age_group
 
@@ -75,6 +75,7 @@ def main() -> None:
     pair_rq3()
     for name in names:
         by_age_group(REPO / "results" / name)
+        warnings_table(REPO / "results" / name)
     figures, tables = REPO / "results" / "figures", REPO / "results" / "tables"
     figures.mkdir(parents=True, exist_ok=True)
     tables.mkdir(parents=True, exist_ok=True)
@@ -92,6 +93,7 @@ def main() -> None:
             "contrast_h1.csv",
             "contrasts_rq3.csv",
             "summary_by_age_group.csv",
+            "warning.csv",
             "contrast_h1_by_age_group.csv",
             "thresholds.csv",
             "meta.json",
@@ -121,6 +123,17 @@ def by_age_group(out: Path) -> None:
     if h1:
         pd.concat(h1).to_csv(out / "contrast_h1_by_age_group.csv", index=False)
     print(f"by age    {out.name}", flush=True)
+
+
+def warnings_table(out: Path) -> None:
+    """Minutes of warning with the miss rate (BENCHMARK.md §4), next to the run's outputs."""
+    if not (out / "metrics.csv").exists() or (out / "warning.csv").exists():
+        return
+    n_boot = BenchConfig.load(out / "config.yaml").n_boot
+    warning_times(pd.read_csv(out / "metrics.csv"), n_boot=n_boot).to_csv(
+        out / "warning.csv", index=False
+    )
+    print(f"warning   {out.name}", flush=True)
 
 
 def pair_rq3(base: str = "rq1_pisa_sweep", kalman: str = "rq3_kalman") -> None:
