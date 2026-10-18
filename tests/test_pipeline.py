@@ -72,8 +72,8 @@ def test_rq3_kalman_alarms_and_contrasts_run_end_to_end(tiny):
     assert {"versus best discriminative", "ablation: compressed state"} <= set(c["contrast"])
     best = c[c["contrast"] == "versus best discriminative"]
     assert set(best["a"]) == {"kalman_pisa", "kalman_nopisa", "kalman_pisa_cgm"}
-    assert best.loc[best["a"] == "kalman_pisa", "b"].str.contains("trend_combined_ctx").all()
-    assert best.loc[best["a"] == "kalman_pisa_cgm", "b"].str.contains("trend_combined:").all()
+    assert best.loc[best["a"] == "kalman_pisa", "b"].str.contains("`trend_combined_ctx`").all()
+    assert best.loc[best["a"] == "kalman_pisa_cgm", "b"].str.contains("`trend_combined`").all()
     assert (tmp / "rq3" / "contrasts_rq3.csv").exists()
 
 

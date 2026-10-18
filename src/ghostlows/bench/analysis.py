@@ -213,13 +213,17 @@ def rq3_contrasts(
         b = metrics.merge(
             chosen.rename(columns={"comparator": "alarm_name"}), on=["mix", "fold", "alarm_name"]
         )
-        picks = "; ".join(f"{k}: {v}" for k, v in chosen["comparator"].value_counts().items())
+        pool_name = "CGM + IOB/COB" if inputs == "_ctx" else "CGM-only"
         for r in _paired(metrics, metrics[metrics["alarm_name"] == model], b, n_boot):
+            picked = chosen[chosen["mix"] == r["mix"]]["comparator"].value_counts()
+            folds = "; ".join(
+                f"`{k}` in {v} of {int(picked.sum())} folds" for k, v in picked.items()
+            )
             rows.append(
                 {
                     "contrast": "versus best discriminative",
                     "a": model,
-                    "b": f"best of {inputs or 'CGM-only'} pool ({picks})",
+                    "b": f"best {pool_name} discriminative alarm ({folds})",
                     **r,
                 }
             )

@@ -75,6 +75,7 @@ def section_rq1(summary: pd.DataFrame, mix: str = "default") -> list[str]:
             + " |"
         )
     top = max(levels)
+    lines += gates_note(s)
     lines += [
         "",
         f"At the highest level ({top:.0%} of nights), by cause and with lows caught:",
@@ -142,6 +143,99 @@ def section_h2(h2: pd.DataFrame | None, level: float | None) -> list[str]:
     return lines + [""]
 
 
+def section_all_faults() -> list[str]:
+    """RQ1 with every fault type rising together (rq1_all_faults)."""
+    s = table(TABLES / "rq1_all_faults__summary.csv")
+    if s is None:
+        return []
+    h1 = table(TABLES / "rq1_all_faults__contrast_h1.csv")
+    w = table(TABLES / "rq1_all_faults__warning.csv")
+    d = s[s["mix"] == "default"]
+    levels = sorted(d["level"].unique())
+    top = levels[-1]
+    alarms = [
+        a
+        for a in ("floor_only", "threshold", "trend", "gbm_time", "gbm_time_ctx")
+        if a in set(d["alarm_name"])
+    ]
+    lines = [
+        "### RQ1 with every fault rising together (default mix)",
+        "",
+        "Severity of all faults (PISA fraction, dropout, stale readings, drift, spikes) set to the level (SIMULATION.md §4.3). False alarms per day (95% CI):",
+        "",
+        "| Alarm | "
+        + " | ".join(f"severity {lv:g}" for lv in levels)
+        + f" | Level 2 caught at {top:g} | Warning at {top:g}, min; miss rate |",
+        "|---|" + "---|" * (len(levels) + 2),
+    ]
+    for alarm in alarms:
+        g = d[d["alarm_name"] == alarm].set_index("level")
+        cells = [ci(g.loc[lv], "false_per_day") if lv in g.index else "–" for lv in levels]
+        sens = ci(g.loc[top], "sens_l2", pct=True) if top in g.index else "–"
+        warn = "–"
+        if w is not None:
+            r = w[
+                (w["alarm_name"] == alarm)
+                & (w["level"] == top)
+                & (w["mix"] == "default")
+                & (w["low_level"] == 2)
+            ]
+            if len(r) and pd.notna(r["warning_median_min"].iloc[0]):
+                warn = f"{r['warning_median_min'].iloc[0]:.0f}; missed {r['miss_rate'].iloc[0]:.0%}"
+        lines.append(f"| `{alarm}` | " + " | ".join(cells) + f" | {sens} | {warn} |")
+    if h1 is not None and len(h1):
+        parts = [
+            f"{r['mix']} {fmt_ci(r['median_slope_diff'], r['lo'], r['hi'])}"
+            for _, r in h1.iterrows()
+        ]
+        lines += [
+            "",
+            "Slope difference (trend − threshold), false alarms/day per unit severity: "
+            + "; ".join(parts)
+            + ".",
+        ]
+    return lines + [""]
+
+
+def same_series(s: pd.DataFrame, a: str, b: str, col: str = "false_per_day") -> bool:
+    x = s[s["alarm_name"] == a].sort_values(["mix", "level"])[col].to_numpy()
+    y = s[s["alarm_name"] == b].sort_values(["mix", "level"])[col].to_numpy()
+    return len(x) > 0 and len(x) == len(y) and bool(np.allclose(x, y, rtol=0, atol=1e-9))
+
+
+def gates_note(s: pd.DataFrame) -> list[str]:
+    """Say when the operating point switched the published gates off, or nearly off."""
+    gates = [
+        a
+        for a in ("baysal_gate", "matched_filter_causal_gate", "iforest_causal_gate")
+        if a in set(s["alarm_name"])
+    ]
+    off = [g for g in gates if same_series(s, g, "trend")]
+    trend = s[s["alarm_name"] == "trend"].sort_values(["mix", "level"])["false_per_day"].to_numpy()
+    near = []
+    for g in gates:
+        x = s[s["alarm_name"] == g].sort_values(["mix", "level"])["false_per_day"].to_numpy()
+        if g not in off and len(x) and len(x) == len(trend):
+            gap = float(np.abs(x - trend).max())
+            if gap < 0.05:
+                size = "less than 0.01" if gap < 0.01 else f"at most {gap:.2f}"
+                near.append(f"`{g}` differs from `trend` by {size} false alarms/day")
+    if not off and not near:
+        return []
+    text = ""
+    if off:
+        text += "Identical to `trend` here: " + ", ".join(f"`{g}`" for g in off) + ". "
+    if near:
+        text += "; ".join(near) + ". "
+    text += (
+        "The pre-registered operating point (D5, δ = 0) allows no loss of sensitivity against "
+        "`trend`, and on the training patients almost every suppression a gate could make cost a "
+        "caught low, so D5 switched the gates off or nearly off. The δ = 0.05 arm shows what they "
+        "do when a small loss is allowed."
+    )
+    return ["", text]
+
+
 def section_age_groups() -> list[str]:
     """Results by age group as well as pooled (D14)."""
     s = table(TABLES / f"{MAIN}__summary_by_age_group.csv")
@@ -198,25 +292,63 @@ def section_age_groups() -> list[str]:
     return lines + [""]
 
 
+ROBUST_ALARMS = (
+    "trend",
+    "baysal_gate",
+    "matched_filter_causal_gate",
+    "iforest_causal_gate",
+    "gbm_time",
+    "gbm_time_ctx",
+    "trend_combined_time_ctx",
+)
+ARM_MEANING = {
+    "robust_delta05": "D5 allows a 5-point loss of level 2 sensitivity",
+    "robust_lag6": "CGM rebuilt from plasma with a 6-min lag",
+    "robust_tau5": "test PISAs with a 5-min time constant (filter and gates assume 10)",
+    "robust_tau20": "test PISAs with a 20-min time constant",
+    "robust_early20": "alarms up to 20 min (not 30) before onset count as on time",
+    "robust_early45": "alarms up to 45 min before onset count as on time",
+    "robust_late30": "alarms up to 30 min (not 15) after onset still catch the low",
+}
+
+
 def section_robustness() -> list[str]:
     lines = ["### Robustness arms (default mix)", ""]
+    main = table(TABLES / f"{MAIN}__summary.csv")
     rows = []
     for path in sorted(TABLES.glob("robust_*__summary.csv")):
         name = path.name.split("__")[0]
         s = pd.read_csv(path)
+        s = s[s["mix"] == "default"]
         top = s["level"].max()
-        for alarm in ("trend", "baysal_gate", "trend_combined_time_ctx"):
+        lines_arm = []
+        for alarm in ROBUST_ALARMS:
             g = s[(s["alarm_name"] == alarm) & (s["level"] == top)]
-            if len(g):
-                r = g.iloc[0]
-                rows.append(
-                    f"| {name} | `{alarm}` | {top:.0%} | {ci(r, 'false_per_day')} | {ci(r, 'false_compression_per_day')} | {ci(r, 'sens_l2', pct=True)} |"
-                )
+            if g.empty:
+                continue
+            r = g.iloc[0]
+            ref = "–"
+            if main is not None:
+                m = main[
+                    (main["mix"] == "default")
+                    & (main["alarm_name"] == alarm)
+                    & (main["level"] == top)
+                ]
+                if len(m):
+                    ref = f"{m['false_per_day'].iloc[0]:.2f}; {m['sens_l2'].iloc[0]:.0%}"
+            lines_arm.append(
+                f"| {name} | `{alarm}` | {top:.0%} | {ci(r, 'false_per_day')} | {ci(r, 'false_compression_per_day')} | {ci(r, 'sens_l2', pct=True)} | {ref} |"
+            )
+        if lines_arm:
+            rows.append(f"| **{name}**: {ARM_MEANING.get(name, '')} | | | | | | |")
+            rows += lines_arm
     if not rows:
         return lines + ["Not run yet.", ""]
     return lines + [
-        "| Arm | Alarm | PISA nights | False alarms/day | Compression false alarms/day | Level 2 caught |",
-        "|---|---|---|---|---|---|",
+        "Each arm changes one thing (in bold) and is compared with the main analysis at the same PISA level (last column: false alarms/day; level 2 caught).",
+        "",
+        "| Arm | Alarm | PISA nights | False alarms/day | Compression false alarms/day | Level 2 caught | Main analysis |",
+        "|---|---|---|---|---|---|---|",
         *rows,
         "",
     ]
@@ -323,8 +455,15 @@ def section_summary(meta: dict) -> list[str]:
         both = pd.concat([a.rename("azt1d"), b.rename("sim")], axis=1).dropna()
         if len(both):
             closer = (np.log(both["azt1d"]).abs() < np.log(both["sim"]).abs()).sum()
+            readings = h2[(h2["mix"] == matched) & (h2["level"] == lv)]["reading"]
+            flat = len(readings) and (readings == "no meaningful reduction").all()
             lines.append(
                 f"- **H3** (the context benefit is closer to 1 on real AZT1D nights than in simulation, matched mix `{matched}`, PISA on {lv:.0%} of nights; descriptive, A4): holds for {int(closer)} of {len(both)} detectors."
+                + (
+                    " Uninformative here: on the matched mix the simulation itself shows no meaningful context benefit (every reading 'no meaningful reduction'), so there is no benefit for real data to shrink."
+                    if flat
+                    else ""
+                )
             )
     rq3 = table(TABLES / "rq3_kalman__contrasts_rq3.csv")
     if rq3 is not None and len(rq3):
@@ -359,6 +498,7 @@ def section_real() -> list[str]:
             f"| `{r['alarm_name']}` | {r['level']:.0%} | {ci(r, 'false_per_day')} | {ci(r, 'false_compression_per_day')} | "
             f"{ci(r, 'sens_l1', pct=True)} | {ci(r, 'sens_l2', pct=True)} |"
         )
+    lines += gates_note(s)
     fv = table(TABLES / "real__face_validity.csv")
     lines += ["", "### Face validity of simulated lows (D16)", ""]
     if fv is None:
@@ -435,6 +575,13 @@ def section_h3() -> list[str]:
             closer = abs(np.log(r["rate_ratio"])) < abs(np.log(rb["rate_ratio"]))
             verdict = "yes" if closer else "no"
         lines.append(f"| `{det}` | {cell_a} | {cell_b} | {verdict} |")
+    if sim is not None and matched:
+        readings = sim[(sim["mix"] == matched) & (sim["level"] == level)]["reading"]
+        if len(readings) and (readings == "no meaningful reduction").all():
+            lines += [
+                "",
+                f"On the matched mix (`{matched}`) the simulation itself shows no meaningful context benefit, so both ratios sit near 1 and H3 is uninformative: there is no simulated benefit for real data to shrink. What AZT1D does show is that recorded, user-entered context did not reduce compression false alarms on real nights either.",
+            ]
     return lines + [""]
 
 
@@ -480,6 +627,7 @@ def main() -> None:
             *section_rq1(summary),
             "",
             *section_h1(table(TABLES / f"{MAIN}__contrast_h1.csv")),
+            *section_all_faults(),
             *section_h2(table(TABLES / f"{MAIN}__contrasts_h2.csv"), meta.get("train_level")),
             *section_age_groups(),
             *section_robustness(),
