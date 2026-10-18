@@ -145,3 +145,35 @@ def test_first_order_lag_matches_the_recursion():
     for i in range(1, len(x)):
         expected[i] = expected[i - 1] + a * (x[i - 1] - expected[i - 1])
     assert np.allclose(first_order_lag(x, 8.0), expected)
+
+
+def test_treatment_ends_a_skipped_meal_low_and_is_never_logged():
+    """A bolus for a meal that is not eaten drives plasma glucose very low in the 2008 model;
+    with the 15-15 rule the person treats on the CGM, and the rescue carbs stay out of the
+    recorded carbs and COB (amendment A6)."""
+    from ghostlows.sim.engine import HypoTreatment
+
+    days, patient = 1, "adolescent#002"  # untreated nadir 0 mg/dL, treated 37 (2026-10-18)
+    scenario = make_scenario(STANDARD, days, 31, 32)
+    scenario.meals["eaten"] = False  # every bolused meal is skipped
+    therapy = dataclasses.replace(Therapy(), correction_above=1e9)
+    untreated = simulate(patient, scenario, therapy, noise_seed=33)
+    treated = simulate(patient, scenario, therapy, noise_seed=33, treatment=HypoTreatment())
+    low = lambda r: (r.truth["truth_glucose"] < 70).mean()  # noqa: E731
+    assert untreated.truth["truth_glucose"].min() < 20
+    assert treated.truth["truth_glucose"].min() > untreated.truth["truth_glucose"].min() + 20
+    assert low(treated) < low(untreated) / 2
+    rescues = treated.events[treated.events["kind"] == "rescue"]
+    assert len(rescues) > 0 and (rescues["value"] == 15.0).all()
+    assert np.allclose(treated.samples["carbs"], untreated.samples["carbs"])  # never logged
+    assert np.allclose(treated.samples["cob"], untreated.samples["cob"])
+    assert treated.samples["rescue_carbs"].sum() == 15.0 * len(rescues)
+    # every treatment followed a low reading: < 70 by day or when just treated, <= 55 at night
+    rule = HypoTreatment()
+    times = treated.samples.set_index("time")
+    last = -np.inf
+    for _, r in rescues.iterrows():
+        cgm = times.loc[r["time"], "glucose"]
+        minute_of_day = r["time"].hour * 60 + r["time"].minute
+        assert cgm < rule.threshold(minute_of_day, r["minute"] - last) + 1e-9
+        last = r["minute"]

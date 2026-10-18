@@ -34,6 +34,37 @@ class Therapy:
     correction_above: float = 150.0  # SOURCE: simglucose (BBController correction threshold)
 
 
+@dataclass(frozen=True)
+class HypoTreatment:
+    """Self-treatment of lows (SIMULATION.md §2, amendment A6): fast carbohydrate when the
+    displayed CGM is low, eaten but not logged. The 2008 model has no counter-regulation, so
+    without treatment a low lasts until the insulin wears off and plasma glucose can reach 0."""
+
+    # SOURCE: CDC 2024 (15-15 rule: 15 g of carbs, wait 15 min, repeat while below 70 mg/dL)
+    grams: float = 15.0
+    recheck_min: int = 15
+    awake_threshold: float = 70.0
+    # SOURCE: Garg 2022 (Urgent Low alarm at 55 mg/dL) CLINICAL-REVIEW: CR17
+    night_threshold: float = 55.0
+    # ASSUMPTION: at night only the urgent-low alarm wakes the person; once awake, the 70 mg/dL
+    # rule applies for the next 30 min. Same night window as the PISA onsets.
+    night_hours: tuple[int, int] = (23, 7)
+    awake_min: int = 30
+
+    def threshold(self, minute_of_day: int, minutes_since_treatment: float) -> float:
+        hour = minute_of_day // 60
+        night = hour >= self.night_hours[0] or hour < self.night_hours[1]
+        awake = minutes_since_treatment < self.awake_min
+        return self.night_threshold if night and not awake else self.awake_threshold
+
+    def treats(self, cgm: float, minute_of_day: int, minutes_since_treatment: float) -> bool:
+        if minutes_since_treatment < self.recheck_min:
+            return False
+        threshold = self.threshold(minute_of_day, minutes_since_treatment)
+        # the urgent-low alarm fires at <= 55; the 15-15 rule treats below 70
+        return cgm <= threshold if threshold == self.night_threshold else cgm < threshold
+
+
 @dataclass
 class SimResult:
     samples: pd.DataFrame  # 5-min rows, common schema plus simulation columns
@@ -85,7 +116,11 @@ def simulate(
     limits: tuple[float, float] = DEVICE_LIMITS,
     dia_h: float = 5.0,
     cob_h: float = 3.0,
+    treatment: HypoTreatment | None = None,
 ) -> SimResult:
+    """Simulate one patient-run. With `treatment`, the virtual person treats lows they see on
+    the (fault-free) CGM; rescue carbohydrate is eaten but never logged, so it is invisible to
+    recorded context (IOB/COB) and to alarms."""
     from simglucose.patient.t1dpatient import Action, T1DPatient
     from simglucose.sensor.noise_gen import CGMNoise
 
@@ -108,6 +143,8 @@ def simulate(
     events = []
     last_cgm = np.nan
     current = (None, None)
+    day_offset = start.hour * 60 + start.minute
+    last_treatment, rescue = -np.inf, 0.0
 
     for m in range(minutes):
         if (sens[m], uptake[m]) != current:
@@ -124,8 +161,14 @@ def simulate(
             cgm_noise[k] = next(noise)
             cgm[k] = isf[m] + cgm_noise[k]
             last_cgm = min(max(cgm[k], limits[0]), limits[1])  # what the device would display
+            if treatment is not None and treatment.treats(
+                last_cgm, (day_offset + m) % 1440, m - last_treatment
+            ):
+                rescue, last_treatment = treatment.grams, m
+                events.append((m, "rescue", treatment.grams))
 
-        cho, bolus = 0.0, 0.0
+        cho, bolus = rescue, 0.0
+        rescue = 0.0
         if m in meals.index:
             for _, meal in meals.loc[[m]].iterrows():
                 if meal["eaten"]:
@@ -150,6 +193,7 @@ def simulate(
     sample_min = np.arange(n_samples) * SAMPLE_MIN
     boluses = ev[ev["kind"] == "bolus"]
     entries = ev[ev["kind"] == "carbs_announced"]
+    rescues = ev[ev["kind"] == "rescue"]
     lo, hi = limits
     flag = np.where(cgm < lo, "below_range", np.where(cgm > hi, "above_range", "ok"))
     # Doses and carb entries go on the first sample at or after them, so features stay causal.
@@ -179,6 +223,7 @@ def simulate(
             "cob": cob(entries["minute"], entries["value"], sample_min, absorption_h=cob_h),
             "sensitivity": sens[sample_min],
             "exercising": exercising,
+            "rescue_carbs": per_sample(rescues),  # eaten, never logged (truth side)
         }
     )
     truth = pd.DataFrame(

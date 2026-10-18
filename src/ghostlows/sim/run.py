@@ -19,7 +19,7 @@ import numpy as np
 import pandas as pd
 import yaml
 
-from .engine import PATIENTS, Therapy, simulate
+from .engine import PATIENTS, HypoTreatment, Therapy, simulate
 from .scenario import get_mix, make_scenario
 
 REPO = Path(__file__).resolve().parents[3]
@@ -37,6 +37,7 @@ class SimConfig:
     start: str = "2026-01-05"
     dia_h: float = 5.0
     cob_h: float = 3.0
+    hypo_treatment: bool = True  # the virtual person treats lows (amendment A6)
 
     @classmethod
     def load(cls, path: str | Path) -> SimConfig:
@@ -85,12 +86,19 @@ def part_name(patient: str, seed: int, mix: str) -> str:
 
 def _run_task(args):
     """Simulate one patient-run and write its three part files; return its summary row."""
-    patient, seed, mix_name, therapy, days, start, dia_h, cob_h, out = args
+    patient, seed, mix_name, therapy, days, start, dia_h, cob_h, treat, out = args
     t0 = time.time()
     meal_seed, perturb_seed, noise_seed = task_seeds(seed, patient)
     scenario = make_scenario(get_mix(mix_name), days, meal_seed, perturb_seed)
     result = simulate(
-        patient, scenario, therapy, noise_seed, pd.Timestamp(start), dia_h=dia_h, cob_h=cob_h
+        patient,
+        scenario,
+        therapy,
+        noise_seed,
+        pd.Timestamp(start),
+        dia_h=dia_h,
+        cob_h=cob_h,
+        treatment=HypoTreatment() if treat else None,
     )
     tag = {"seed": seed, "mix": mix_name}
     name = part_name(patient, seed, mix_name)
@@ -115,7 +123,18 @@ def _run_task(args):
 def tasks(config: SimConfig, out: Path) -> list[tuple]:
     therapy = config.therapy()
     return [
-        (p, s, m, therapy[p], config.days, config.start, config.dia_h, config.cob_h, str(out))
+        (
+            p,
+            s,
+            m,
+            therapy[p],
+            config.days,
+            config.start,
+            config.dia_h,
+            config.cob_h,
+            config.hypo_treatment,
+            str(out),
+        )
         for m in config.mixes
         for s in config.seeds
         for p in config.patients
