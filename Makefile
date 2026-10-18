@@ -1,6 +1,9 @@
 # Common tasks. Everything runs through uv; see CLAUDE.md (Commands).
 
-.PHONY: install test lint format data data-diadata smoke results all
+.PHONY: install test lint format data data-diadata data-azt1d smoke results reproduce all
+
+# Parallel benchmark workers each run their own models; keep native thread pools small.
+export OMP_NUM_THREADS ?= 2
 
 install:
 	uv sync
@@ -24,13 +27,23 @@ data:
 data-diadata:
 	uv run python scripts/download_data.py --diadata
 
+# Adds AZT1D (776 MB), needed for H3.
+data-azt1d:
+	uv run python scripts/download_data.py --azt1d
+
 # End-to-end check on 2 patients x 2 days (a few minutes).
 smoke:
 	uv run python experiments/run_benchmark.py --config experiments/configs/smoke.yaml
 
-# Every table and figure in results/ (long: the full cohort is simulated once, then cached).
+# Every table and figure in results/ (long: the full cohort is simulated once, then cached;
+# the real-data track needs `make data data-azt1d`).
 results:
 	uv run python -m ghostlows.sim --config experiments/configs/sim_full.yaml
+	uv run python experiments/real_data.py
 	uv run python experiments/run_all.py
+
+# A clean checkout of the commit behind the headline tables reproduces them (phase 10).
+reproduce:
+	uv run python scripts/check_reproducible.py --config rq1_pisa_sweep --resimulate 3
 
 all: lint test results

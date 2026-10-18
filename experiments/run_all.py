@@ -90,6 +90,7 @@ def main() -> None:
             "contrasts_rq3.csv",
             "thresholds.csv",
             "meta.json",
+            "git_commit.txt",
         ):
             if (out / table).exists():
                 shutil.copy(out / table, tables / f"{name}__{table}")
