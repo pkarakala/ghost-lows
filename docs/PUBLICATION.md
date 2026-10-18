@@ -28,6 +28,12 @@ The methods paper is reported in ADEMP form [Morris 2019] and states the limitat
 - **Results page** on GitHub Pages generated from `summary.csv`, next to the browser upload dashboard.
 - **Docs:** a quickstart (three commands, under five minutes on the smoke config), how scoring works, how to add an alarm.
 
+## Reproducibility check (v0.1.0)
+
+`make reproduce` (`scripts/check_reproducible.py`) clones the commit recorded with the headline tables (`results/tables/rq1_pisa_sweep__git_commit.txt`) into a temporary folder. It installs that commit with `uv sync --locked`, reruns `rq1_pisa_sweep` on the cached cohort, and compares the tables. It also re-simulates randomly chosen patient-runs from scratch in the clone. On 2026-10-18 it reproduced every compared table exactly from commit `4725089`: `summary.csv` (540 rows), `contrasts_h2.csv` (108), `contrast_h1.csv` (3) and `thresholds.csv` (450). All three re-simulated patient-runs matched the cached cohort exactly.
+
+This is weaker than re-running everything. A full `make all` from an empty `data/` re-simulates all 450 runs (about 2.3 h) and every config (about 2.5 h); it was run once to produce the results, not repeated from a clean clone.
+
 ## Actions for the project lead (outside the repository)
 
 1. Enable the Zenodo–GitHub integration for this repository, then publish a GitHub *release* from the tag `v0.1.0` (`gh release create v0.1.0 --notes-file …`). Zenodo archives releases, not bare tags, and mints the DOI. Add the DOI to `CITATION.cff` (`doi:`) and as a badge in `README.md`.

@@ -103,17 +103,33 @@ def main() -> int:
 
 
 def resimulate(clone: Path, env: dict, n: int) -> bool:
-    """Re-simulate n cached patient-runs in the clean clone and compare them part by part."""
-    sys.path.insert(0, str(REPO / "src"))
-    from ghostlows.sim.run import SimConfig
+    """Re-simulate n cached patient-runs in the clean clone and compare them part by part.
 
-    config = SimConfig.load(REPO / "experiments" / "configs" / "sim_full.yaml")
-    cached = config.out_dir()
+    The clone names the cohort folder itself (its cache key includes the package version at
+    that commit), and finding no cached parts is a failure, not a vacuous pass."""
+    where = subprocess.run(
+        [
+            "uv",
+            "run",
+            "python",
+            "-c",
+            "from ghostlows.sim.run import SimConfig; "
+            "print(SimConfig.load('experiments/configs/sim_full.yaml').out_dir())",
+        ],
+        cwd=clone,
+        env=env,
+        capture_output=True,
+        text=True,
+        check=True,
+    )
+    cached = Path(where.stdout.strip().splitlines()[-1])
     parts = sorted((cached / "samples").glob("*.parquet"))
+    if not parts:
+        print(f"DIFFERENT  no cached cohort at {cached}")
+        return False
     picks = random.Random(0).sample(parts, min(n, len(parts)))
     code = (
         "import sys, pandas as pd; from ghostlows.sim.run import SimConfig, _run_task; "
-        "from ghostlows.sim.engine import PATIENTS; "
         "c = SimConfig.load('experiments/configs/sim_full.yaml'); t = c.therapy(); "
         "mix, seed, patient = sys.argv[1], int(sys.argv[2]), sys.argv[3]; "
         "_run_task((patient, seed, mix, t[patient], c.days, c.start, c.dia_h, c.cob_h, "

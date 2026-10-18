@@ -16,7 +16,7 @@ Before starting a phase, resolve the open items in [`SPEC_REVIEW.md`](SPEC_REVIE
 | **7. Real-data track** ✅ done 2026-10-18 | Co-primary semi-synthetic track: PISAs injected into real nights (Weinstock; DiaData raw, deduplicated) (D16); face validity of simulated lows vs. real CGM; real-data context check on AZT1D with user-entered boluses/carbs (H3) | Real-data results table with dataset citations; face-validity figure; clear statement of what is and is not labelled |
 | **8. Upload dashboard** ✅ done 2026-10-18 ([live](https://pkarakala.github.io/ghost-lows/)) | `ghostlows.retro` (possible compression artifact flags using published CGM-only methods) + stlite app in `app/`, deployed to GitHub Pages | Uploading a fixture Clarity CSV in a browser shows metrics, AGP, daily traces, flags with reasons, TBR with and without flags, and the disclaimers in PRIVACY_AND_SAFETY.md; no network requests carry user data |
 | **9. Stretch: RQ3** ✅ done 2026-10-18 | `kalman_pisa`: Kalman/HMM with explicit compressed state + insulin/meal inputs | Benchmarked like every other alarm |
-| **10. Wrap-up** | Results summary in `results/README.md`, reproducibility check from a clean clone, tag `v0.1.0` with a Zenodo DOI, JOSS paper draft (`paper.md`), docs quickstart (PUBLICATION.md) | Clean clone + `make all` reproduces the headline tables |
+| **10. Wrap-up** ✅ done 2026-10-18 (tag `v0.1.0`; the Zenodo DOI needs the project lead, PUBLICATION.md) | Results summary in `results/README.md`, reproducibility check from a clean clone, tag `v0.1.0` with a Zenodo DOI, JOSS paper draft (`paper.md`), docs quickstart (PUBLICATION.md) | Clean clone + `make all` reproduces the headline tables |
 
 ## Deferred (later days)
 

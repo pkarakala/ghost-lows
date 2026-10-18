@@ -1,0 +1,41 @@
+# Changelog
+
+## v0.1.0 (2026-10-18)
+
+The first complete release of the benchmark (`ghostlows-bench v1`). Results: [`results/README.md`](results/README.md).
+
+### What is in it
+
+- **Data I/O and metrics:** loaders for Dexcom Clarity and LibreView exports, GlucoBench and AZT1D into one schema; consensus CGM metrics and the AGP.
+- **Simulation:** a minute-by-minute engine on simglucose's 30 virtual patients. Plasma glucose is the truth. An open-loop basal-bolus controller is calibrated per patient. Three scenario mixes vary how much recorded insulin explains. Virtual patients treat lows with the 15-15 rule (amendment A6).
+- **Fault suite:** PISA (compression) from the Facchinetti 2016 model, plus dropout, stale readings, drift and spikes. Common random numbers make severity sweeps nested. Faults never touch truth.
+- **Alarms:**
+  - 30 pre-registered alarms: threshold, trend, the urgent-low floor, three published PISA gates as causal adaptations, learned combiners with and without time of day and insulin/carb context, and gradient boosting.
+  - A stretch, multiple-model Kalman filter with a compressed state, with two ablations (RQ3).
+  - A plug-in interface for new alarms.
+- **Scoring and statistics:** events, matching windows, false alarms by cause, leave-patients-out cross-validation, the pre-registered operating point (D5), patient-bootstrap CIs, and the H1–H3 and RQ3 contrasts. Fold fits run in parallel with identical results.
+- **Real-data track:** PISAs injected into real nights (Weinstock 2016, co-primary for RQ1), the H3 context check on AZT1D (Control-IQ users, user-entered context only), and face validity of simulated lows.
+- **Upload report:** <https://pkarakala.github.io/ghost-lows/>. It runs in the browser with no server, flags a *possible compression artifact* conservatively, and keeps the file in the tab.
+- **Reproducibility:** pinned, checksummed downloads; `make results`; `make reproduce`, which reruns the headline tables in a clean checkout of the commit that produced them. That check reproduced them exactly on 2026-10-18 (`docs/PUBLICATION.md`). A packaged frozen cohort for a dataset release (`scripts/package_cohort.py`).
+- **Paper:** a JOSS draft (`paper.md`) that builds in CI.
+
+### Amendments after the pre-registration tag `protocol-v1`
+
+All are logged with dates, evidence and reasons in [`docs/DECISIONS.md`](docs/DECISIONS.md). All were made before any benchmark result on the cohort they affect.
+
+- A1: the published gates are tuned by the operating-point rule, as D5 specifies. Before this, two of them never suppressed an alarm.
+- A2: finer candidate thresholds in the range where low alarms operate.
+- A3: RQ3 is operationalised as exploratory, with a comparator chosen on training patients, and the Kalman filter's development data is disclosed.
+- A4: the H3 matching and reading rule.
+- A5: the real-data operating point matches level-1 sensitivity, because the floor catches every CGM-referenced level-2 low.
+- A6: virtual patients treat their lows. Without treatment the first cohort reached plasma glucose near 0 mg/dL.
+- A7: folds with few level-2 lows match level-1 sensitivity and are flagged.
+- A8: gradient boosting is included in the H2 contrasts.
+
+### Known limitations and open items
+
+See `docs/RESEARCH.md` §6, and the blocked items in `docs/SIMULATION_NOTES.md`:
+- **Full texts:** Facchinetti 2016 and Lobo 2026 were read as abstracts only.
+- **Labelled data:** no public data labels real compression.
+- **Clinical review:** items CR1–CR17 are still to be checked by a clinician.
+- **DOIs:** the Zenodo DOI and the dataset record need the project lead (`docs/PUBLICATION.md`).
