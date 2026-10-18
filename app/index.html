@@ -40,7 +40,12 @@
         {
           requirements: [wheelUrl],
           entrypoint: "streamlit_app.py",
-          files: { "streamlit_app.py": { url: "./streamlit_app.py" } },
+          files: {
+            "streamlit_app.py": { url: "./streamlit_app.py" },
+            // synthetic sample for "Try it with sample data" (scripts/make_sample_export.py)
+            "sample_clarity_export.csv": { url: "./sample_clarity_export.csv" },
+            "sample_answer_key.json": { url: "./sample_answer_key.json" },
+          },
           streamlitConfig: {
             "client.toolbarMode": "viewer",
             "browser.gatherUsageStats": false,

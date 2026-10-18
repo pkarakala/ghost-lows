@@ -1,5 +1,10 @@
 # Changelog
 
+## Unreleased
+
+- **Upload report: Try it with sample data.** A synthetic 14-day Clarity-format export (`app/sample_clarity_export.csv`, from `scripts/make_sample_export.py`). It is one simulated benchmark run with injected compression artifacts and a real nocturnal low. It shows under a banner saying it is synthetic, with what really happened (which flags fall on injected artifacts, and the true glucose), and can be downloaded.
+- **How the flags do on simulated data** (PRIVACY_AND_SAFETY.md): 35% of injected PISAs flagged; a median of 4 other flags per 14 days; in 37% of runs a flag overlaps a real low. The README no longer calls the flags "deliberately conservative" without these numbers.
+
 ## v0.1.0 (2026-10-18)
 
 The first complete release of the benchmark (`ghostlows-bench v1`). Results: [`results/README.md`](results/README.md).

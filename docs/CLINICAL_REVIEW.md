@@ -13,7 +13,7 @@ Tick each item once it has been checked against the full text or with a clinicia
 - [ ] **CR9. Cost asymmetry.** How many extra false alarms per night is one missed level 2 low worth? Sets the operating point (BENCHMARK.md §5).
 - [ ] **CR10. Context signals.** Which are plausible (IOB, COB, exercise), and the fastest plausible real overnight fall rate.
 - [ ] **CR11. Other causes of false lows** (dehydration, first-day sensor error, poor perfusion, salicylic acid on Libre). Find primary sources or drop them.
-- [ ] **CR12. Safety wording and flag rule** for the upload tool (PRIVACY_AND_SAFETY.md): flags need both methods and a night-time start; is that conservative enough, and is the wording right?
+- [ ] **CR12. Safety wording and flag rule** for the upload tool (PRIVACY_AND_SAFETY.md): flags need both methods and a night-time start; is that conservative enough, and is the wording right? On simulated data the rule flags 35% of injected PISAs, raises a median of 4 other flags per 14 days, and in 37% of runs a flag overlaps a real low (PRIVACY_AND_SAFETY.md, as implemented).
 - [ ] **CR13. Simulation assumptions** in SIMULATION.md §3 (exercise effect size and duration, sensitivity range, meal error rates).
 - [ ] **CR14. G7 alert facts.** Urgent Low fixed at 55 mg/dL; Urgent Low Soon predicts 55 within 20 min; G7 MARD 8.2% arm, 9.1% abdomen [Garg 2022]. The benchmark's ungated floor fires on any reading ≤55 mg/dL (BENCHMARK.md §1): is that how the device alarm behaves?
 - [ ] **CR15. Virtual-cohort calibration target.** Under standard meals, each virtual patient's therapy settings are calibrated so that 14-day TBR <70 is within 1–8% and plasma glucose never falls below 40 mg/dL (SIMULATION.md §2). Is this a plausible range for open-loop T1D users?

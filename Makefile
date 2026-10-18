@@ -1,6 +1,6 @@
 # Common tasks. Everything runs through uv; see CLAUDE.md (Commands).
 
-.PHONY: install test lint format data data-diadata data-azt1d smoke results reproduce all
+.PHONY: install test lint format data data-diadata data-azt1d smoke sample results reproduce all
 
 # Parallel benchmark workers each run their own models; keep native thread pools small.
 export OMP_NUM_THREADS ?= 2
@@ -34,6 +34,10 @@ data-azt1d:
 # End-to-end check on 2 patients x 2 days (a few minutes).
 smoke:
 	uv run python experiments/run_benchmark.py --config experiments/configs/smoke.yaml
+
+# The synthetic export behind the app's "Try it with sample data" (about a minute).
+sample:
+	uv run python scripts/make_sample_export.py
 
 # Every table and figure in results/ (long: the full cohort is simulated once, then cached;
 # the real-data track needs `make data data-azt1d`).

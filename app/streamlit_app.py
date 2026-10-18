@@ -3,7 +3,14 @@
 Reads a Dexcom Clarity or LibreView CSV inside the browser tab, shows the consensus CGM metrics
 [Battelino 2019], the ambulatory glucose profile, daily traces and nights with retrospective
 "possible compression artifact" flags from published CGM-only methods, each with its reasons.
+
+"Try it with sample data" shows the report for a synthetic export (sample_clarity_export.csv,
+written by scripts/make_sample_export.py) under a banner, with what really happened in it from
+the simulation (sample_answer_key.json).
 """
+
+import json
+from pathlib import Path
 
 import altair as alt
 import pandas as pd
@@ -21,19 +28,73 @@ PRIVACY = (
     "Your file is read inside this browser tab and never leaves it: there is no server, no account "
     "and no analytics. Nothing is stored after you close the tab."
 )
+SAMPLE = Path(__file__).with_name("sample_clarity_export.csv")
+ANSWER_KEY = Path(__file__).with_name("sample_answer_key.json")
+SAMPLE_BANNER = "You are viewing synthetic sample data, not a real person's data."
+
+
+def night_of(t: pd.Timestamp) -> pd.Timestamp:
+    """20:00 on the evening that starts the night containing `t`."""
+    start = t.normalize() + pd.Timedelta(hours=20)
+    return start - pd.Timedelta(days=1) if t.hour < 12 else start
+
+
+def night_label(t: pd.Timestamp) -> str:
+    start = night_of(t)
+    return f"the night of {start:%a %d} to {start + pd.Timedelta(days=1):%a %d %b}"
+
+
+def in_night(frame: pd.DataFrame, night_start: pd.Timestamp) -> pd.DataFrame:
+    """Rows from 20:00 on `night_start` to 08:00 the next morning."""
+    end = night_start + pd.Timedelta(hours=12)
+    return frame[(frame["time"] >= night_start) & (frame["time"] <= end)]
+
+
+def overlapping(start, end, spans: pd.DataFrame) -> bool:
+    return bool(((spans["start"] <= end) & (spans["end"] >= start)).any()) if len(spans) else False
+
+
+def use_sample() -> None:
+    st.session_state["sample"] = True
+
+
+def use_upload() -> None:
+    st.session_state["sample"] = False
+
 
 st.set_page_config(page_title="Ghost Lows CGM report", layout="wide")
+banner = st.container()  # the sample-data banner, above everything else
 st.title("CGM report with possible compression artifacts")
 st.warning(DISCLAIMER)
 st.caption(PRIVACY)
 
-uploaded = st.file_uploader("Dexcom Clarity or LibreView CSV export", type=["csv"])
-if uploaded is None:
-    st.info("Export your data as CSV from Dexcom Clarity or LibreView and drop the file here.")
+upload_col, sample_col = st.columns([3, 1], vertical_alignment="center")
+uploaded = upload_col.file_uploader(
+    "Dexcom Clarity or LibreView CSV export", type=["csv"], on_change=use_upload
+)
+sample_col.button("Try it with sample data", on_click=use_sample, type="primary")
+sample_col.download_button(
+    "Download the sample file",
+    SAMPLE.read_bytes(),
+    file_name=SAMPLE.name,
+    mime="text/csv",
+    on_click="ignore",
+    type="tertiary",
+    icon=":material/download:",
+)
+sample_col.caption("A synthetic 14-day export in the Dexcom Clarity format.")
+sample = st.session_state.get("sample", False)
+if not sample and uploaded is None:
+    st.info(
+        "Export your data as CSV from Dexcom Clarity or LibreView and drop the file here, or "
+        "press **Try it with sample data** to see the report for a synthetic export first."
+    )
     st.stop()
+if sample:
+    banner.info(SAMPLE_BANNER, icon=":material/science:")
 
 try:
-    data = gio.load_export(uploaded.getvalue())
+    data = gio.load_export(SAMPLE.read_bytes() if sample else uploaded.getvalue())
 except ValueError as exc:
     st.error(f"This file could not be read as a Clarity or LibreView export: {exc}")
     st.stop()
@@ -49,10 +110,64 @@ with_all = metrics.summary(data)
 without = metrics.summary(retro.without_flagged(data, flags))
 source = "Dexcom Clarity" if data["source"].iloc[0] == "dexcom_clarity" else "LibreView"
 first, last = readings["time"].min(), readings["time"].max()
+what = f"Synthetic sample in the **{source}** format" if sample else f"**{source}** export"
 st.write(
-    f"**{source}** export: {len(readings):,} readings from {first:%d %b %Y} to {last:%d %b %Y} "
+    f"{what}: {len(readings):,} readings from {first:%d %b %Y} to {last:%d %b %Y} "
     f"({with_all['days']:.0f} days, sensor active {with_all['wear_pct']:.0f}% of the time)."
 )
+
+# ---------------------------------------------------------------- sample: what really happened
+key, artifacts, true_glucose = None, pd.DataFrame(columns=["start", "end"]), None
+if sample:
+    key = json.loads(ANSWER_KEY.read_text())
+    artifacts = pd.DataFrame(key["artifacts"])
+    lows = pd.DataFrame(key["real_lows"])
+    for frame in (artifacts, lows):
+        frame[["start", "end"]] = frame[["start", "end"]].apply(pd.to_datetime)
+    tg = key["true_glucose"]
+    true_glucose = pd.DataFrame(
+        {
+            "time": pd.date_range(
+                tg["start"], periods=len(tg["mg_dl"]), freq=f"{tg['step_min']}min"
+            ),
+            "glucose": tg["mg_dl"],
+        }
+    )
+    sim, faults = key["simulation"], key["faults"]
+    rows = [
+        {
+            "When": f"{night_label(a.start)}, {a.start:%H:%M}-{a.end:%H:%M}",
+            "What happened": f"compression artifact (injected), {a.depth_mg_dl:.0f} mg/dL deep"
+            + (", CGM below 70 mg/dL: a ghost low" if a.ghost_low else ""),
+            "Flagged in this report": "yes" if overlapping(a.start, a.end, flags) else "no",
+        }
+        for a in artifacts.itertuples()
+    ] + [
+        {
+            "When": (night_label(low.start) if low.night else f"{low.start:%a %d %b}")
+            + f", {low.start:%H:%M}-{low.end:%H:%M}",
+            "What happened": f"real low: true glucose below 70 mg/dL, lowest {low.lowest_true_mg_dl:.0f} mg/dL",
+            "Flagged in this report": "yes" if overlapping(low.start, low.end, flags) else "no",
+        }
+        for low in lows.itertuples()
+    ]
+    on_artifact = sum(overlapping(f.start, f.end, artifacts) for f in flags.itertuples())
+    with banner.expander("What really happened in this sample"):
+        st.write(
+            f"A virtual {sim['patient'].split('#')[0]} of the UVA/Padova 2008 model (simglucose), "
+            f"simulated for {with_all['days']:.0f} days, with the benchmark's sensor faults added: "
+            f"compression artifacts on {len(artifacts)} nights, plus signal gaps, repeated "
+            "readings, noisy stretches and slow sensor drift. Because it is simulated, the true "
+            "glucose is known, so we can say what each event was."
+        )
+        st.table(pd.DataFrame(rows).set_index("When"))
+        st.write(
+            f"The report raised {len(flags)} flag(s): {on_artifact} on injected artifacts and "
+            f"{len(flags) - on_artifact} where no artifact was injected. This run was picked by a "
+            "fixed rule (the first simulated run with two flagged artifacts and an unflagged real "
+            "low at night), not for how well the flags do; on simulated data they miss many "
+            "artifacts and also fall on other dips."
+        )
 
 # ---------------------------------------------------------------- consensus metrics
 st.header("Consensus metrics")
@@ -139,16 +254,10 @@ else:
         "the sensor is most common."
     )
     for _, f in flags.iterrows():
-        night_start = f["start"].normalize() + pd.Timedelta(hours=20)
-        if f["start"].hour < 12:
-            night_start -= pd.Timedelta(days=1)
-        night = readings[
-            (readings["time"] >= night_start)
-            & (readings["time"] <= night_start + pd.Timedelta(hours=12))
-        ]
-        next_day = night_start + pd.Timedelta(days=1)
+        night_start = night_of(f["start"])
+        night = in_night(readings, night_start)
         st.subheader(
-            f"{f['label'].capitalize()} on the night of {night_start:%a %d} to {next_day:%a %d %b}, "
+            f"{f['label'].capitalize()} on {night_label(f['start'])}, "
             f"{f['start']:%H:%M}-{f['end']:%H:%M}"
         )
         span = pd.DataFrame({"start": [f["start"]], "end": [f["end"]]})
@@ -159,9 +268,26 @@ else:
             y=alt.Y("glucose:Q", title="mg/dL"),
             tooltip=["time:T", "glucose:Q"],
         )
+        if true_glucose is not None:
+            chart += (
+                alt.Chart(in_night(true_glucose, night_start))
+                .mark_line(color="#52514e", strokeWidth=1.5, strokeDash=[4, 3])
+                .encode(x="time:T", y="glucose:Q", tooltip=["time:T", "glucose:Q"])
+            )
         st.altair_chart(chart.properties(height=220), use_container_width=True)
         st.write(f"**Why it was flagged:** {f['reasons']}.")
         st.caption(f"Methods: {f['citations']}.")
+        if key is not None:
+            st.caption(
+                "In this sample: "
+                + (
+                    "an injected compression artifact."
+                    if overlapping(f["start"], f["end"], artifacts)
+                    else "no artifact was injected here."
+                )
+                + " Solid line: the CGM in the file; dashed line: the true glucose, known only "
+                "because the sample is simulated; shaded: the flagged span."
+            )
 
 with st.expander("Detections that are not flags"):
     other = found[~found["flagged"].astype(bool)]

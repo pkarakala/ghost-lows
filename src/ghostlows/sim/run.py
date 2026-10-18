@@ -19,7 +19,7 @@ import numpy as np
 import pandas as pd
 import yaml
 
-from .engine import PATIENTS, HypoTreatment, Therapy, simulate
+from .engine import PATIENTS, HypoTreatment, SimResult, Therapy, simulate
 from .scenario import get_mix, make_scenario
 
 REPO = Path(__file__).resolve().parents[3]
@@ -84,13 +84,10 @@ def part_name(patient: str, seed: int, mix: str) -> str:
     return f"{mix}_s{seed}_{patient.replace('#', '-')}.parquet"
 
 
-def _run_task(args):
-    """Simulate one patient-run and write its three part files; return its summary row."""
-    patient, seed, mix_name, therapy, days, start, dia_h, cob_h, treat, out = args
-    t0 = time.time()
+def _simulate(patient, seed, mix_name, therapy, days, start, dia_h, cob_h, treat) -> SimResult:
     meal_seed, perturb_seed, noise_seed = task_seeds(seed, patient)
     scenario = make_scenario(get_mix(mix_name), days, meal_seed, perturb_seed)
-    result = simulate(
+    return simulate(
         patient,
         scenario,
         therapy,
@@ -100,6 +97,29 @@ def _run_task(args):
         cob_h=cob_h,
         treatment=HypoTreatment() if treat else None,
     )
+
+
+def simulate_run(config: SimConfig, patient: str, seed: int, mix: str) -> SimResult:
+    """One patient-run exactly as `run` simulates it for the cohort (same seeds and therapy)."""
+    therapy = config.therapy()[patient]
+    return _simulate(
+        patient,
+        seed,
+        mix,
+        therapy,
+        config.days,
+        config.start,
+        config.dia_h,
+        config.cob_h,
+        config.hypo_treatment,
+    )
+
+
+def _run_task(args):
+    """Simulate one patient-run and write its three part files; return its summary row."""
+    patient, seed, mix_name, therapy, days, start, dia_h, cob_h, treat, out = args
+    t0 = time.time()
+    result = _simulate(patient, seed, mix_name, therapy, days, start, dia_h, cob_h, treat)
     tag = {"seed": seed, "mix": mix_name}
     name = part_name(patient, seed, mix_name)
     parts = {

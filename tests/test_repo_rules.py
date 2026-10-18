@@ -97,6 +97,18 @@ def test_pyodide_closure_imports_only_pyodide_safe_modules():
     assert not bad, "non-Pyodide imports reachable from the upload app:\n" + "\n".join(bad)
 
 
+def test_app_imports_only_pyodide_safe_modules():
+    """The upload app runs in the browser: it may import the Pyodide-safe subpackages, the
+    stdlib and its runtime (streamlit, altair), never the simulator."""
+    allowed = PYODIDE_ALLOWED | {"streamlit", "altair"}
+    bad = [
+        m
+        for m in imported_modules(ROOT / "app" / "streamlit_app.py", "app")
+        if not (pyodide_safe(m) or m.split(".")[0] in allowed)
+    ]
+    assert not bad, bad
+
+
 def _imported_names(path: Path, module: str) -> list[str]:
     tree = ast.parse(path.read_text(), filename=str(path))
     names = []

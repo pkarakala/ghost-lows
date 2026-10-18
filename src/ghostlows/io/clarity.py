@@ -17,6 +17,23 @@ from .schema import (
 )
 
 SOURCE_NAME = "dexcom_clarity"
+# The 14 columns of a US (mg/dL) export (docs/DATA.md §4); used to write synthetic files
+EXPORT_COLUMNS = [
+    "Index",
+    "Timestamp (YYYY-MM-DDThh:mm:ss)",
+    "Event Type",
+    "Event Subtype",
+    "Patient Info",
+    "Device Info",
+    "Source Device ID",
+    "Glucose Value (mg/dL)",
+    "Insulin Value (u)",
+    "Carb Value (grams)",
+    "Duration (hh:mm:ss)",
+    "Glucose Rate of Change (mg/dL/min)",
+    "Transmitter Time (Long Integer)",
+    "Transmitter ID",
+]
 
 
 def _column(df: pd.DataFrame, prefix: str) -> str:

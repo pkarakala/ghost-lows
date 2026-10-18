@@ -14,28 +14,15 @@ import math
 from datetime import datetime, timedelta
 from pathlib import Path
 
+from ghostlows.io.clarity import EXPORT_COLUMNS
+
 HERE = Path(__file__).resolve().parent
 START = datetime(2026, 1, 13)
 DAYS = 3
 MEALS = [(7, 30, 45, 4.5), (12, 30, 70, 7.0), (18, 30, 80, 8.0)]  # hour, minute, carbs g, units
 BASAL = (22, 0, 20.0)  # long-acting insulin at 22:00, units
 
-CLARITY_HEADER = [
-    "Index",
-    "Timestamp (YYYY-MM-DDThh:mm:ss)",
-    "Event Type",
-    "Event Subtype",
-    "Patient Info",
-    "Device Info",
-    "Source Device ID",
-    "Glucose Value (mg/dL)",
-    "Insulin Value (u)",
-    "Carb Value (grams)",
-    "Duration (hh:mm:ss)",
-    "Glucose Rate of Change (mg/dL/min)",
-    "Transmitter Time (Long Integer)",
-    "Transmitter ID",
-]
+CLARITY_HEADER = EXPORT_COLUMNS
 LIBRE_HEADER = [
     "Device",
     "Serial Number",
