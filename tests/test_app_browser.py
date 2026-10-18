@@ -25,7 +25,14 @@ ROOT = Path(__file__).resolve().parents[1]
 FIXTURE = ROOT / "tests" / "fixtures" / "clarity_sample.csv"
 SAMPLE = ROOT / "app" / "sample_clarity_export.csv"
 SAMPLE_BANNER = "You are viewing synthetic sample data, not a real person's data."
-FORBIDDEN = ("not real", "fake", "can be ignored")  # PRIVACY_AND_SAFETY.md, safety 2
+FORBIDDEN = (
+    "not real",
+    "fake",
+    "can be ignored",
+    "ignore it",
+    "ghost low",
+    "felt real",
+)  # safety 2
 # Strings that occur in the uploaded file and nowhere in the app or its runtime
 MARKERS = ["FIXTURE", "Synthetic G7 receiver", "2026-01-13T02:00:00"]
 # Hosts the page may contact: the pinned runtime and Python packages, nothing else. stlite names

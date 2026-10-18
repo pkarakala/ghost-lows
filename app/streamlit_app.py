@@ -112,6 +112,12 @@ without = metrics.summary(retro.without_flagged(data, flags))
 source = "Dexcom Clarity" if data["source"].iloc[0] == "dexcom_clarity" else "LibreView"
 first, last = readings["time"].min(), readings["time"].max()
 what = f"Synthetic sample in the **{source}** format" if sample else f"**{source}** export"
+if metrics.sampling_interval(readings["time"]) > 5:
+    st.warning(
+        "This export has readings less often than every 5 minutes. The metrics below are valid, "
+        "but the possible-compression-artifact flags assume 5-minute readings and may be missing "
+        "or wrong."
+    )
 st.write(
     f"{what}: {len(readings):,} readings from {first:%d %b %Y} to {last:%d %b %Y} "
     f"({with_all['days']:.0f} days, sensor active {with_all['wear_pct']:.0f}% of the time)."
@@ -139,7 +145,7 @@ if sample:
         {
             "When": f"{night_label(a.start)}, {a.start:%H:%M}-{a.end:%H:%M}",
             "What happened": f"compression artifact (injected), {a.depth_mg_dl:.0f} mg/dL deep"
-            + (", CGM below 70 mg/dL: a ghost low" if a.ghost_low else ""),
+            + (", the CGM read below 70 mg/dL only because of it" if a.ghost_low else ""),
             "Flagged in this report": "yes" if overlapping(a.start, a.end, flags) else "no",
         }
         for a in artifacts.itertuples()
@@ -190,8 +196,9 @@ c[3].metric("Time above 250 mg/dL", f"{with_all['tar_250_pct']:.1f}%")
 st.header("Time below range, with and without possible compression artifacts")
 st.write(
     "Both numbers are shown side by side. The first counts every reading; the second leaves out "
-    "readings inside the flagged nights below. A flag is not proof: if a low felt real, it was "
-    "worth treating."
+    "readings inside the flagged episodes listed below. A flag is not proof, and on simulated data "
+    "some flags fall on real lows, so the second number can leave out real low readings. "
+    + FINGERSTICK
 )
 tbr = pd.DataFrame(
     {
@@ -245,10 +252,10 @@ st.altair_chart(daily_chart.properties(height=260), use_container_width=True)
 
 # ---------------------------------------------------------------- nights with flags
 st.header("Nights with possible compression artifacts")
+st.info(FINGERSTICK)
 if flags.empty:
     st.write("No possible compression artifacts were flagged in this export.")
 else:
-    st.info(FINGERSTICK)
     st.write(
         f"{len(flags)} possible compression artifact(s) flagged. A flag needs two published "
         "methods to agree and must start at night (23:00-07:00), when compression from lying on "
@@ -305,6 +312,7 @@ with st.expander("Detections that are not flags"):
 
 st.divider()
 st.caption(
-    f"{DISCLAIMER} Methods: Baysal 2014; matched filter after Idi 2023 with the PISA model of "
+    f"{DISCLAIMER} The flags assume readings every 5 minutes and do not adjust for "
+    "daylight-saving changes. Methods: Baysal 2014; matched filter after Idi 2023 with the PISA model of "
     "Facchinetti 2016; metrics after Battelino 2019. Source code and citations: github.com/pkarakala/ghost-lows."
 )
