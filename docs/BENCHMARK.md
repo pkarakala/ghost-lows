@@ -33,6 +33,12 @@ class Alarm(Protocol):
 | Context arms (D2) | For every detector, four arms that differ only in their inputs: CGM-only, `_time` (+time of day), `_ctx` (+IOB/COB), `_time_ctx` (+both). Each arm passes the detector's output and its extra inputs through the same learned combiner (L2-regularised logistic regression) fitted on training patients; the published rule without a combiner is also reported as the *as published* reference. For `gbm` the arms are its feature sets | Ablation, this project |
 | `kalman_pisa` (stretch) | Kalman/HMM filter with an explicit "compressed" state, insulin and meal inputs | after [Facchinetti 2013; Turksoy 2017] |
 
+**Implementation notes (Phase 4).**
+- `baysal_gate` uses the paper's rules a–f with its clinically used "trial" parameter set (g′_in −2.0, g′_out −3.1, ratio 1.5, 1 ± 0.3) [Baysal 2014]; the other three sets are a sensitivity analysis. Its Kalman estimate follows the structure in [Cameron 2012]: glucose and rate every minute, updated at readings, reset towards 140 mg/dL after 20 min of dropout. Tuning values are assumptions, because the paper's appendix equations were not available. Readings flagged as PISA do not update the filter. t_PISA,max = 120 min and t_dropout,max = 20 min are assumptions.
+- `matched_filter_causal_gate` correlates the last four 5-min CGM changes with the drop phase of the median Facchinetti PISA and scales by relative drop size. It needs about 20 min of the drop, so it is late by construction.
+- `iforest_causal_gate` scores five trailing-window features (10-min rate, its 30-min minimum, its change, drop from the 60-min median, CGM) with an isolation forest fitted on training patients; the gate is the training ECDF of the anomaly score.
+- Learned alarms are trained on `label` = a true level 1 low ongoing or starting within 30 min, computed by the benchmark from truth (`ghostlows.bench.events.low_labels`). They never see truth columns (`ghostlows.alarms.view`).
+
 Reimplementations of published methods follow the papers as closely as their text allows. Any detail the paper does not give is marked in code with `# ASSUMPTION:` and listed in the results. Retrospective methods [Idi 2023; Idi 2024; Manzoni 2025] used in real time are **new, causal adaptations** (D7). Every deviation from the paper is documented, their detection latency is reported, and the retrospective originals are scored on the retrospective track.
 
 ## 3. Ground truth (D11)

@@ -77,6 +77,19 @@ def citation_keys() -> set[str]:
     return keys
 
 
+def split_keys(text: str) -> list[str]:
+    """Split a SOURCE comment on ';' outside parentheses, so locators may contain ';'."""
+    items, depth, current = [], 0, ""
+    for ch in text:
+        depth += (ch == "(") - (ch == ")")
+        if ch == ";" and depth == 0:
+            items.append(current.strip())
+            current = ""
+        else:
+            current += ch
+    return [i for i in [*items, current.strip()] if i]
+
+
 def cites_known_key(item: str, keys: set[str]) -> bool:
     return any(item == k or (item.startswith(k) and item[len(k)] in " ,(:") for k in keys)
 
@@ -86,6 +99,10 @@ def test_citation_keys_parse():
     assert {"Facchinetti 2016", "Battelino 2023", "simglucose", "US 11,406,331"} <= keys
     assert cites_known_key("Baysal 2014 (Table 1)", keys)
     assert not cites_known_key("Idi 2025", keys)
+    assert split_keys("Baysal 2014 (Table 3; trial set); Cameron 2012") == [
+        "Baysal 2014 (Table 3; trial set)",
+        "Cameron 2012",
+    ]
 
 
 def test_every_source_comment_cites_a_known_key():
@@ -97,7 +114,7 @@ def test_every_source_comment_cites_a_known_key():
                 match = SOURCE_RE.search(line)
                 if not match:
                     continue
-                for item in (part.strip() for part in match.group(1).split(";")):
+                for item in split_keys(match.group(1)):
                     if not cites_known_key(item, keys):
                         unknown.append(f"{path.relative_to(ROOT)}:{lineno}: {item!r}")
     assert not unknown, "SOURCE keys missing from docs/CITATIONS.md:\n" + "\n".join(unknown)

@@ -36,6 +36,7 @@ Literature preparation for the paper is a separate, later step. This list exists
 | Mahmoudi 2017 | Mahmoudi Z, et al. Sensor fault detection. *Biomed Signal Process Control* 2017 | — | ref-only | Kalman/HMM precedent |
 | Del Favero 2014 | Del Favero S, et al. *IFAC* 2014 | — | ref-only | Fault detection precedent |
 | Baysal ACC 2013 | Baysal N, et al. *American Control Conference* 2013 | — | ref-only | Early PISA detection |
+| Cameron 2012 | Cameron F, Wilson DM, Buckingham BA, et al. Inpatient studies of a Kalman-filter-based predictive pump shutoff algorithm. *J Diabetes Sci Technol* 2012;6(5):1142–1147 | [doi](https://doi.org/10.1177/193229681200600519) | opened (full text, PMC3570849; appendix equations not in the HTML) | Kalman glucose estimate used by the Baysal 2014 PISA rules |
 | Sanchez 2025 | Sanchez et al. Fault-tolerant glucose prediction with insulin and carbs. *Algorithms* 2025 | [doi](https://doi.org/10.3390/a18110688) | opened | Noise/dropout faults with context; OhioT1DM |
 
 ## Benchmarks, testbeds and datasets
