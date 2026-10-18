@@ -64,6 +64,7 @@ select = ["E", "F", "W", "I", "UP", "B"]
 "experiments/make_results_readme.py" = ["E501"]
 "experiments/real_data.py" = ["E501"]
 "app/streamlit_app.py" = ["E501"]
+"scripts/package_cohort.py" = ["E501"]
 
 [tool.ruff.format]
 # Ruff also formats Python blocks inside Markdown; the specs in docs/ keep their own layout.

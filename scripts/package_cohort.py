@@ -21,7 +21,6 @@ import zipfile
 from datetime import UTC, datetime
 from pathlib import Path
 
-import pandas as pd
 import yaml
 
 REPO = Path(__file__).resolve().parents[1]
