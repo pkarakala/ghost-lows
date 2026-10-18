@@ -69,6 +69,8 @@ Choose each alarm's threshold on the **training** patients only: θ\* minimises 
 
 *Gated alarms* (`*_gate`) keep the trend alarm's own rule fixed and tune only the gate: the score is 1 − gate where the trend alarm fires (and −∞ where it does not), and the candidate thresholds span every suppression fraction of the training firings, from none to almost all. For the binary Baysal gate this is a choice between the published rule and no suppression. No suppression is the trend alarm itself, so a feasible threshold always exists (amendment A1 in `DECISIONS.md`).
 
+θ\* is searched over training-score quantiles: 30 spaced evenly from the median upwards (from the minimum for gated alarms), plus 15 at log-spaced firing fractions from 5% to 0.01% of training samples, where low alarms operate (amendment A2).
+
 ## 6. Statistics (D14)
 
 - **Leave-patients-out cross-validation** over all 30 virtual patients (5 folds, stratified by age group). No patient's data in both training and test.

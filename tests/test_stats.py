@@ -51,6 +51,15 @@ def test_candidate_thresholds_cover_the_upper_tail():
     assert c.min() < 0.01 and c.max() > 0.99 and len(c) > 50
 
 
+def test_candidates_resolve_sparse_operating_points():
+    """Firing fractions between 0.1% and 2% of samples are where low alarms operate (A2)."""
+    scores = np.random.default_rng(0).uniform(size=200_000)
+    c = candidate_thresholds(scores, n=30)
+    fractions = np.array([(scores > t).mean() for t in c])
+    assert ((fractions > 1e-3) & (fractions < 0.02)).sum() >= 5
+    assert fractions[fractions > 0].min() < 3e-4
+
+
 def test_bootstrap_ci_contains_estimate_and_is_degenerate_for_constant_data():
     df = pd.DataFrame({"patient_id": IDS, "x": 2.0, "n": 1.0})
     est, lo, hi = bootstrap_ci(df, ratio_of_sums("x", "n"), n_boot=200)

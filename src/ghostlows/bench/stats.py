@@ -59,15 +59,23 @@ def choose_threshold(
     return float(best["threshold"]), {"feasible": True, "table": table}
 
 
+# ASSUMPTION: log-spaced firing fractions from 5% down to 0.01% of training samples are added to
+# the evenly spaced quantiles, so the rule can reach the sparse operating points that low alarms
+# need (time below range is a few percent); amendment A2
+TAIL_FRACTIONS = (0.05, 1e-4)
+
+
 def candidate_thresholds(scores: np.ndarray, n: int = 60, low: float = 0.5) -> np.ndarray:
-    """Quantiles `low`..0.999 of the finite training scores (by default the upper tail, where
-    alarms live), plus the extremes. Gated alarms use low = 0: their finite scores are the trend
-    alarm's firings, and every suppression fraction is a candidate."""
+    """Candidate thresholds from the finite training scores: quantiles evenly spaced from `low`
+    to 0.999, quantiles at `n // 2` log-spaced upper-tail fractions (TAIL_FRACTIONS), and the
+    extremes. Gated alarms use low = 0: their finite scores are the trend alarm's firings, and
+    every suppression fraction is a candidate."""
     s = np.asarray(scores, float)
     s = s[np.isfinite(s)]
     if s.size == 0:
         return np.array([0.5])
-    qs = np.unique(np.quantile(s, np.r_[np.linspace(low, 0.999, n), [0.0, 1.0]]))
+    tail = 1 - np.geomspace(*TAIL_FRACTIONS, max(n // 2, 2))
+    qs = np.unique(np.quantile(s, np.r_[np.linspace(low, 0.999, n), tail, [0.0, 1.0]]))
     return qs - 1e-9  # alarms fire when score > threshold
 
 
