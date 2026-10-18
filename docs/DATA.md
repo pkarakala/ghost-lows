@@ -26,14 +26,14 @@ A copy of the GlucoBench CSVs and the simglucose and iglu sources is in the proj
 
 1. Download GlucoBench `raw_data.zip` from GitHub and unzip to `data/raw/glucobench/`.
 2. Download DiaData from Zenodo (5-minute archive first; it is ~2.3 GB, so make it opt-in with a flag).
-3. Print manual instructions for AZT1D (Mendeley), CGMacros (PhysioNet) and OhioT1DM (DUA) rather than scraping them.
+3. Print manual instructions for CGMacros (PhysioNet) and OhioT1DM (DUA) rather than scraping them. AZT1D is fetched through Mendeley Data's public API (opt-in flag; see below).
 4. Write `data/raw/MANIFEST.json` with URL, date, size and SHA-256 of every file.
 
-As implemented (standard library only; `uv run python scripts/download_data.py [--diadata] [--force]`):
+As implemented (standard library only; `uv run python scripts/download_data.py [--diadata] [--azt1d] [--force]`):
 
-- **Pinned sources.** GlucoBench is fetched from commit `661d840a98b316df51faa13a7100430afcbbb5b7` and must match SHA-256 `aecc5a50bd6b09799b90eddf127c8270e7292fee6840ac822f0e8092569fff61` (5,639,441 bytes). DiaData is record 17285631 (v3; concept DOI 10.5281/zenodo.16874128); `5_min_sampling.zip` (2,341,562,516 bytes), `README.md` and `Demographics.csv` are checked against Zenodo's published MD5s. A mismatch stops the script with an error and leaves nothing at the destination.
-- **Layout.** The GlucoBench archive keeps its CSVs under `raw_data/` and includes a stray `.DS_Store`; the script writes `data/raw/glucobench/{weinstock,dubosson,hall,colas,iglu}.csv` (about 176 MB) next to the archive, skipping macOS metadata and refusing member paths that escape the folder. DiaData is **not** extracted (the archive is large); loaders read it from the zip.
-- **Manual datasets** go in `data/raw/{azt1d,cgmacros,ohiot1dm}/`; re-running the script hashes whatever is there into the manifest.
+- **Pinned sources.** GlucoBench is fetched from commit `661d840a98b316df51faa13a7100430afcbbb5b7` and must match SHA-256 `aecc5a50bd6b09799b90eddf127c8270e7292fee6840ac822f0e8092569fff61` (5,639,441 bytes). DiaData is record 17285631 (v3; concept DOI 10.5281/zenodo.16874128); `5_min_sampling.zip` (2,341,562,516 bytes), `README.md` and `Demographics.csv` are checked against Zenodo's published MD5s. AZT1D is Mendeley Data `gk9m674wcx` v1 (doi:10.17632/gk9m674wcx.1, CC BY 4.0): the single file `AZT1D 2025.zip` (776,131,685 bytes), listed by Mendeley's public API on 2026-10-18 with SHA-256 `2c6b4183fdc729c708c1b3230ab1988d2c9006dd35729537f2de07f649f0d113`, is saved as `data/raw/azt1d/AZT1D_2025.zip`. A mismatch stops the script with an error and leaves nothing at the destination.
+- **Layout.** The GlucoBench archive keeps its CSVs under `raw_data/` and includes a stray `.DS_Store`; the script writes `data/raw/glucobench/{weinstock,dubosson,hall,colas,iglu}.csv` (about 176 MB) next to the archive, skipping macOS metadata and refusing member paths that escape the folder. DiaData and AZT1D are **not** extracted (the archives are large); loaders read them from the zip.
+- **Manual datasets** go in `data/raw/{cgmacros,ohiot1dm}/`; re-running the script hashes whatever is there into the manifest.
 - **Manifest.** One entry per archive and per extracted or manually placed file: dataset key (from `CITATIONS.md`), URL, pinned ref, retrieval time (UTC), size, SHA-256 (and MD5), licence as stated by the source, and for extracted files the archive member. Re-runs keep the first retrieval time of unchanged files. The manifest is gitignored with the data; reproducibility comes from the pins in the committed script.
 
 ## 3. Common schema

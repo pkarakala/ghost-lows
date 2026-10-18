@@ -1,8 +1,9 @@
 """Download the public datasets listed in docs/DATA.md into data/raw/ and record them in a manifest.
 
 By default this fetches GlucoBench's raw_data.zip (5.6 MB) and extracts its CSVs. --diadata adds
-the DiaData 5-minute archive (2.3 GB, not extracted). AZT1D, CGMacros and OhioT1DM need a manual
-download; instructions are printed, and files placed in their folders are added to the manifest.
+the DiaData 5-minute archive (2.3 GB) and --azt1d the AZT1D archive (776 MB), neither extracted.
+CGMacros and OhioT1DM need a manual download; instructions are printed, and files placed in their
+folders are added to the manifest.
 
 Every remote file is pinned to an upstream version and checked against a published hash, so a
 changed upstream file fails loudly instead of silently changing results. data/raw/MANIFEST.json
@@ -93,9 +94,23 @@ DIADATA = [
     ]
 ]
 
+# AZT1D v1 on Mendeley Data (doi:10.17632/gk9m674wcx.1), the file listed by Mendeley's public
+# API on 2026-10-18, which publishes its SHA-256. Kept zipped; the loader reads the archive.
+AZT1D = Remote(
+    dataset="AZT1D 2025",
+    path="azt1d/AZT1D_2025.zip",
+    url=(
+        "https://data.mendeley.com/public-files/datasets/gk9m674wcx/files/"
+        "b02a20be-27c4-4dd0-8bb5-9171c66262fb/file_downloaded"
+    ),
+    ref="mendeley:gk9m674wcx (v1)",
+    licence="CC BY 4.0",
+    size=776_131_685,
+    sha256="2c6b4183fdc729c708c1b3230ab1988d2c9006dd35729537f2de07f649f0d113",
+)
+
 # Datasets that need a sign-in, a click-through licence or a data use agreement.
 MANUAL = [
-    ("AZT1D 2025", "azt1d", "https://data.mendeley.com/datasets/gk9m674wcx/1", "CC BY 4.0"),
     ("CGMacros", "cgmacros", "https://physionet.org/content/cgmacros/1.0.0/", "CC BY-NC-SA 4.0"),
     (
         "OhioT1DM",
@@ -270,6 +285,11 @@ def download_diadata(raw_dir: Path, manifest: dict, force: bool) -> None:
         record(manifest, remote.path, remote_entry(remote, facts))
 
 
+def download_azt1d(raw_dir: Path, manifest: dict, force: bool) -> None:
+    facts, _ = fetch(AZT1D, raw_dir, force)
+    record(manifest, AZT1D.path, remote_entry(AZT1D, facts))
+
+
 def record_manual(raw_dir: Path, manifest: dict) -> None:
     """Print instructions for manual datasets and hash any files already placed."""
     print("\nManual downloads (sign-in, licence click-through or data use agreement):")
@@ -296,6 +316,9 @@ def main(argv: list[str] | None = None) -> int:
         "--diadata", action="store_true", help="also download DiaData (5-min archive, 2.3 GB)"
     )
     parser.add_argument(
+        "--azt1d", action="store_true", help="also download AZT1D (Mendeley archive, 776 MB)"
+    )
+    parser.add_argument(
         "--force", action="store_true", help="download again even if files match their pins"
     )
     parser.add_argument(
@@ -311,6 +334,8 @@ def main(argv: list[str] | None = None) -> int:
         download_glucobench(raw_dir, manifest, args.force)
         if args.diadata:
             download_diadata(raw_dir, manifest, args.force)
+        if args.azt1d:
+            download_azt1d(raw_dir, manifest, args.force)
         record_manual(raw_dir, manifest)
     except DownloadError as exc:
         print(f"error: {exc}", file=sys.stderr)

@@ -192,12 +192,12 @@ def test_main_is_idempotent_and_keeps_other_entries(tmp_path, fake_glucobench):
 
 def test_main_records_manually_placed_files(tmp_path, fake_glucobench):
     data = tmp_path / "data"
-    (data / "raw" / "azt1d").mkdir(parents=True)
-    (data / "raw" / "azt1d" / "subject1.csv").write_text("time,cgm\n")
+    (data / "raw" / "cgmacros").mkdir(parents=True)
+    (data / "raw" / "cgmacros" / "subject1.csv").write_text("time,cgm\n")
     assert dd.main(["--data-dir", str(data)]) == 0
     files = json.loads((data / "raw" / "MANIFEST.json").read_text())["files"]
-    assert files["azt1d/subject1.csv"]["dataset"] == "AZT1D 2025"
-    assert files["azt1d/subject1.csv"]["ref"] == "manual download"
+    assert files["cgmacros/subject1.csv"]["dataset"] == "CGMacros"
+    assert files["cgmacros/subject1.csv"]["ref"] == "manual download"
 
 
 def test_main_fails_on_hash_mismatch(tmp_path, fake_glucobench, monkeypatch, capsys):
@@ -211,6 +211,7 @@ def test_pins_point_at_fixed_versions():
     assert dd.GLUCOBENCH_COMMIT in dd.GLUCOBENCH.url
     assert dd.GLUCOBENCH.sha256 and dd.GLUCOBENCH.size
     assert all(r.md5 and r.size and dd.DIADATA_RECORD in r.url for r in dd.DIADATA)
+    assert dd.AZT1D.sha256 and dd.AZT1D.size and "gk9m674wcx" in dd.AZT1D.url
 
 
 @pytest.mark.network

@@ -27,3 +27,19 @@ What the simglucose source actually does, how `ghostlows.sim` uses it, and what 
 ## Results
 
 Filled in from `experiments/sim_report.py` below.
+
+## Blocked or deferred items (2026-10-18)
+
+Recorded per the working rule "if something is blocked, record it here and move on". None of these blocks a phase's "done when"; each limits a stated claim.
+
+| Item | Why blocked | Consequence until resolved | Who can unblock |
+|---|---|---|---|
+| Full text of Facchinetti 2016 | Not open access; only the abstract was read | The PISA time constant (τ = 10 min) and the dropout model are assumptions, swept by the τ = 5/20 min robustness arms; the paper's Markov dropout model is not used (SPEC_REVIEW SR2–SR3) | Project lead (library access) |
+| Full text of Lobo 2026 | Read as abstract only | The realistic PISA rate comes from the abstract's counts (1,260 PISAs in 94,201 h, minimum < 85 mg/dL) | Project lead |
+| Padova/UVA labelled dual-sensor data | Needs contact and an agreement | No real PISA labels: real-data results use injected PISAs, and real artifacts in the reference count as true lows | Project lead (PUBLICATION.md) |
+| OhioT1DM | Data use agreement | Not used (optional fingerstick reference) | Project lead |
+| CGMacros | Descoped rather than blocked: its labels would be a weak proxy (Libre Pro, mostly T2D, few lows) | Not used | — |
+| Zenodo DOI for `v0.1.0` | Needs the GitHub–Zenodo integration switched on by the repository owner | Release can be tagged, but the DOI is minted only after the integration is on | Project lead |
+| Clinical review (CR1–CR16) | Needs a clinician | Thresholds, the floor, the SESOI and the flag rule stay marked as assumptions | Clinical co-lead |
+
+AZT1D was listed as a manual download until 2026-10-18. Mendeley Data's public API serves the CC BY 4.0 archive with a published SHA-256, so `scripts/download_data.py --azt1d` now fetches it (DATA.md §2).
