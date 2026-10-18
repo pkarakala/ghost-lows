@@ -4,7 +4,7 @@ from pathlib import Path
 
 import pandas as pd
 
-from ghostlows import io, metrics, retro
+from ghostlows import io, retro
 
 FIXTURES = Path(__file__).parent / "fixtures"
 FORBIDDEN = ("not real", "fake", "ignore", "false low", "can be ignored")
@@ -34,12 +34,28 @@ def test_genuine_daytime_low_is_detected_but_never_flagged():
     assert not found.loc[~found["night"], "flagged"].any()
 
 
-def test_time_below_range_is_reported_with_and_without_flags():
-    df = clarity()
-    flags = retro.flag_possible_artifacts(df)
-    with_flags = metrics.summary(df)["tbr_70_pct"]
-    without = metrics.summary(retro.without_flagged(df, flags))["tbr_70_pct"]
-    assert 0 < without < with_flags  # the genuine low and the Low readings stay counted
+def test_no_number_can_be_computed_without_flagged_readings():
+    """PRIVACY_AND_SAFETY.md rule 3 (amendment A12): a flag never lowers a number in the report,
+    so the library offers no way to drop flagged readings and the app never tries."""
+    assert not any("without" in name for name in retro.__all__)
+    app = (Path(__file__).resolve().parents[1] / "app" / "streamlit_app.py").read_text()
+    assert "without_flagged" not in app and "metrics.summary(data)" in app
+    assert app.count("metrics.summary(") == 1  # one summary, of every reading
+
+
+def test_app_quotes_the_measured_flag_performance():
+    """The flag performance the app states is the saved survey (amendment A12)."""
+    import json
+    import re
+
+    root = Path(__file__).resolve().parents[1]
+    survey = json.loads((root / "results" / "tables" / "flag_survey.json").read_text())
+    app = (root / "app" / "streamlit_app.py").read_text()
+    caught, on_real = map(
+        int, re.search(r"FLAG_CAUGHT_PCT, FLAG_ON_REAL_LOW_PCT = (\d+), (\d+)", app).groups()
+    )
+    assert caught == round(100 * survey["flagged_artifact_share"])
+    assert on_real == round(100 * survey["share_of_runs_with_a_flag_on_a_real_low"])
 
 
 def test_no_flags_on_short_or_flat_traces():

@@ -1,7 +1,8 @@
 """The upload dashboard in a real browser (ROADMAP phase 8; PRIVACY_AND_SAFETY.md).
 
 Serves app/ locally, loads the stlite page in Chromium, uploads the synthetic Clarity fixture and
-checks that the report renders with its flags and safety text, and that no network request
+checks that the report renders with its flags, their measured performance and the safety text,
+that no number leaves out flagged readings (amendment A12), and that no network request
 carries the file's contents; then checks the "Try it with sample data" button and the sample
 download. Needs network access (stlite and Pyodide come from public CDNs):
 
@@ -86,7 +87,10 @@ def test_upload_renders_report_and_keeps_the_file_local(page_url):
     assert "Research software, not a medical device" in text
     assert "If you are unsure whether a low is real, check with a fingerstick" in text
     assert "Time in range 70-180 mg/dL" in text
-    assert "Without possible compression artifacts" in text
+    assert "Possible compression artifacts flagged" in text
+    assert "caught about 35 in 100 injected compression artifacts" in text
+    assert "No number in this report leaves out flagged readings" in text
+    assert "without possible compression artifacts" not in text.lower()  # amendment A12
     assert "Possible compression artifact on the night of" in text
     for phrase in FORBIDDEN:
         assert phrase not in text.lower()
@@ -140,8 +144,12 @@ def test_sample_data_shows_the_full_report(page_url, tmp_path):
     assert "Ambulatory glucose profile" in text
     assert agp_box is not None and agp_box["height"] > 100 and agp_box["width"] > 200
     assert n_charts >= 3  # AGP, daily traces and at least one flagged night
-    assert "Without possible compression artifacts" in text
+    assert "Possible compression artifacts flagged" in text
+    assert "caught about 35 in 100 injected compression artifacts" in text
+    assert "No number in this report leaves out flagged readings" in text
+    assert "without possible compression artifacts" not in text.lower()  # amendment A12
     assert "real low: true glucose below 70 mg/dL" in text
+    assert "Orange dots: readings inside flagged possible compression artifacts" in text
     for phrase in FORBIDDEN:
         assert phrase not in text.lower()
     check_hosts(requests)

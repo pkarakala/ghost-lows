@@ -3,6 +3,8 @@
     uv run python scripts/make_sample_export.py                   # app/sample_clarity_export.csv
     uv run python scripts/make_sample_export.py --survey <cohort> # the selection rule on a cohort
 
+`--survey` also writes results/tables/flag_survey.json, the flag performance the app quotes.
+
 The export is fully synthetic. One virtual patient of simglucose (the UVA/Padova 2008 model) is
 simulated for 14 days exactly as in the benchmark cohort (`sim_full.yaml`). The benchmark's fault
 suite is then applied as in its PISA sweep at the 25% level (other faults moderate, fault seed 0).
@@ -45,6 +47,7 @@ from ghostlows.io.clarity import EXPORT_COLUMNS  # noqa: E402
 APP = REPO / "app"
 SAMPLE_CSV = APP / "sample_clarity_export.csv"
 ANSWER_KEY = APP / "sample_answer_key.json"
+SURVEY = REPO / "results" / "tables" / "flag_survey.json"
 SIM_CONFIG = "experiments/configs/sim_full.yaml"
 BENCH_CONFIG = "experiments/configs/rq1_pisa_sweep.yaml"
 
@@ -257,6 +260,27 @@ def survey(cohort: Path, bench: BenchConfig) -> int:
         f"{table['flags_on_real_lows'].mean():.2f} ({(table['flags_on_real_lows'] > 0).mean():.0%}"
         " of runs have one)"
     )
+    # the flag performance the app quotes next to the flags (amendment A12)
+    on_real = table["flags_on_real_lows"] > 0
+    record = {
+        "about": "How the upload report's flags do on simulated data: make_sample_export.py "
+        "--survey on every default-mix run of the benchmark cohort, faults as in the PISA sweep.",
+        "cohort": cohort.name,
+        "mix": MIX,
+        "pisa_fraction": PISA_LEVEL,
+        "severity": bench.severity,
+        "fault_seed": bench.fault_seed,
+        "runs": len(table),
+        "injected_artifacts": int(n_art),
+        "flagged_artifacts": int(table["flagged_artifacts"].sum()),
+        "flagged_artifact_share": round(float(table["flagged_artifacts"].sum() / n_art), 3),
+        "flags_elsewhere_per_run_mean": round(float(table["flags_elsewhere"].mean()), 2),
+        "flags_elsewhere_per_run_median": float(table["flags_elsewhere"].median()),
+        "runs_with_a_flag_on_a_real_low": int(on_real.sum()),
+        "share_of_runs_with_a_flag_on_a_real_low": round(float(on_real.mean()), 3),
+    }
+    SURVEY.write_text(json.dumps(record, indent=1) + "\n")
+    print(f"wrote {SURVEY.relative_to(REPO)}")
     return 0
 
 

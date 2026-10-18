@@ -6,7 +6,6 @@ from .flags import (
     detections,
     flag_possible_artifacts,
     matched_filter_windows,
-    without_flagged,
 )
 
 __all__ = [
@@ -15,5 +14,4 @@ __all__ = [
     "detections",
     "flag_possible_artifacts",
     "matched_filter_windows",
-    "without_flagged",
 ]

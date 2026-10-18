@@ -32,6 +32,17 @@ PRIVACY = (
 SAMPLE = Path(__file__).with_name("sample_clarity_export.csv")
 ANSWER_KEY = Path(__file__).with_name("sample_answer_key.json")
 SAMPLE_BANNER = "You are viewing synthetic sample data, not a real person's data."
+# How the flags do on simulated data with known truth: results/tables/flag_survey.json, written by
+# `scripts/make_sample_export.py --survey` (a test keeps these in step with it; amendment A12)
+FLAG_CAUGHT_PCT, FLAG_ON_REAL_LOW_PCT = 35, 37
+FLAG_PERFORMANCE = (
+    "How well the flags work: we tested them on simulated data, where the truth is known. They "
+    f"caught about {FLAG_CAUGHT_PCT} in 100 injected compression artifacts, and in about "
+    f"{FLAG_ON_REAL_LOW_PCT} in 100 simulated two-week records at least one flag fell on a real "
+    "low. So most artifacts are not flagged, and a flagged dip can be a real low. A flag is a "
+    "reason to look at the trace, not proof. No number in this report leaves out flagged readings."
+)
+FLAG_COLOR = "#eda100"
 
 
 def night_of(t: pd.Timestamp) -> pd.Timestamp:
@@ -107,8 +118,7 @@ if len(readings) < 10:
 
 flags = retro.flag_possible_artifacts(data)
 found = retro.detections(data)
-with_all = metrics.summary(data)
-without = metrics.summary(retro.without_flagged(data, flags))
+with_all = metrics.summary(data)  # every number in the report counts every reading (A12)
 source = "Dexcom Clarity" if data["source"].iloc[0] == "dexcom_clarity" else "LibreView"
 first, last = readings["time"].min(), readings["time"].max()
 what = f"Synthetic sample in the **{source}** format" if sample else f"**{source}** export"
@@ -192,25 +202,14 @@ c[1].metric("Time below 70 mg/dL", f"{with_all['tbr_70_pct']:.1f}%")
 c[2].metric("Time above 180 mg/dL", f"{with_all['tar_180_pct']:.1f}%")
 c[3].metric("Time above 250 mg/dL", f"{with_all['tar_250_pct']:.1f}%")
 
-# ---------------------------------------------------------------- TBR with and without
-st.header("Time below range, with and without possible compression artifacts")
+# ---------------------------------------------------------------- flags: count and performance
+st.header("Possible compression artifacts")
+st.metric("Possible compression artifacts flagged", len(flags))
 st.write(
-    "Both numbers are shown side by side. The first counts every reading; the second leaves out "
-    "readings inside the flagged episodes listed below. A flag is not proof, and on simulated data "
-    "some flags fall on real lows, so the second number can leave out real low readings. "
-    + FINGERSTICK
+    "Time below range above counts every reading, including readings inside flagged episodes. "
+    "Flagged episodes are marked on the daily traces and shown night by night below. "
+    + FLAG_PERFORMANCE
 )
-tbr = pd.DataFrame(
-    {
-        "": ["Time below 70 mg/dL", "Time below 54 mg/dL"],
-        "All readings": [f"{with_all['tbr_70_pct']:.2f}%", f"{with_all['tbr_54_pct']:.2f}%"],
-        "Without possible compression artifacts": [
-            f"{without['tbr_70_pct']:.2f}%",
-            f"{without['tbr_54_pct']:.2f}%",
-        ],
-    }
-).set_index("")
-st.table(tbr)
 
 # ---------------------------------------------------------------- AGP
 st.header("Ambulatory glucose profile")
@@ -248,7 +247,33 @@ daily_chart = (
         tooltip=["day:N", "glucose:Q"],
     )
 )
+flagged = pd.concat(
+    [
+        daily[(daily["time"] >= f["start"]) & (daily["time"] <= f["end"])]
+        for _, f in flags.iterrows()
+    ]
+    or [daily.iloc[:0]]
+).assign(marker="possible compression artifact")
+if len(flagged):
+    daily_chart += (
+        alt.Chart(flagged)
+        .mark_circle(size=28)
+        .encode(
+            x="hour:Q",
+            y="glucose:Q",
+            color=alt.Color(
+                "marker:N",
+                scale=alt.Scale(range=[FLAG_COLOR]),
+                legend=alt.Legend(title=None, orient="top-left", labelLimit=400),
+            ),
+            tooltip=["day:N", "glucose:Q", "marker:N"],
+        )
+    )
 st.altair_chart(daily_chart.properties(height=260), use_container_width=True)
+st.caption(
+    "Each line is one day. Orange dots: readings inside flagged possible compression artifacts; "
+    "they are counted in every number above."
+)
 
 # ---------------------------------------------------------------- nights with flags
 st.header("Nights with possible compression artifacts")
@@ -268,9 +293,16 @@ else:
             f"{f['label'].capitalize()} on {night_label(f['start'])}, "
             f"{f['start']:%H:%M}-{f['end']:%H:%M}"
         )
-        span = pd.DataFrame({"start": [f["start"]], "end": [f["end"]]})
-        chart = alt.Chart(span).mark_rect(color="#eda100", opacity=0.25).encode(
-            x="start:T", x2="end:T"
+        span = pd.DataFrame(
+            {"start": [f["start"]], "end": [f["end"]], "text": ["possible compression artifact"]}
+        )
+        chart = (
+            alt.Chart(span)
+            .mark_rect(color=FLAG_COLOR, opacity=0.25)
+            .encode(x="start:T", x2="end:T")
+            + alt.Chart(span)
+            .mark_text(align="left", baseline="top", dx=3, dy=3, color="#8a5a00")
+            .encode(x="start:T", y=alt.value(0), text="text:N")
         ) + alt.Chart(night).mark_line(color="#2a78d6", strokeWidth=2).encode(
             x=alt.X("time:T", title=None),
             y=alt.Y("glucose:Q", title="mg/dL"),
@@ -304,7 +336,7 @@ with st.expander("Detections that are not flags"):
     else:
         st.write(
             "These were raised by only one method or started during the day. They are listed for "
-            "transparency and are not left out of any number above."
+            "transparency. No number in this report leaves out any reading, flagged or not."
         )
         st.dataframe(
             other[["start", "end", "methods", "nadir", "depth", "reasons"]], hide_index=True

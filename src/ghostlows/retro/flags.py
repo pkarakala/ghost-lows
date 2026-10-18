@@ -186,11 +186,3 @@ def flag_possible_artifacts(df: pd.DataFrame, methods=("baysal", "matched_filter
     """The detections that count as flags (both methods agree, night-time start)."""
     found = detections(df, methods)
     return found[found["flagged"].astype(bool)].reset_index(drop=True)
-
-
-def without_flagged(df: pd.DataFrame, flags: pd.DataFrame) -> pd.DataFrame:
-    """The trace without readings inside flags (time below range "without possible artifacts")."""
-    keep = pd.Series(True, index=df.index)
-    for _, f in flags.iterrows():
-        keep &= ~((df["time"] >= f["start"]) & (df["time"] <= f["end"]) & df["glucose"].notna())
-    return df[keep]

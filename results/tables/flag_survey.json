@@ -1,0 +1,16 @@
+{
+ "about": "How the upload report's flags do on simulated data: make_sample_export.py --survey on every default-mix run of the benchmark cohort, faults as in the PISA sweep.",
+ "cohort": "sim_full-8022d1cd7242",
+ "mix": "default",
+ "pisa_fraction": 0.25,
+ "severity": 0.5,
+ "fault_seed": 0,
+ "runs": 150,
+ "injected_artifacts": 492,
+ "flagged_artifacts": 172,
+ "flagged_artifact_share": 0.35,
+ "flags_elsewhere_per_run_mean": 3.59,
+ "flags_elsewhere_per_run_median": 4.0,
+ "runs_with_a_flag_on_a_real_low": 55,
+ "share_of_runs_with_a_flag_on_a_real_low": 0.367
+}
