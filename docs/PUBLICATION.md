@@ -30,7 +30,9 @@ The methods paper is reported in ADEMP form [Morris 2019] and states the limitat
 
 ## Actions for the project lead (outside the repository)
 
-1. Enable the Zenodo–GitHub integration for this repository before tagging `v0.1.0`.
+1. Enable the Zenodo–GitHub integration for this repository, then publish a GitHub *release* from the tag `v0.1.0` (`gh release create v0.1.0 --notes-file …`). Zenodo archives releases, not bare tags, and mints the DOI. Add the DOI to `CITATION.cff` (`doi:`) and as a badge in `README.md`.
+   - **Dataset:** `uv run python scripts/package_cohort.py` writes `dist/ghostlows-bench-v1.zip`. It contains the frozen cohort, its configs and calibration, the fault events of the main sweep, a data card (`DATACARD.md`) and a SHA-256 manifest. Upload it to Zenodo as a separate dataset record after confirming the proposed CC BY 4.0 licence, and add its DOI to `docs/DATA.md` and `CITATION.cff`.
+   - **Paper:** complete the affiliation in `paper.md`; the draft builds in CI (`.github/workflows/paper.yml`, PDF as an artifact). JOSS reviews the repository at a tagged release with a DOI.
 2. Add ORCID iDs and co-authors (the clinical co-lead) to `CITATION.cff`, and check the author name split.
 3. Request the dual-sensor dataset with PISA labels from the Padova group [Idi 2024]. This has a long lead time and is the only labelled real data.
 4. Obtain the full texts the fault model depends on: [Facchinetti 2016] (time constant, dropout model, frequency) and [Lobo 2026] (PMC13486385).

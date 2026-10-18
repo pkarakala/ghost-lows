@@ -60,7 +60,15 @@ uv run ghostlows benchmark --config experiments/configs/smoke.yaml   # end to en
 uv run ghostlows score --alarm examples/custom_alarm.py:FallingBelow70 --config experiments/configs/smoke.yaml
 ```
 
-**Data.** `uv run python scripts/download_data.py` fetches the public GlucoBench files (pinned and checksummed) into `data/` (never committed). See [`docs/DATA.md`](docs/DATA.md) for licences and the larger opt-in datasets.
+**Data.** `uv run python scripts/download_data.py` fetches the public GlucoBench files (pinned and checksummed) into `data/` (never committed); `--azt1d` adds AZT1D (776 MB) for the real-data context check. See [`docs/DATA.md`](docs/DATA.md) for licences and the larger opt-in datasets.
+
+**Reproduce the results.** [`results/README.md`](results/README.md) holds every headline table and figure, generated from the committed tables in `results/tables/`. To regenerate them from scratch:
+
+```
+make data data-azt1d    # pinned, checksummed downloads
+make results            # simulate the cohort (about 2 h), real-data track, every benchmark config (hours)
+make reproduce          # a clean checkout of the commit behind the headline tables reproduces them
+```
 
 **Cite.** See [`CITATION.cff`](CITATION.cff); results should name the benchmark version (`ghostlows-bench v1`). Plans for papers and dataset releases: [`docs/PUBLICATION.md`](docs/PUBLICATION.md).
 
@@ -72,11 +80,14 @@ src/ghostlows/
   metrics/   consensus CGM metrics (TIR, TBR, TAR, CV, GMI, AGP)
   sim/       simglucose wrapper, 5-min sensor, realistic scenarios
   faults/    PISA (Facchinetti model), dropout, drift, stale readings, mixed suite
-  alarms/    threshold, trend, Baysal, matched filter, isolation forest, boosting, (+ context), Kalman/HMM
+  alarms/    threshold, trend, Baysal, matched filter, isolation forest, boosting (+ context), Kalman filter
   bench/     event detection, alarm scoring, cross-validation, confidence intervals
   retro/     retrospective "possible compression artifact" flagging for uploads
 experiments/ configs and scripts that produce every table and figure
+results/     README with the headline results; committed aggregate tables and figures
+scripts/     pinned data download, app build, reproducibility check
 app/         in-browser dashboard (stlite / Pyodide), no server
+paper.md     Journal of Open Source Software paper draft (paper.bib)
 tests/
 docs/        research plan, roadmap, simulation, benchmark, data, privacy, citations
 prompts/     step-by-step prompts for building this with Claude Code
@@ -86,6 +97,7 @@ prompts/     step-by-step prompts for building this with Claude Code
 
 | File | What it holds |
 |---|---|
+| [`results/README.md`](results/README.md) | The results: every headline table and figure, with the reading of each hypothesis |
 | [`docs/RESEARCH.md`](docs/RESEARCH.md) | Definitions, research questions, hypotheses, novelty summary |
 | [`docs/ROADMAP.md`](docs/ROADMAP.md) | Build phases with acceptance criteria |
 | [`docs/SIMULATION.md`](docs/SIMULATION.md) | Simulator, scenarios and fault-suite specification |
