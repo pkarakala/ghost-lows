@@ -13,8 +13,6 @@ import numpy as np
 import pandas as pd
 
 RUN_KEYS = ("patient_id", "seed", "mix")
-VIEW_COLUMNS = ("time", "cgm", "iob", "cob")
-SAMPLE_MIN = 5.0
 
 # SOURCE: Garg 2022 (G7 Urgent Low fixed at 55 mg/dL) CLINICAL-REVIEW: CR14
 FLOOR_MG_DL = 55.0
