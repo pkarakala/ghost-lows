@@ -1,6 +1,6 @@
 # Research plan
 
-Citations in [brackets] resolve to entries in [`CITATIONS.md`](CITATIONS.md). Items marked **[clinical review]** are listed in [`CLINICAL_REVIEW.md`](CLINICAL_REVIEW.md).
+Citations in [brackets] resolve to entries in [`CITATIONS.md`](CITATIONS.md). Items marked **[clinical review]** are listed in [`CLINICAL_REVIEW.md`](CLINICAL_REVIEW.md). Design decisions D1–D18 and their evidence are in [`DECISIONS.md`](DECISIONS.md).
 
 ## 1. Definitions
 
@@ -9,9 +9,11 @@ Citations in [brackets] resolve to entries in [`CITATIONS.md`](CITATIONS.md). It
 | **PISA / compression low** | A transient, mostly downward deviation of the CGM signal caused by pressure on the sensor site, typically during sleep. | [Mensh 2013; Facchinetti 2016; Baysal 2014] |
 | **Ghost low** | A CGM low reading, or a low alarm, caused by a sensor artifact rather than by low blood glucose. Not an established term; we define it here and map it to PISA plus the other faults in the suite. | This project |
 | **Level 1 / level 2 hypoglycaemia** | Glucose <70 mg/dL / <54 mg/dL. **[clinical review]** | [IHSG 2017; Battelino 2019] |
-| **CGM hypoglycaemic event** | At least 15 consecutive minutes below the threshold; ends after at least 15 min at or above it. **[clinical review]** | [Battelino 2023] |
+| **True low event (simulation)** | Plasma glucose below the threshold for at least 15 consecutive minutes, ending after at least 15 consecutive minutes at or above it, computed on the 1-minute plasma signal (D1, D11). **[clinical review]** | [Battelino 2023] |
+| **CGM hypoglycaemic event (real data)** | The same rule applied to CGM readings: a run below the threshold spanning at least 15 minutes (D11). | [Battelino 2023] |
 | **Real-time alarm** | A decision at time *t* that uses only data up to *t*. | This project |
-| **Context** | Insulin on board (IOB), carbohydrates on board (COB) and time of night, as available to a pump/AID or logging user. | This project |
+| **Context** | Insulin on board (IOB) and carbohydrates on board (COB), computed only from recorded doses and announced carbohydrates, never from simulator truth. Time of day is *not* context: every CGM user has it, so it is a separate arm of the ablation (D2). | This project |
+| **Target population (RQ2)** | People on open-loop insulin delivery who record boluses and carbohydrates: multiple daily injections with a connected pen, or a pump without automated adjustment (D9). With automated insulin delivery, insulin delivery itself responds to the CGM, artifacts included. | This project |
 
 ## 2. Primary research question
 
@@ -19,23 +21,23 @@ Citations in [brackets] resolve to entries in [`CITATIONS.md`](CITATIONS.md). It
 
 ### RQ1. Fault impact
 
-How much do compression and other sensor faults degrade existing low alarms (threshold, trend, Baysal rules [Baysal 2014], matched filter [Idi 2023], isolation forest [Idi 2024], gradient boosting [Navarathna 2023]) on lows caught, false alarms per day and warning time, as fault severity rises?
+How much do compression and other sensor faults degrade existing low alarms (threshold, trend, Baysal rules [Baysal 2014], matched filter [Idi 2023], isolation forest [Idi 2024], gradient boosting [Navarathna 2023]) on lows caught, false alarms per day and warning time, as fault severity rises? Answered in simulation and, because simulated lows are the least trustworthy part of the simulator, also on real CGM lows with injected compression artifacts (§7, D16).
 
 ### RQ2. Value of context
 
-At a fixed sensitivity on level 2 lows, how many compression false alarms per night does adding insulin and carb context remove? Report the compression and non-compression parts of the reduction separately.
+**Estimand.** In the target population, at matched level 2 sensitivity, the ratio of compression false alarms per night with versus without IOB/COB, with time of day available in both arms (D2, D5). Report the compression and non-compression parts separately, and report the ratio at three levels of how much of the nocturnal hypoglycaemia recorded insulin can explain (D3).
 
-*Why this split matters:* in the original proof of concept, 82% of the false-alarm reduction came from ordinary noise near 70 mg/dL rather than from compression. A ghost-low method has to move the compression column, not just filter noise.
+*Why this split matters:* a method can cut false alarms by filtering ordinary noise near 70 mg/dL without touching compression. A ghost-low method has to move the compression column.
 
 ### RQ3. Model-based versus discriminative
 
 Does a filter with an explicit "compressed" hidden state plus insulin and meal inputs [after Facchinetti 2013; Turksoy 2017] beat the best discriminative detector, and does either hold up on real data?
 
-## 3. Hypotheses (fixed before running the full benchmark)
+## 3. Hypotheses (fixed before running the full benchmark; frozen by the git tag `protocol-v1`)
 
-- **H1.** False alarms per day rise for every CGM-only alarm as the fraction of compressed nights rises, and trend alarms degrade faster than threshold alarms because they react to the drop rate.
-- **H2.** At a fixed level 2 sensitivity, context reduces compression false alarms per day by a meaningful amount (effect size and confidence interval reported, no fixed target), and the reduction is smaller on scenarios with unannounced exercise and insulin-sensitivity changes than on standard scenarios.
-- **H3.** The context benefit measured in simulation shrinks on real data, because real lows have causes that IOB does not see.
+- **H1 (fault impact).** For each CGM-only alarm, the per-patient least-squares slope of false alarms per day against the fraction of compressed nights is summarised across patients (median, 95% patient-bootstrap CI). That false alarms rise for threshold alarms follows by construction, because artifacts only lower the CGM, so this is a check, not a finding. The hypothesis is that **trend alarms degrade faster**: the paired slope difference (trend − threshold) is positive, with a CI that excludes 0.
+- **H2 (value of context).** Primary contrast: the rate ratio RR = compression false alarms per night of [CGM + time + IOB/COB] over [CGM + time], at the pre-registered operating point, per detector, on the default scenario mix, with a paired patient-bootstrap CI. Smallest effect size of interest: RR = 0.75, a 25% reduction **[assumption, clinical review CR9]**. It is relative because absolute rates scale with the assumed PISA frequency. Reading: *meaningful reduction* if the CI's upper bound is below 1 and the point estimate is ≤0.75; *no meaningful reduction* if the CI's lower bound is above 0.75; otherwise *inconclusive*. Secondary: RR is closer to 1 on the high-perturbation mix than on the standard mix.
+- **H3 (real data).** The context benefit shrinks on real data: RR on semi-synthetic AZT1D nights (real CGM, recorded user-entered boluses and carbs, injected compression) is closer to 1 than in simulation at a matched unexplained-low fraction (D3). Real compression artifacts already present in AZT1D are unlabelled and contaminate the reference; this is stated as a limitation of H3.
 
 Null results are results. The benchmark is the contribution whichever way H2 comes out.
 
@@ -43,12 +45,12 @@ Null results are results. The benchmark is the contribution whichever way H2 com
 
 **Summary.** Compression-low detection itself is established [Baysal 2014; Navarathna 2023; Idi 2023; Idi 2024; Manzoni 2025; Lobo 2026], and detecting it from CGM values alone is well covered. What does not exist is:
 
-1. **An open benchmark that scores low alarms, not detectors.** Prior work reports detector metrics such as sensitivity, false positives per day or PR-AUC [Idi 2024; Manzoni 2025; Lobo 2026]. None scores each real-time *alarm* on lows caught, false alarms per day and minutes of warning together, under a *mixed* fault suite with adjustable severity. Fault-injection testbeds exist for controllers and generic faults but have no PISA model [Zhou 2021; APS_TestBed 2022]. CGM benchmarks are about forecasting and have no sensor faults [GlucoBench 2024; GlucoFM-Bench 2026; MetaboNet-Bench 2026].
+1. **An open benchmark that scores low alarms, not detectors.** Prior work reports detector metrics such as sensitivity, false positives per day or PR-AUC [Idi 2024; Manzoni 2025; Lobo 2026]. [Lobo 2026] detects PISA onset prospectively, to inform "canceling of hypoglycemia alarms", but scores the detector by PR-AUC. None scores each real-time *alarm* on lows caught, false alarms per day and minutes of warning together, under a *mixed* fault suite with adjustable severity. Fault-injection testbeds exist for controllers and generic faults but have no PISA model [Zhou 2021; APS_TestBed 2022]. CGM benchmarks are about forecasting and have no sensor faults [GlucoBench 2024; GlucoFM-Bench 2026; MetaboNet-Bench 2026]. *To check before claiming:* whether the commercial UVA/Padova simulator's sensor models include PISA (Facchinetti 2016 aims to add these artifacts to simulators; see also US 10,546,659), and the full text of [Lobo 2026] (PMC13486385).
 2. **A controlled ablation of insulin and carb context at alarm time.** Context-based alarm gating is claimed in product patents [US 11,406,331; US 9,119,528; US 10,231,659; US 2024/0139415], but no open study measures, detector by detector and at a fixed safety level, how much context adds over CGM-only methods.
-3. **A simulation design that avoids insulin leakage.** In simglucose every low is caused by the insulin model the context features read. Adding lows that insulin does not explain (unannounced exercise, sensitivity changes, meal errors) is needed for an honest ablation.
+3. **A simulation that varies how much insulin explains.** In simglucose every low is caused by the insulin model the context features read. Yet in a pilot, bolus IOB barely separated nocturnal low onsets from other night-time moments (AUC 0.54, DECISIONS.md). How much context can help is therefore an empirical question. The scenario mixes vary it on purpose (unannounced exercise, sensitivity changes, meal errors) and report the result as an axis (D3).
 4. **Fault realism from the literature.** Compression is injected from the published PISA model [Facchinetti 2016] (median depth 24 mg/dL, median duration 45 min), as used by [Idi 2024], instead of hand-made shapes.
 
-Confidence: medium. The patent scan read summaries, not claims, and the full text of [Lobo 2026] was not available. See `CITATIONS.md`.
+Confidence: medium. The patent scan read summaries, not claims. See `CITATIONS.md`.
 
 **Patent note.** Publishing a benchmark and comparing methods carries little patent risk. Risk grows only if the upload tool becomes a product that suppresses or gates real alarms. Hence: the tool stays retrospective, uses the label "possible compression artifact", ships under an open licence with a no-medical-use disclaimer, and the university tech-transfer office is consulted before any commercial or clinical use. This is not a legal opinion.
 
@@ -60,8 +62,17 @@ Confidence: medium. The patent scan read summaries, not claims, and the full tex
 
 ## 6. Known limitations to state up front
 
-- simglucose implements the 2008 UVA/Padova model with 30 virtual patients and one shared CGM noise model [simglucose; Kovatchev 2009; Breton 2008].
+- **Simulated hypoglycaemia is the weakest part of the simulator.** simglucose implements the 2008 UVA/Padova model [simglucose; Kovatchev 2009]. It lacks the 2013 model's nonlinear rise of insulin action in hypoglycaemia and its glucagon counter-regulation [Dalla Man 2014]. Those equations are published, but the parameter values needed to add them are not. Hence the real-data validation in §7 (D16).
+- The stock controller settings give implausible hypoglycaemia in several virtual patients (DECISIONS.md, pilot). Therapy settings are calibrated per patient to a pre-specified range (D17); that range is itself an assumption **[clinical review CR15]**.
+- 30 virtual patients and one shared CGM noise model [simglucose; Breton 2008]. The noise is smooth (AR(1) on a 15-minute grid, cubic-interpolated), so sample-level noise and spikes are gentler than in real sensors. Confidence intervals describe this cohort, not a population.
+- The model's blood-to-interstitial lag (τ = 1/ksc, 6.6–19.9 min, median about 11) is longer than the 5–6 min measured in healthy fasted adults [Basu 2013], so simulated warning times are pessimistic; a sensitivity arm uses 6 min (D1).
 - No public dataset has PISA labels. The one labelled real set (36 adults, two G6 sensors) is held by Padova [Idi 2024].
 - Insulin and carb context exists only for pump/AID users or people who log; many standalone G7 users have none.
-- There is no G7-specific PISA data in the literature found so far.
+- There is no G7-specific PISA data in the literature found so far; the injected artifacts come from Dexcom G4 data [Facchinetti 2016]. The model's time constant and the mapping from reported artifact size to model inputs await the full text (SIMULATION.md §4.1).
 - The Dexcom Urgent Low Soon prediction model is not public; the trend alarm here is a stand-in (predict 55 mg/dL within 20 min) [Garg 2022].
+
+## 7. Validation strategy
+
+1. **Real lows with injected artifacts (co-primary for RQ1).** Inject PISAs from the same model into real overnight CGM (Weinstock 2016; DiaData raw, deduplicated) and score every alarm. Truth is the un-injected CGM, so false alarms caused by the injected artifacts can be attributed exactly. Real, unlabelled PISAs in the reference bias sensitivity, and this is stated.
+2. **Face validity of simulated lows.** Compare simulated nocturnal true lows (fall rate in the 30 min before onset, nadir, duration) and the overnight glucose distribution (the share of the night in 70–95 mg/dL, where a median-depth artifact creates a false low) with real CGM (Weinstock 2016, DiaData). Report the comparison whatever it shows.
+3. **Labelled real data.** Request access to the dual-sensor set with PISA labels [Idi 2024] from the Padova group. Until then, real-data results report rates and agreement between detectors, not accuracy.

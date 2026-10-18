@@ -1,5 +1,7 @@
 # Benchmark specification
 
+Benchmark version **`ghostlows-bench v1`** (D18): the alarms, truth, metrics, operating point and statistics below, together with the frozen simulation and fault configs. Any change to them that alters results makes a new benchmark version. Decisions D1–D18 are explained in [`DECISIONS.md`](DECISIONS.md).
+
 ## 1. Alarm interface
 
 Every alarm is causal: at each sample time *t* it may use only data up to *t*.
@@ -13,51 +15,61 @@ class Alarm(Protocol):
     def alarms(self, df: pd.DataFrame, threshold: float) -> pd.DataFrame: ...  # alarm events
 ```
 
-Alarm events have `patient_id`, `time`, `alarm_name`. A refractory period (default 30 min **[assumption]**) stops one episode from firing many alarms; re-fires inside 15 min are counted as **flicker**.
+- `score` is **one scalar per sample**, and `threshold` is the only operating-point parameter (D5). A gated alarm keeps its trend component at the fixed definition in §2 and scores as `1[trend fires] × (1 − gate score)`, so the threshold tunes only the gate.
+- **Urgent-low floor (D4):** every alarm also fires, ungated, on any CGM reading ≤55 mg/dL **[assumption, clinical review CR14]**, mirroring the device alarm that cannot be silenced. No gate or context can suppress it. Floor alarms are labelled and reported separately.
+- `fit` sees training patients only. Feature normalisation uses training-fold statistics or trailing windows, never a test patient's whole trace (D14).
+- Alarm events have `patient_id`, `time`, `alarm_name`, `is_floor`. A refractory period (default 30 min **[assumption]**) stops one episode from firing many alarms; re-fires inside 15 min are counted as **flicker**.
 
 ## 2. Alarms
 
 | Name | Description | Source |
 |---|---|---|
-| `threshold` | Fires when CGM < 70 (and a 55 variant) | Standard |
+| `threshold` | Fires when CGM < 70. The 55 variant is the floor alone (`floor_only`) | Standard |
 | `trend` | Linear extrapolation over the last 15 to 20 min predicts < 55 within 20 min. Stand-in for Dexcom Urgent Low Soon, whose model is not public | [Garg 2022] |
-| `baysal_gate` | Trend alarm suppressed when the Baysal rule-based detector flags a PISA (rate-of-change thresholds about −1.9 to −3.1 mg/dL/min) | [Baysal 2014] |
-| `matched_filter_gate` | Trend alarm gated by a matched filter for the PISA shape | [Idi 2023] |
-| `iforest_gate` | Trend alarm gated by an isolation-forest anomaly score on CGM features | [Idi 2024] |
+| `baysal_gate` | Trend alarm suppressed when the Baysal rule-based detector flags a PISA. Uses one pre-specified parameter set from the paper; the others are a sensitivity analysis | [Baysal 2014] |
+| `matched_filter_causal_gate` | Trend alarm gated by a matched filter for the PISA shape, using past samples only | causal adaptation of [Idi 2023] |
+| `iforest_causal_gate` | Trend alarm gated by an isolation-forest anomaly score on trailing-window CGM features | causal adaptation of [Idi 2024] |
 | `gbm` | Gradient-boosted classifier on causal CGM features predicting a true low within the horizon | [Navarathna 2023] style |
-| `*_ctx` variants | Same detectors with IOB, COB and time-of-night features added | Ablation, this project |
+| Context arms (D2) | For every detector, four arms that differ only in their inputs: CGM-only, `_time` (+time of day), `_ctx` (+IOB/COB), `_time_ctx` (+both). Each arm passes the detector's output and its extra inputs through the same learned combiner (L2-regularised logistic regression) fitted on training patients; the published rule without a combiner is also reported as the *as published* reference. For `gbm` the arms are its feature sets | Ablation, this project |
 | `kalman_pisa` (stretch) | Kalman/HMM filter with an explicit "compressed" state, insulin and meal inputs | after [Facchinetti 2013; Turksoy 2017] |
 
-Reimplementations of published methods follow the papers as closely as their text allows. Any detail the paper does not give is marked in code with `# ASSUMPTION:` and listed in the results.
+Reimplementations of published methods follow the papers as closely as their text allows. Any detail the paper does not give is marked in code with `# ASSUMPTION:` and listed in the results. Retrospective methods [Idi 2023; Idi 2024; Manzoni 2025] used in real time are **new, causal adaptations** (D7). Every deviation from the paper is documented, their detection latency is reported, and the retrospective originals are scored on the retrospective track.
 
-## 3. Ground truth
+## 3. Ground truth (D11)
 
-- **True low event:** `truth_glucose` < 70 for ≥ 15 consecutive minutes (level 1), or < 54 (level 2); event ends after ≥ 15 min at or above the threshold [Battelino 2023].
-- **Fault-caused low:** `cgm_observed` < 70 while `truth_glucose` ≥ 70, labelled by the fault type active at that time.
+- **True low event (simulation):** on the 1-minute `truth_glucose` (plasma, D1), at least 15 consecutive minutes below 70 (level 1) or below 54 (level 2); the event ends after at least 15 consecutive minutes at or above the threshold [Battelino 2023].
+- **CGM-referenced event (real data):** a run of readings below the threshold spanning at least 15 min (first to last reading plus one sampling interval); a gap longer than two sampling intervals ends the run **[assumption]**.
+- Level 2 events lie inside level 1 events. Each level is scored separately; false-alarm matching uses level 1 events, so an alarm during any true low is not false.
 
 ## 4. Metrics (per patient, then aggregated)
 
 | Metric | Definition |
 |---|---|
-| **Lows caught** (sensitivity) | Share of true low events with an alarm between 30 min before onset and 15 min after onset **[assumption on window]** |
-| **False alarms per day** | Alarms not matched to a true low event, per 24 h of wear, **split by cause**: compression, other fault, no fault (noise) |
-| **Warning time** | Onset time minus alarm time, for caught events. Report the median **together with** the miss rate, never alone |
-| **Late announcement** | Time-to-alarm on missed-then-caught level 2 lows (for alarms with a safety net) |
+| **Matching (D12)** | An alarm matches the first event with alarm time in [onset − 30 min, event end]. An event is **caught** if a matched alarm falls in [onset − 30, onset + 15] **[assumption on windows]**. Matched alarms after onset + 15 are **late**, not false. Sensitivity analysis: early window 20/30/45 min, late bound 15/30 min |
+| **Lows caught** (sensitivity) | Share of true low events caught, per level |
+| **False alarms per day** | Unmatched alarms per 24 h of wear, **split by cause** (D10), assigned at the alarm in this order: *compression* if a PISA was active in [t − 30, t] min; *other fault* if another fault was; *near-event* if within 60 min after a true low ends or 30–60 min before an onset; otherwise *noise* **[assumption on windows]**. Counts per night equal counts per 24 h of wear (D13) |
+| **Warning time** | Onset time minus first alarm time, for caught events. Report the median **together with** the miss rate, never alone |
+| **Late announcement** | For level 2 lows whose non-floor alarm was suppressed or missed: time from onset to the first alarm, usually the floor (D4) |
 | **Flicker** | Re-fires within 15 min |
+| **Detection latency** | For gated detectors: time from PISA onset to the gate first flagging it (D7) |
+| **Leak (D3)** | AUC of IOB at nocturnal (23:00–07:00) true level 1 onsets vs. all nocturnal samples, per scenario mix and dataset |
 | **FDA-style alert rates** | True alert rate and detection rate within ±15 min of a reference low, following the definitions in the iCGM special controls [21 CFR 862.1355] and the Libre 3 decision summary [FDA K212132] |
 
-Also produce: sensitivity vs. false-alarms-per-day curves for each alarm across thresholds, and every metric as a function of fault severity.
+Also produce: sensitivity vs. false-alarms-per-day curves for each alarm across thresholds (the threshold-free comparison), and every metric as a function of fault severity.
 
-## 5. Operating point (pre-registered)
+## 5. Operating point (pre-registered, D5)
 
-Choose each detector's threshold on the **training** patients only, so that level 2 sensitivity is at least that of the CGM-only `trend` alarm on the same training patients (default) **[clinical review: the cost of one missed level 2 low vs. extra false alarms]**. Then report test-fold metrics at that threshold. Commit the operating-point rule to `experiments/configs/` before running the final benchmark.
+Choose each alarm's threshold on the **training** patients only: θ\* minimises false alarms per day subject to level 2 sensitivity (floor alarms included) being at least that of the CGM-only `trend` alarm on the same training patients **[clinical review CR9: the cost of one missed level 2 low vs. extra false alarms]**. δ = 0 is primary; a 5-percentage-point non-inferiority margin (δ = 0.05) is a sensitivity analysis. Ties go to the more sensitive threshold. A training fold with fewer than 10 level 2 events is flagged as not estimable **[assumption]**. Report test-fold metrics at θ\*, including the achieved test sensitivity, alongside the threshold-free curves. Commit the operating-point rule to `experiments/configs/` before running the final benchmark.
 
-## 6. Statistics
+## 6. Statistics (D14)
 
-- **Leave-patients-out cross-validation** over all 30 virtual patients (e.g. 5 folds, stratified by age group). No patient's data in both training and test.
-- **Confidence intervals across patients**, not across seeds or runs (patient-level bootstrap, 95%).
+- **Leave-patients-out cross-validation** over all 30 virtual patients (5 folds, stratified by age group). No patient's data in both training and test.
+- **Confidence intervals across patients**, not across seeds or runs: patient-level bootstrap stratified by age group, 2,000 resamples, 95% percentile intervals. They describe variability across this simulator's cohort, not a population.
 - Repeated seeds change scenarios and faults; they do not add independent patients. Report effective sample size honestly.
 - Paired comparisons (with vs. without context) use the same patients, scenarios and faults.
+- Report results by age group and pooled; children dominate low counts.
+- Pre-registered decision rules apply only to H1–H3 (RESEARCH.md §3). Everything else is estimation, reported with CIs and no significance claims.
+- Report the study in ADEMP form: aims, data-generating mechanisms, estimands, methods, performance measures [Morris 2019].
 
 ## 7. Outputs
 
@@ -65,5 +77,5 @@ Choose each detector's threshold on the **training** patients only, so that leve
 
 - `metrics.csv` (one row per alarm × severity × fold × patient)
 - `summary.csv` (aggregated with CIs)
-- `figures/` (PNG + SVG): severity curves, sensitivity–false-alarm curves, false-alarm split by cause, example traces
-- `config.yaml`, `git_commit.txt`, `assumptions.md` (auto-collected `# ASSUMPTION:` lines)
+- `figures/` (PNG + SVG): severity curves, sensitivity–false-alarm curves, false alarms split by cause, example traces
+- `config.yaml`, `git_commit.txt`, `benchmark_version.txt`, `assumptions.md` (auto-collected `# ASSUMPTION:` lines)

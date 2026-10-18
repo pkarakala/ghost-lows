@@ -1,0 +1,52 @@
+cff-version: 1.2.0
+message: >-
+  If you use Ghost Lows, please cite the software (this file). Benchmark results should
+  also name the benchmark version they were computed on. Cite the datasets and
+  simulator you use as listed in docs/DATA.md and docs/CITATIONS.md.
+title: "Ghost Lows: an open benchmark for real-time CGM low-glucose alarms under sensor faults"
+type: software
+authors:
+  - given-names: Pranav
+    family-names: Karakala Reddy
+version: 0.0.1
+license: MIT
+repository-code: "https://github.com/pkarakala/ghost-lows"
+abstract: >-
+  An open benchmark that scores real-time continuous glucose monitoring (CGM) low-glucose
+  alarms on lows caught, false alarms per day and minutes of warning under a mixed
+  sensor-fault suite (pressure-induced sensor attenuation, dropout, stale readings, drift,
+  spikes), with a controlled ablation of what insulin and carbohydrate context adds.
+  Research software; not a medical device.
+keywords:
+  - continuous glucose monitoring
+  - hypoglycaemia alarms
+  - compression artifacts
+  - pressure-induced sensor attenuation
+  - benchmark
+  - type 1 diabetes
+references:
+  - type: software
+    title: simglucose
+    authors:
+      - given-names: Jinyu
+        family-names: Xie
+    version: 0.2.11
+    repository-code: "https://github.com/jxx123/simglucose"
+  - type: article
+    title: Modeling Transient Disconnections and Compression Artifacts of Continuous Glucose Sensors
+    authors:
+      - family-names: Facchinetti
+        given-names: Andrea
+      - family-names: Del Favero
+        given-names: Simone
+      - family-names: Sparacino
+        given-names: Giovanni
+      - family-names: Cobelli
+        given-names: Claudio
+    journal: Diabetes Technology & Therapeutics
+    year: 2016
+    volume: 18
+    issue: 4
+    start: 264
+    end: 272
+    doi: 10.1089/dia.2015.0250

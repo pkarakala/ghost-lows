@@ -68,6 +68,13 @@ Literature preparation for the paper is a separate, later step. This list exists
 | Kovatchev 2009 | Kovatchev BP, et al. In silico preclinical trials (UVA/Padova simulator). *J Diabetes Sci Technol* 2009 | — | verify | Simulator model |
 | Breton 2008 | Breton M, Kovatchev B. Analysis, modeling and simulation of CGM sensor accuracy. *J Diabetes Sci Technol* 2008 | — | verify | simglucose noise model |
 | Basu 2013 | Basu A, et al. Time lag of glucose from intravascular to interstitial compartment. *Diabetes* 2013 | [doi](https://doi.org/10.2337/db13-1132) | opened | Blood-to-ISF lag |
+| Dalla Man 2014 | Dalla Man C, Micheletto F, Lv D, Breton M, Kovatchev B, Cobelli C. The UVA/PADOVA type 1 diabetes simulator: new features. *J Diabetes Sci Technol* 2014;8(1):26–34 | [doi](https://doi.org/10.1177/1932296813514502) | opened (full text, PMC4454102) | 2013 hypoglycaemia and glucagon models, absent from simglucose; their parameter values are not published |
+
+## Study design and reporting
+
+| Key | Reference | Link | Status | Used for |
+|---|---|---|---|---|
+| Morris 2019 | Morris TP, White IR, Crowther MJ. Using simulation studies to evaluate statistical methods. *Stat Med* 2019;38(11):2074–2102 | [doi](https://doi.org/10.1002/sim.8086) | opened (abstract) | ADEMP structure for planning and reporting the simulation study |
 
 ## Clinical definitions, devices and regulation
 

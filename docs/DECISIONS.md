@@ -1,0 +1,47 @@
+# Design decisions
+
+Decisions on the open items in [`SPEC_REVIEW.md`](SPEC_REVIEW.md), made 2026-10-18 by the PI-role reviewer under authority delegated by the project lead. Each one gives the evidence, the decision and the spec it changes. The specs (`RESEARCH.md`, `SIMULATION.md`, `BENCHMARK.md`) are the source of truth; this file records why. Decisions on the research question (D2, D3, D5, D6) are frozen with the protocol tag `protocol-v1` before the full benchmark runs (Phase 6). Changes after that are logged here as amendments, with the reason.
+
+## Evidence: pilot of stock simglucose
+
+`experiments/pilot/stock_simglucose.py` with `analyse_stock.py`: stock basal-bolus controller, `RandomScenario`, 5-min sensor, all 30 virtual patients, 14 days, seed 1. Truth = plasma glucose. An event = ≥15 min below the threshold.
+
+| Finding | Value |
+|---|---|
+| Level-2 events (plasma <54) | 144 in total: children 119, adolescents 14, adults 11 (10 of them in one adult) |
+| Patients with no level-2 event / none at night | 13 / 19 of 30 |
+| Implausible lows | plasma nadir below 25 mg/dL in 4 patients (5.6, 6.4, 17.1 and 21.1 mg/dL). Two runs stopped early because simglucose ends a run when glucose falls below 10. Nights spent below 70: 84%, 79% and 73% in three children |
+| Bolus IOB (4-h linear) at nocturnal level-1 onsets vs. random night times | AUC 0.54 (81 onsets) |
+| Lag: simglucose's CGM signal (Gsub) reaching 70 after plasma onset | median 15 min (IQR 10–20) |
+| Share of the night with plasma in 70–95 mg/dL (a median-depth PISA there gives a CGM <70) | median 28% (patients range 0–80%) |
+
+Also verified in the simglucose 0.2.11 source: the stock controller adds the full correction bolus on *every* 5-minute step in which the patient is eating, not once per meal. The model has no glucagon state and no hypoglycaemia-dependent insulin action. The subcutaneous compartment (x[12]) feeds nothing back into the model.
+
+**Reading.** The stock cohort is not a credible population. Level-2 sensitivity would be estimated mostly on a few virtual children with chronic, implausibly deep nocturnal hypoglycaemia caused by their therapy settings. The premise that "context reads the insulin that causes every low" does not hold at night (AUC 0.54). The simulated sensor lag sits right at the edge of the lows-caught window.
+
+## Decisions
+
+| ID | Decision | Resolves | Spec |
+|---|---|---|---|
+| D1 | **Truth = plasma glucose** (x[3]/Vg) at 1-min resolution; simglucose's Gsub is kept as `isf_glucose`. The CGM is built from Gsub (the model's own lag, τ = 1/ksc) plus noise, with no extra filter. **Sensitivity arm:** CGM re-derived from plasma with τ = 6 min [Basu 2013]. This is valid because x[12] does not feed back. | SR1 | SIM §1 |
+| D2 | **Factorial context ablation:** CGM-only, +time of day, +IOB/COB, +both. Within each detector, all arms pass through the same learned combiner and differ only in their inputs. The "as published" rule is reported as a reference. **Primary RQ2 contrast:** (CGM+time+IOB/COB) vs. (CGM+time). | SR13 | RES §2, BENCH §2 |
+| D3 | **Leak axis:** three scenario mixes, *standard*, *default* and *high*. The realised leak, AUC(IOB at nocturnal true-low onsets vs. random night times), is reported for each mix and for real data (AZT1D, user-entered boluses only). | SR14 | SIM §3, BENCH §4 |
+| D4 | **Urgent-low floor:** every alarm includes an ungated alarm on any CGM reading ≤55 mg/dL [assumption; CR14], mirroring the non-silenceable device alarm. No gate or context can suppress it. Floor alarms and late announcements are reported separately. | SR21 | BENCH §1, §4 |
+| D5 | **Operating point:** one scalar score per alarm. Gated alarms tune only the gate. θ\* minimises false alarms/day on training patients subject to level-2 sensitivity (floor included) ≥ the CGM-only trend alarm's on the same patients. δ = 0 is primary; δ = 0.05 is a sensitivity analysis. Ties go to the more sensitive θ. At least 10 level-2 events per training fold are required, else the fold is flagged. Test-fold sensitivity and threshold-free curves are always reported. | SR20 | BENCH §5 |
+| D6 | **Hypotheses:** H1 is a slope contrast (trend − threshold). H2 is a rate ratio with a smallest effect size of interest of RR = 0.75 and pre-set reading rules [assumption; CR9], relative because absolute rates scale with the assumed PISA frequency. H3 is tested on semi-synthetic AZT1D nights. | SR23 | RES §3 |
+| D7 | **Retrospective detectors** run in real time as named causal adaptations (`*_causal`), with every deviation documented and detection latency reported. The retrospective originals are scored on the retrospective track. | SR6 | BENCH §2 |
+| D8 | **Generator-mismatch arm:** test PISAs come from perturbed shapes (τ ×0.5 and ×2; depth quantiles ×0.75 and ×1.25) while detectors keep the nominal model. | SR15 | SIM §4.4 |
+| D9 | **Target population for RQ2:** open-loop insulin users who record boluses and carbs. There is no automated insulin delivery in the core benchmark, which keeps post-hoc fault injection valid. Real AID data uses user-entered boluses and carbs only. Correction to SR16: a PISA still running at breakfast (onsets from 05:00) can lower the CGM used for the breakfast correction, so such overlaps are counted and reported. | SR16 | RES §1, SIM §2, §4.5 |
+| D10 | **Cause attribution at the alarm**, in order: PISA if one was active in [t−30, t] min; other fault in [t−30, t]; *near-event* if within 60 min after a true low ends or 30–60 min before an onset; otherwise noise. Windows configurable. | SR17 | BENCH §4 |
+| D11 | **Events:** truth on 1-min plasma, ≥15 consecutive minutes below the threshold, ending after ≥15 consecutive minutes at or above it [Battelino 2023]. Real data: a run of CGM readings below the threshold spanning ≥15 min, with a gap of more than two sampling intervals ending the run. Level 2 is nested in level 1; each level is scored separately; false-alarm matching uses level-1 events. | SR18 | BENCH §3 |
+| D12 | **Matching:** an alarm matches the first event with t ∈ [onset−30 min, end]. An event is caught if an alarm falls in [onset−30, onset+15]. Alarms in (onset+15, end] are late, not false. Window sensitivity: early 20/30/45 min, late 15/30 min. | SR19 | BENCH §4 |
+| D13 | **Units and severity:** cause-attributed counts per night equal counts per 24 h of wear (one night per day). Severity is the fraction of nights with ≥1 PISA, with one PISA per compressed night [assumption]. Severity never changes PISA depth or duration. | SR22 | SIM §4.1, §4.3 |
+| D14 | **Statistics:** results by age group and pooled. Patient bootstrap stratified by age group (2,000 resamples, percentile intervals), described as conditional on the simulator cohort. Estimation framing outside the H1–H3 rules. Reporting follows ADEMP [Morris 2019]. Feature normalisation uses training folds or trailing windows only, with a test. | SR24 | BENCH §6 |
+| D15 | **Drop the "82% from noise" figure** (unverifiable); keep the rationale. | SR25 | RES §2 |
+| D16 | **Simulator validity in hypoglycaemia:** the 2008 model lacks the 2013 hypoglycaemia nonlinearity and glucagon [Dalla Man 2014]; the paper gives the equations but not r1, r2 or the glucagon parameter values, so it cannot be added faithfully. Stated as the primary limitation. The **semi-synthetic real-data track becomes co-primary for RQ1**, and simulated low shapes get a face-validity check against real CGM. | new | RES §6–7, SIM §5 |
+| D17 | **Controller rewrite and calibration:** one bolus per meal from announced carbs and one correction per meal. Each patient's basal and carb-ratio scale is calibrated on the *standard* scenario, on calibration seeds kept apart from benchmark seeds, so that 14-day TBR <70 is within 1–8% and the plasma nadir stays ≥40 mg/dL [assumption; CR15]. Lows deeper than that are outside the 2008 model's credible range. The calibrated cohort is compared with real per-person TBR (DiaData). | new | SIM §2 |
+| D18 | **Publication, citation, usability** (see [`PUBLICATION.md`](PUBLICATION.md)): a versioned benchmark definition (`ghostlows-bench v1`); the frozen simulated cohort released as a citable dataset; `CITATION.cff`; a DOI per release; a CLI and a plug-in alarm API with a tested example; a results page; a JOSS software paper and a JDST methods paper. | new | ROADMAP |
+
+## Amendments
+
+None yet.
