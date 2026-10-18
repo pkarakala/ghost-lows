@@ -1,0 +1,16 @@
+# data and run outputs (never commit patient data)
+data/*
+!data/README.md
+results/*/
+!results/README.md
+# python
+__pycache__/
+*.py[cod]
+.venv/
+.pytest_cache/
+.ruff_cache/
+*.egg-info/
+dist/
+build/
+.ipynb_checkpoints/
+.DS_Store
