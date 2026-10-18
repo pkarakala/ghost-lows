@@ -1,0 +1,26 @@
+name: Paper draft (JOSS)
+
+# Builds the JOSS draft PDF from paper.md and paper.bib with the journal's own action, so a
+# broken citation or front-matter error shows up before submission. The PDF is an artifact.
+on:
+  push:
+    branches: [main]
+    paths: ["paper.md", "paper.bib", ".github/workflows/paper.yml"]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  paper:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: openjournals/openjournals-draft-action@af22ceb4b8f9eff6b3a13c05747ccc2f573cf2e6 # master, 2026-09-23
+        with:
+          journal: joss
+          paper-path: paper.md
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: paper
+          path: paper.pdf
