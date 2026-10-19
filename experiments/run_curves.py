@@ -176,6 +176,73 @@ def figure(summary: pd.DataFrame, mix: str, path: Path) -> None:
     plt.close(fig)
 
 
+A13_COLORS = {
+    "baysal_gate": "#2a78d6",
+    "matched_filter_causal_gate": "#1baf7a",
+    "iforest_causal_gate": "#eb6834",
+    "gbm": "#eda100",
+}
+
+
+def a13_figure(c: pd.DataFrame, a13: pd.DataFrame, path: Path) -> None:
+    """Amendment A13: false alarms per day against held-out level 2 sensitivity, retuned `trend`
+    as the reference line (with its 95% band), the comparison window shaded."""
+    mixes = sorted(c["mix"].unique())
+    fig, axes = plt.subplots(
+        2, len(mixes), figsize=(4.6 * len(mixes), 6.6), facecolor=SURFACE, squeeze=False
+    )
+    for j, mix in enumerate(mixes):
+        window = a13[a13["mix"] == mix]["sens_l2"]
+        for i, (col, label) in enumerate(
+            [("false_per_day", "all"), ("false_compression_per_day", "compression")]
+        ):
+            ax = axes[i, j]
+            ax.axvspan(window.min(), window.max(), color=GRID, alpha=0.6, lw=0)
+            for name in (curves.A13_REFERENCE, *curves.A13_COMPARATORS):
+                g = c[(c["mix"] == mix) & (c["alarm_name"] == name)].sort_values("sens_l2")
+                if g.empty:
+                    continue
+                ref = name == curves.A13_REFERENCE
+                color = INK if ref else A13_COLORS[name]
+                ax.plot(
+                    g["sens_l2"],
+                    g[col],
+                    color=color,
+                    lw=2.0 if ref else 1.3,
+                    label="trend, retuned (reference)" if ref else name,
+                    zorder=3 if ref else 2,
+                )
+                if ref:
+                    ax.fill_between(
+                        g["sens_l2"], g[f"{col}_lo"], g[f"{col}_hi"], color=INK, alpha=0.1, lw=0
+                    )
+            ax.set_xlim(max(0.4, window.min() - 0.15), window.max() + 0.06)
+            ax.set_facecolor(SURFACE)
+            ax.grid(color=GRID, lw=0.6)
+            ax.spines[["top", "right"]].set_visible(False)
+            ax.tick_params(colors=MUTED, labelsize=8)
+            if i == 0:
+                ax.set_title(f"{mix} mix", loc="left", color=INK, fontsize=10)
+            if j == 0:
+                ax.set_ylabel(f"{label} false alarms/day", color=MUTED, fontsize=9)
+                if i == 0:
+                    ax.legend(fontsize=7, frameon=False, loc="upper left")
+            if i == 1:
+                ax.set_xlabel("level 2 sensitivity (held out)", color=MUTED, fontsize=9)
+    fig.suptitle(
+        "A13 (secondary, post hoc): CGM-only alarms against the trend alarm with its own threshold "
+        "swept, PISA on every night. Shaded: the comparison window; band: trend's 95% CI",
+        x=0.01,
+        ha="left",
+        fontsize=9,
+        color=INK,
+    )
+    fig.tight_layout()
+    for ext in ("png", "svg"):
+        fig.savefig(f"{path}.{ext}", dpi=130, facecolor=SURFACE, bbox_inches="tight")
+    plt.close(fig)
+
+
 def legend(arm: str, family: str) -> str:
     if arm == "published":
         return "as published"
@@ -191,8 +258,9 @@ def main() -> int:
     args = parser.parse_args()
     config = BenchConfig.load(REPO / "experiments" / "configs" / "curves.yaml")
     config.workers = args.workers
-    if args.force or not (OUT / "points.csv").exists():
-        curves.run_curves(config, OUT)
+    if args.force:
+        (OUT / "points.csv").unlink(missing_ok=True)
+    curves.run_curves(config, OUT)  # sweeps only alarms not yet in points.csv
     points = pd.read_csv(OUT / "points.csv")
     chosen = curves.choices(points)
     chosen.to_csv(OUT / "choices.csv", index=False)
@@ -201,7 +269,14 @@ def main() -> int:
     gates = curves.first_reduction(pp, curves.GATES, n_boot=config.n_boot)
     h2 = curves.h2_on_curves(pp, n_boot=config.n_boot, sesoi=config.sesoi)
     checked = check(summary)
-    for name, frame in (("summary", summary), ("gates", gates), ("h2", h2), ("check", checked)):
+    a13_pp = curves.a13_points(points)
+    a13 = curves.matched_comparison(a13_pp, n_boot=config.n_boot)
+    a13_curves = curves.curve_summary(
+        a13_pp.assign(point=a13_pp["retention"].map(str)), config.n_boot
+    )
+    outputs = {"summary": summary, "gates": gates, "h2": h2, "check": checked, "a13": a13}
+    outputs["a13_curves"] = a13_curves
+    for name, frame in outputs.items():
         frame.to_csv(OUT / f"{name}.csv", index=False)
     if not checked["reproduced"].all():
         bad = checked[~checked["reproduced"]]
@@ -220,6 +295,13 @@ def main() -> int:
         "n_boot": config.n_boot,
         "checks": int(len(checked)),
         "checks_reproduced": int(checked["reproduced"].sum()),
+        "a13": {
+            "amendment": "A13 (secondary, post hoc)",
+            "reference": curves.A13_REFERENCE,
+            "comparators": list(curves.A13_COMPARATORS),
+            "fine_retention_step": 0.0025,
+            "offsets": list(curves.A13_OFFSETS),
+        },
     }
     (OUT / "meta.json").write_text(json.dumps(meta, indent=2) + "\n")
     (OUT / "git_commit.txt").write_text(commit)
@@ -228,7 +310,9 @@ def main() -> int:
     for mix in sorted(summary["mix"].unique()):
         figure(summary, mix, OUT / "figures" / mix)
         shutil.copy(OUT / "figures" / f"{mix}.png", FIGURES / f"curves__{mix}.png")
-    for name in ("summary", "gates", "h2", "check"):
+    a13_figure(a13_curves, a13, OUT / "figures" / "a13")
+    shutil.copy(OUT / "figures" / "a13.png", FIGURES / "curves__a13.png")
+    for name in ("summary", "gates", "h2", "check", "a13"):
         shutil.copy(OUT / f"{name}.csv", TABLES / f"curves__{name}.csv")
     for name in ("meta.json", "git_commit.txt"):
         shutil.copy(OUT / name, TABLES / f"curves__{name}")

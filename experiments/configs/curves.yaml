@@ -1,4 +1,4 @@
-# Trade-off curves (amendment A11; secondary, post hoc): experiments/run_curves.py.
+# Trade-off curves (amendments A11, A13; secondary, post hoc): experiments/run_curves.py.
 # Same cohort, folds, training level and faults as rq1_pisa_sweep and rq3_kalman; held-out
 # patients are scored at PISA on every night (the level H2 is read at).
 name: curves
@@ -23,6 +23,7 @@ alarms:
   - matched_filter_causal_combined_time_ctx
   - iforest_causal_combined_time
   - iforest_causal_combined_time_ctx
+  - gbm  # CGM only, the A13 comparator (amendment A13)
   - gbm_time
   - gbm_time_ctx
   - kalman_pisa_cgm

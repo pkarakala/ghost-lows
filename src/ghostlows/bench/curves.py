@@ -107,10 +107,19 @@ def curve_fold(mix, fold, alarms, tr, tr_ev, tr_faults, te, te_ev, te_faults, wi
 
 def run_curves(config: BenchConfig, out_dir: Path, test_level: float = 1.0) -> pd.DataFrame:
     """Score every candidate threshold of `config.alarms` (amendment A11) and write
-    `points.csv`: training rates per candidate and held-out counts per patient."""
+    `points.csv`: training rates per candidate and held-out counts per patient.
+
+    Alarms already in an existing `points.csv` are kept and not swept again; the others are
+    swept and appended (each alarm is fitted and scored on its own, so this equals a full run).
+    """
     t0 = time.time()
+    path = out_dir / "points.csv"
+    done = pd.read_csv(path) if path.exists() else None
+    have = set(done["alarm_name"]) if done is not None else set()
+    alarms = [a for a in select_alarms(config.alarms) if a.name not in have]
+    if not alarms:
+        return done
     prep = prepare(config)
-    alarms = select_alarms(config.alarms)
     for alarm in alarms:
         alarm.refractory_min = config.refractory_min
     test_config = config.fault_config(test_level)
@@ -139,8 +148,10 @@ def run_curves(config: BenchConfig, out_dir: Path, test_level: float = 1.0) -> p
     )
     points["test_level"] = test_level
     points["train_level"] = prep["train_level"]
+    if done is not None:
+        points = pd.concat([done, points], ignore_index=True)
     out_dir.mkdir(parents=True, exist_ok=True)
-    points.to_csv(out_dir / "points.csv", index=False)
+    points.to_csv(path, index=False)
     print(f"curves: {len(points)} rows in {time.time() - t0:.0f} s", flush=True)
     return points
 
@@ -169,7 +180,7 @@ def choices(points: pd.DataFrame, retentions=RETENTIONS) -> pd.DataFrame:
                     "mix": mix,
                     "fold": fold,
                     "alarm_name": name,
-                    "point": f"r={r:.2f}",
+                    "point": f"r={r:.2f}" if np.isclose(r * 100, round(r * 100)) else f"r={r:.4f}",
                     "retention": r,
                     "threshold": theta,
                     "feasible": info["feasible"],
@@ -326,3 +337,173 @@ def h2_on_curves(pp: pd.DataFrame, n_boot: int = 2000, sesoi: float = 0.75) -> p
             }
         )
     return pd.concat([h2, pd.DataFrame(rows, columns=h2.columns)], ignore_index=True)
+
+
+# ------------------------------------------------------------------ A13: matched sensitivity
+
+# ASSUMPTION: amendment A13's finer retention grid for `trend` and the gates (0.0025 steps)
+FINE_RETENTIONS = tuple(round(r, 4) for r in np.arange(0.50, 1.0 + 1e-9, 0.0025))
+A13_REFERENCE = "trend"
+A13_COMPARATORS = (*GATES, "gbm")
+A13_OFFSETS = (0.02, 0.04, 0.06, 0.08, 0.10)  # grid: trend's r = 1 sensitivity minus these
+COARSE_GAP = 0.03  # amendment A13: bracketing points further apart than this are "coarse"
+UNSTABLE_SHARE = 0.05  # amendment A13: more non-estimable draws than this is "unstable"
+A13_COUNTS = ["caught_l2", "events_l2", "n_false", "false_compression", "days"]
+
+
+def a13_points(points: pd.DataFrame) -> pd.DataFrame:
+    """Held-out counts per patient along each A13 alarm's curve: the fine retention grid for
+    `trend` and the gates, the A11 grid for `gbm` (amendment A13)."""
+    fine = [A13_REFERENCE, *GATES]
+    parts = []
+    for names, grid in ((fine, FINE_RETENTIONS), (["gbm"], RETENTIONS)):
+        sub = points[points["alarm_name"].isin(names)]
+        if len(sub):
+            parts.append(per_patient_at(sub, choices(sub, grid)))
+    pp = pd.concat(parts, ignore_index=True)
+    return pp[pp["retention"].notna()]
+
+
+def curve_matrix(pp: pd.DataFrame, alarm: str, mix: str, patients) -> dict[str, np.ndarray]:
+    """Counts as (patients x retentions) arrays, summed over each patient's rows."""
+    g = pp[(pp["alarm_name"] == alarm) & (pp["mix"] == mix)]
+    wide = g.pivot_table(index="patient_id", columns="retention", values=A13_COUNTS, aggfunc="sum")
+    wide = wide.reindex(patients).fillna(0.0)
+    return {c: wide[c].to_numpy(float) for c in A13_COUNTS}
+
+
+def interpolate(sens: np.ndarray, y: np.ndarray, grid: np.ndarray) -> np.ndarray:
+    """y at each grid sensitivity by linear interpolation along the curve (points sorted by
+    sensitivity, ties averaged); NaN outside the curve's range."""
+    ok = np.isfinite(sens) & np.isfinite(y)
+    if not ok.any():
+        return np.full(len(grid), np.nan)
+    u, inv = np.unique(sens[ok], return_inverse=True)
+    mean = np.bincount(inv, weights=y[ok]) / np.bincount(inv)
+    out = np.interp(grid, u, mean)
+    out[(grid < u[0] - 1e-12) | (grid > u[-1] + 1e-12)] = np.nan
+    return out
+
+
+def bracket_gap(sens: np.ndarray, s: float) -> float:
+    """Distance between the curve's distinct sensitivities just below and just above s."""
+    u = np.unique(sens[np.isfinite(sens)])
+    below, above = u[u <= s + 1e-12], u[u >= s - 1e-12]
+    return float(above.min() - below.max()) if len(below) and len(above) else float("nan")
+
+
+def patient_draws(patients, n_boot: int, seed: int = 0) -> np.ndarray:
+    """(n_boot x patients) multiplicities of the stratified patient bootstrap, drawn as in
+    `stats.bootstrap_ratios`, so every curve in a comparison sees the same resample."""
+    from .stats import age_group
+
+    rng = np.random.default_rng(seed)
+    labels = np.array([age_group(p) for p in patients])
+    index = []
+    for group in sorted(set(labels)):
+        rows = np.flatnonzero(labels == group)
+        index.append(rows[rng.integers(0, len(rows), size=(n_boot, len(rows)))])
+    idx = np.concatenate(index, axis=1)
+    return np.stack([np.bincount(row, minlength=len(patients)) for row in idx]).astype(float)
+
+
+def curve_rates(m: dict[str, np.ndarray], weights: np.ndarray) -> tuple[np.ndarray, ...]:
+    """Pooled sensitivity, total and compression false alarms per day per retention, for each
+    row of patient weights."""
+    s = {c: weights @ m[c] for c in A13_COUNTS}
+    with np.errstate(invalid="ignore", divide="ignore"):
+        return (
+            s["caught_l2"] / s["events_l2"],
+            s["n_false"] / s["days"],
+            s["false_compression"] / s["days"],
+        )
+
+
+def a13_reading(est: float, lo: float, hi: float) -> str:
+    if not np.isfinite(est):
+        return "not estimable"
+    if hi < 1:
+        return "adds value"
+    if lo > 1:
+        return "worse than retuned trend"
+    return "no detectable difference"
+
+
+def matched_comparison(
+    pp: pd.DataFrame,
+    comparators=A13_COMPARATORS,
+    reference: str = A13_REFERENCE,
+    offsets=A13_OFFSETS,
+    n_boot: int = 2000,
+    seed: int = 0,
+) -> pd.DataFrame:
+    """Amendment A13: comparator / retuned `reference` ratios of total and compression false
+    alarms per day at matched held-out level 2 sensitivity, with a paired patient bootstrap."""
+    rows = []
+    for mix in sorted(pp["mix"].unique()):
+        patients = sorted(pp.loc[pp["mix"] == mix, "patient_id"].unique())
+        ref = curve_matrix(pp, reference, mix, patients)
+        ones = np.ones((1, len(patients)))
+        ref_sens = curve_rates(ref, ones)[0][0]
+        top = float(ref_sens[-1])  # retentions are sorted: the last is r = 1
+        grid = np.array([top - o for o in offsets])
+        draws = patient_draws(patients, n_boot, seed)
+        r_est = [x[0] for x in curve_rates(ref, ones)]
+        r_draw = curve_rates(ref, draws)
+        for name in comparators:
+            if not ((pp["alarm_name"] == name) & (pp["mix"] == mix)).any():
+                continue
+            cmp_ = curve_matrix(pp, name, mix, patients)
+            c_est = [x[0] for x in curve_rates(cmp_, ones)]
+            c_draw = curve_rates(cmp_, draws)
+            est, boot = {}, {}
+            for k, label in ((1, "total"), (2, "compression")):
+                a = interpolate(c_est[0], c_est[k], grid)
+                b = interpolate(r_est[0], r_est[k], grid)
+                est[label] = (a, b)
+                boot[label] = np.stack(
+                    [
+                        interpolate(c_draw[0][i], c_draw[k][i], grid)
+                        / interpolate(r_draw[0][i], r_draw[k][i], grid)
+                        for i in range(n_boot)
+                    ]
+                )
+            for j, s in enumerate(grid):
+                row = {
+                    "mix": mix,
+                    "comparator": name,
+                    "reference": reference,
+                    "offset": offsets[j],
+                    "sens_l2": s,
+                    "gap_comparator": bracket_gap(c_est[0], s),
+                    "gap_reference": bracket_gap(r_est[0], s),
+                }
+                for label in ("total", "compression"):
+                    a, b = est[label][0][j], est[label][1][j]
+                    d = boot[label][:, j]
+                    fin = d[np.isfinite(d)]
+                    with np.errstate(invalid="ignore", divide="ignore"):
+                        ratio = a / b
+                    lo, hi = np.quantile(fin, [0.025, 0.975]) if fin.size else (np.nan, np.nan)
+                    row.update(
+                        {
+                            f"{label}_per_day": a,
+                            f"{label}_per_day_reference": b,
+                            f"{label}_ratio": ratio,
+                            f"{label}_ratio_lo": lo,
+                            f"{label}_ratio_hi": hi,
+                        }
+                    )
+                    if label == "total":
+                        row["not_estimable_share"] = 1 - fin.size / n_boot
+                row["coarse"] = bool(
+                    max(row["gap_comparator"], row["gap_reference"]) > COARSE_GAP
+                    if np.isfinite([row["gap_comparator"], row["gap_reference"]]).all()
+                    else True
+                )
+                row["unstable"] = bool(row["not_estimable_share"] > UNSTABLE_SHARE)
+                row["reading"] = a13_reading(
+                    row["total_ratio"], row["total_ratio_lo"], row["total_ratio_hi"]
+                )
+                rows.append(row)
+    return pd.DataFrame(rows)
