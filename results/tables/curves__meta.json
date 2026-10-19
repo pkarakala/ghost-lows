@@ -13,6 +13,24 @@
     1.0
   ],
   "n_boot": 2000,
-  "checks": 795,
-  "checks_reproduced": 795
+  "checks": 837,
+  "checks_reproduced": 837,
+  "a13": {
+    "amendment": "A13 (secondary, post hoc)",
+    "reference": "trend",
+    "comparators": [
+      "baysal_gate",
+      "matched_filter_causal_gate",
+      "iforest_causal_gate",
+      "gbm"
+    ],
+    "fine_retention_step": 0.0025,
+    "offsets": [
+      0.02,
+      0.04,
+      0.06,
+      0.08,
+      0.1
+    ]
+  }
 }

@@ -199,9 +199,11 @@ def a13_figure(c: pd.DataFrame, a13: pd.DataFrame, path: Path) -> None:
             ax = axes[i, j]
             ax.axvspan(window.min(), window.max(), color=GRID, alpha=0.6, lw=0)
             for name in (curves.A13_REFERENCE, *curves.A13_COMPARATORS):
-                g = c[(c["mix"] == mix) & (c["alarm_name"] == name)].sort_values("sens_l2")
+                g = c[(c["mix"] == mix) & (c["alarm_name"] == name)]
                 if g.empty:
                     continue
+                # ties averaged, as in the interpolation (curves.interpolate)
+                g = g.groupby("sens_l2", as_index=False).mean(numeric_only=True)
                 ref = name == curves.A13_REFERENCE
                 color = INK if ref else A13_COLORS[name]
                 ax.plot(

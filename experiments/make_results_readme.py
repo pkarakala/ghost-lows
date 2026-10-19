@@ -433,6 +433,107 @@ def h2_curves_note(h: pd.DataFrame) -> str:
     )
 
 
+def section_a13() -> list[str]:
+    """Amendment A13 (secondary, post hoc): gates and gbm against a retuned trend alarm at
+    matched held-out level 2 sensitivity, read from curves__a13.csv."""
+    lines = [
+        "### A13: gates versus a retuned trend alarm at matched sensitivity (secondary, post hoc)",
+        "",
+    ]
+    a = table(TABLES / "curves__a13.csv")
+    if a is None or a.empty:
+        return lines + ["Not computed: `uv run python experiments/run_curves.py`.", ""]
+    lines += [
+        "Question (fixed in A13 before computing): at the same held-out level 2 sensitivity, does each published gate, or CGM-only gradient boosting, give fewer false alarms per day than the `trend` alarm with its own prediction threshold swept? "
+        "Each curve is interpolated linearly at trend's zero-loss held-out sensitivity minus 2 to 10 points. The ratio is comparator ÷ retuned trend, with a paired patient bootstrap (both curves recomputed on the same resampled patients). "
+        "A comparator *adds value* only if the CI of the total ratio is below 1. "
+        "Flags: *coarse*, the curve points either side of s are more than 3 points of sensitivity apart; *unstable*, more than 5% of bootstrap draws could not be interpolated. "
+        f"Exploratory: {len(a)} comparisons, no multiplicity correction.",
+        "",
+        "| Mix | Comparator | Level 2 sensitivity | False alarms/day: comparator vs retuned trend | Total ratio (95% CI) | Compression ratio (95% CI) | Flags | Reading |",
+        "|---|---|---|---|---|---|---|---|",
+    ]
+    for _, r in a.sort_values(["mix", "comparator", "sens_l2"]).iterrows():
+        flags = ", ".join(
+            f for f, on in (("coarse", r["coarse"]), ("unstable", r["unstable"])) if on
+        )
+        lines.append(
+            f"| {r['mix']} | `{r['comparator']}` | {r['sens_l2']:.0%} | "
+            f"{r['total_per_day']:.2f} vs {r['total_per_day_reference']:.2f} | "
+            f"{fmt_ci(r['total_ratio'], r['total_ratio_lo'], r['total_ratio_hi'])} | "
+            f"{fmt_ci(r['compression_ratio'], r['compression_ratio_lo'], r['compression_ratio_hi'])} | "
+            f"{flags or '—'} | {r['reading']} |"
+        )
+    lines += ["", a13_verdict(a), ""]
+    fig = REPO / "results" / "figures" / "curves__a13.png"
+    if fig.exists():
+        lines.append(f"![curves__a13](figures/{fig.name})")
+    return lines + [""]
+
+
+def span(x: pd.Series) -> str:
+    lo, hi = f"{x.min():.2f}", f"{x.max():.2f}"
+    return lo if lo == hi else f"{lo}–{hi}"
+
+
+def a13_verdict(a: pd.DataFrame) -> str:
+    """The A13 finding in plain words, generated from the table whichever way it falls. Only
+    estimable, stable grid points are read; each comparator is summarised on its own."""
+    ok = a[np.isfinite(a["total_ratio"]) & ~a["unstable"].astype(bool)]
+    adds = ok[ok["reading"] == "adds value"]
+    scope = (
+        "In this benchmark (30 virtual patients, one smooth sensor-noise model, thresholds chosen "
+        "on in-sample training scores; secondary and post hoc)"
+    )
+    if adds.empty:
+        head = (
+            f"**Finding.** {scope}, the published compression gates add no value over retuning the "
+            "trend alarm's threshold: at matched level 2 sensitivity, no gate gives fewer false "
+            "alarms per day with a CI below 1 at any stable grid point"
+            + (
+                ", and neither does CGM-only gradient boosting."
+                if (ok["comparator"] == "gbm").any()
+                else "."
+            )
+        )
+        untested = sorted(set(a["comparator"]) - set(ok["comparator"]))
+        if untested:
+            head += (
+                " Not compared: "
+                + ", ".join(f"`{n}`" for n in untested)
+                + " (no stable grid point: its curve does not reach far enough below trend's"
+                " sensitivity)."
+            )
+    else:
+        where = "; ".join(
+            f"`{r['comparator']}` ({r['mix']}, {r['sens_l2']:.0%}): ×{fmt_ci(r['total_ratio'], r['total_ratio_lo'], r['total_ratio_hi'])}"
+            for _, r in adds.iterrows()
+        )
+        head = f"**Finding.** {scope}, some comparators give fewer false alarms per day than retuned trend at matched sensitivity: {where}."
+    parts = []
+    for name, g in ok.groupby("comparator"):
+        worse = int((g["reading"] == "worse than retuned trend").sum())
+        comp = g[g["compression_ratio_hi"] < 1]
+        text = (
+            f"`{name}`: {len(g)} stable points ({', '.join(sorted(set(g['mix'])))} mix); total ratio "
+            f"{span(g['total_ratio'])}, worse than retuned trend at {worse}"
+        )
+        if len(comp):
+            text += (
+                f"; fewer compression false alarms (CI below 1) at {len(comp)}, ratio "
+                f"{span(comp['compression_ratio'])}"
+            )
+        parts.append(text)
+    skipped = len(a) - len(ok)
+    return (
+        head
+        + " By comparator (all mixes): "
+        + "; ".join(parts)
+        + f". {skipped} of {len(a)} grid points were not estimable or unstable and are not read"
+        + " (the standard mix has 32 level 2 lows, and the Baysal and matched-filter curves there are single points)."
+    )
+
+
 def section_age_groups() -> list[str]:
     """Results by age group as well as pooled (D14)."""
     s = table(TABLES / f"{MAIN}__summary_by_age_group.csv")
@@ -679,6 +780,12 @@ def section_summary(meta: dict) -> list[str]:
             + ". "
             + h2_curves_note(hc)
         )
+    a13 = table(TABLES / "curves__a13.csv")
+    if a13 is not None and len(a13):
+        lines.append(
+            "- **A13** (secondary, post hoc; gates and CGM-only gradient boosting vs. the trend alarm with its threshold retuned, at matched held-out level 2 sensitivity): "
+            + a13_verdict(a13).replace("**Finding.** ", "")
+        )
     rq3 = table(TABLES / "rq3_kalman__contrasts_rq3.csv")
     if rq3 is not None and len(rq3):
         r = rq3[(rq3["mix"] == "default") & (rq3["level"] == rq3["level"].max())]
@@ -889,6 +996,7 @@ def main() -> None:
             *section_all_faults(),
             *section_h2(table(TABLES / f"{MAIN}__contrasts_h2.csv"), meta.get("train_level")),
             *section_curves(),
+            *section_a13(),
             *section_age_groups(),
             *section_robustness(),
             *section_rq3(

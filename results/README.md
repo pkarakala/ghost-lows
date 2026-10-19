@@ -14,6 +14,7 @@ Read mechanically from the tables below; nothing in this section is typed by han
 - **H2, secondary** (the ratio is closer to 1 on the high-perturbation mix than on the standard mix): 6 of 6 detectors (point estimates; no CI on the difference).
 - **H3** (the context benefit is closer to 1 on real AZT1D nights than in simulation, matched mix `high`, PISA on 100% of nights; descriptive, A4): holds for 3 of 6 detectors. Uninformative here: on the matched mix the simulation itself shows no meaningful context benefit (every reading 'no meaningful reduction'), so there is no benefit for real data to shrink. AZT1D users are on automated insulin delivery, not the open-loop target population (D9).
 - **Trade-off curves** (secondary, post hoc, amendment A11; default mix; r = training sensitivity kept relative to `trend`): the gates start removing compression false alarms at `baysal_gate` from r = 0.88, compression false alarms × 0.891 (0.809–0.965) for 11 more missed level 2 lows of 249; `iforest_causal_gate` from r = 0.99, compression false alarms × 0.978 (0.959–0.994) for 5 more missed level 2 lows of 249; `matched_filter_causal_gate` from r = 0.97, compression false alarms × 0.991 (0.983–0.997) for 8 more missed level 2 lows of 249. Readings at r = 0.95 and 0.99 match the pre-registered r = 1.00 reading for every detector and mix. No detector reaches a meaningful reduction at any marked point.
+- **A13** (secondary, post hoc; gates and CGM-only gradient boosting vs. the trend alarm with its threshold retuned, at matched held-out level 2 sensitivity): In this benchmark (30 virtual patients, one smooth sensor-noise model, thresholds chosen on in-sample training scores; secondary and post hoc), the published compression gates add no value over retuning the trend alarm's threshold: at matched level 2 sensitivity, no gate gives fewer false alarms per day with a CI below 1 at any stable grid point, and neither does CGM-only gradient boosting. Not compared: `matched_filter_causal_gate` (no stable grid point: its curve does not reach far enough below trend's sensitivity). By comparator (all mixes): `baysal_gate`: 3 stable points (default, high mix); total ratio 1.05–1.24, worse than retuned trend at 2; fewer compression false alarms (CI below 1) at 1, ratio 0.84; `gbm`: 7 stable points (default, high mix); total ratio 0.81–1.08, worse than retuned trend at 0; fewer compression false alarms (CI below 1) at 7, ratio 0.50–0.66; `iforest_causal_gate`: 8 stable points (default, high mix); total ratio 1.05–1.36, worse than retuned trend at 6; fewer compression false alarms (CI below 1) at 4, ratio 0.80–0.86. 42 of 60 grid points were not estimable or unstable and are not read (the standard mix has 32 level 2 lows, and the Baysal and matched-filter curves there are single points).
 - **RQ3** (exploratory; default mix, PISA on 100% of nights): `kalman_pisa` vs. best CGM + IOB/COB discriminative alarm (`gbm_ctx` in 4 of 5 folds; `matched_filter_causal_combined_ctx` in 1 of 5 folds), false alarms, ratio: 0.88 (0.80–0.98).
 - **RQ3** (exploratory; default mix, PISA on 100% of nights): `kalman_pisa` vs. best CGM + IOB/COB discriminative alarm (`gbm_ctx` in 4 of 5 folds; `matched_filter_causal_combined_ctx` in 1 of 5 folds), compression false alarms, ratio: 0.95 (0.82–1.09).
 - **RQ3** (exploratory; default mix, PISA on 100% of nights): `kalman_pisa` vs. best CGM + IOB/COB discriminative alarm (`gbm_ctx` in 4 of 5 folds; `matched_filter_causal_combined_ctx` in 1 of 5 folds), level 2 sensitivity, difference: 0.02 (-0.01–0.06).
@@ -109,7 +110,7 @@ The pre-registered H2 estimand does not name a PISA level; the table shows the h
 
 ### Trade-off curves (secondary, post hoc; amendment A11)
 
-D5 and BENCHMARK.md §4 call for curves across thresholds; v0.1.0 reported only operating points. These curves were added after all v0.1.0 results had been seen, so they are secondary: the pre-registered tests above stay the primary results. Each alarm is fitted as in the benchmark (D19). In each fold, the threshold at retention r is the one D5 picks with the constraint "training level 2 sensitivity ≥ r × the trend alarm's"; r = 1.00 is the pre-registered δ = 0 point. Held-out patients are scored with PISA on 100% of nights, other faults moderate. The r = 1.00 points (and the published thresholds of `threshold` and `trend`) reproduce the v0.1.0 thresholds, rates and CIs exactly (795 of 795 checks, `curves__check.csv`). `trend` here sweeps its own prediction threshold; its published rule is the r = 1.00 row in the tables above.
+D5 and BENCHMARK.md §4 call for curves across thresholds; v0.1.0 reported only operating points. These curves were added after all v0.1.0 results had been seen, so they are secondary: the pre-registered tests above stay the primary results. Each alarm is fitted as in the benchmark (D19). In each fold, the threshold at retention r is the one D5 picks with the constraint "training level 2 sensitivity ≥ r × the trend alarm's"; r = 1.00 is the pre-registered δ = 0 point. Held-out patients are scored with PISA on 100% of nights, other faults moderate. The r = 1.00 points (and the published thresholds of `threshold` and `trend`) reproduce the v0.1.0 thresholds, rates and CIs exactly (837 of 837 checks, `curves__check.csv`). `trend` here sweeps its own prediction threshold; its published rule is the r = 1.00 row in the tables above.
 
 **Default mix, CGM-only alarms** (held out; false alarms per day split by cause; 95% patient-bootstrap CIs):
 
@@ -180,9 +181,81 @@ D5 and BENCHMARK.md §4 call for curves across thresholds; v0.1.0 reported only 
 
 Readings at r = 0.95 and 0.99 match the pre-registered r = 1.00 reading for every detector and mix. No detector reaches a meaningful reduction at any marked point.
 
+![curves__a13](figures/curves__a13.png)
 ![curves__default](figures/curves__default.png)
 ![curves__high](figures/curves__high.png)
 ![curves__standard](figures/curves__standard.png)
+
+### A13: gates versus a retuned trend alarm at matched sensitivity (secondary, post hoc)
+
+Question (fixed in A13 before computing): at the same held-out level 2 sensitivity, does each published gate, or CGM-only gradient boosting, give fewer false alarms per day than the `trend` alarm with its own prediction threshold swept? Each curve is interpolated linearly at trend's zero-loss held-out sensitivity minus 2 to 10 points. The ratio is comparator ÷ retuned trend, with a paired patient bootstrap (both curves recomputed on the same resampled patients). A comparator *adds value* only if the CI of the total ratio is below 1. Flags: *coarse*, the curve points either side of s are more than 3 points of sensitivity apart; *unstable*, more than 5% of bootstrap draws could not be interpolated. Exploratory: 60 comparisons, no multiplicity correction.
+
+| Mix | Comparator | Level 2 sensitivity | False alarms/day: comparator vs retuned trend | Total ratio (95% CI) | Compression ratio (95% CI) | Flags | Reading |
+|---|---|---|---|---|---|---|---|
+| default | `baysal_gate` | 80% | 1.32 vs 0.95 | 1.39 (1.17–1.62) | 0.93 (0.69–1.05) | unstable | worse than retuned trend |
+| default | `baysal_gate` | 82% | 1.38 vs 0.99 | 1.39 (1.10–1.59) | 0.99 (0.76–1.06) | coarse, unstable | worse than retuned trend |
+| default | `baysal_gate` | 84% | 1.41 vs 1.14 | 1.24 (1.02–1.49) | 0.97 (0.84–1.06) | coarse | worse than retuned trend |
+| default | `baysal_gate` | 86% | 1.45 vs 1.30 | 1.11 (1.00–1.41) | 0.96 (0.89–1.06) | coarse | worse than retuned trend |
+| default | `baysal_gate` | 88% | 1.49 vs 1.46 | 1.02 (0.99–1.29) | 0.96 (0.90–1.03) | coarse, unstable | no detectable difference |
+| default | `gbm` | 80% | 1.01 vs 0.95 | 1.06 (0.84–1.33) | 0.65 (0.53–0.76) | — | no detectable difference |
+| default | `gbm` | 82% | 1.07 vs 0.99 | 1.08 (0.82–1.32) | 0.66 (0.54–0.77) | — | no detectable difference |
+| default | `gbm` | 84% | 1.17 vs 1.14 | 1.03 (0.79–1.33) | 0.65 (0.54–0.77) | — | no detectable difference |
+| default | `gbm` | 86% | 1.29 vs 1.30 | 0.99 (0.79–1.28) | 0.65 (0.54–0.77) | coarse, unstable | no detectable difference |
+| default | `gbm` | 88% | 1.40 vs 1.46 | 0.96 (0.77–1.18) | 0.66 (0.55–0.74) | coarse, unstable | no detectable difference |
+| default | `iforest_causal_gate` | 80% | 1.27 vs 0.95 | 1.33 (1.12–1.57) | 0.84 (0.70–1.01) | — | worse than retuned trend |
+| default | `iforest_causal_gate` | 82% | 1.29 vs 0.99 | 1.30 (1.05–1.51) | 0.87 (0.71–1.08) | — | worse than retuned trend |
+| default | `iforest_causal_gate` | 84% | 1.33 vs 1.14 | 1.17 (0.97–1.42) | 0.87 (0.74–1.08) | — | no detectable difference |
+| default | `iforest_causal_gate` | 86% | 1.37 vs 1.30 | 1.05 (0.95–1.35) | 0.87 (0.76–1.07) | — | no detectable difference |
+| default | `iforest_causal_gate` | 88% | 1.50 vs 1.46 | 1.03 (0.93–1.23) | 0.99 (0.78–1.04) | unstable | no detectable difference |
+| default | `matched_filter_causal_gate` | 80% | nan vs 0.95 | nan (1.13–1.62) | nan (1.06–1.24) | coarse, unstable | not estimable |
+| default | `matched_filter_causal_gate` | 82% | nan vs 0.99 | nan (1.07–1.53) | nan (1.04–1.21) | coarse, unstable | not estimable |
+| default | `matched_filter_causal_gate` | 84% | nan vs 1.14 | nan (1.02–1.50) | nan (1.01–1.19) | coarse, unstable | not estimable |
+| default | `matched_filter_causal_gate` | 86% | 1.45 vs 1.30 | 1.11 (1.00–1.42) | 1.05 (1.00–1.16) | unstable | worse than retuned trend |
+| default | `matched_filter_causal_gate` | 88% | 1.51 vs 1.46 | 1.03 (1.00–1.29) | 1.01 (1.00–1.11) | unstable | no detectable difference |
+| high | `baysal_gate` | 78% | nan vs 0.84 | nan (1.02–1.45) | nan (0.56–0.81) | coarse, unstable | not estimable |
+| high | `baysal_gate` | 80% | 1.07 vs 0.95 | 1.12 (0.97–1.39) | 0.58 (0.57–0.85) | unstable | no detectable difference |
+| high | `baysal_gate` | 82% | 1.19 vs 1.09 | 1.09 (0.95–1.31) | 0.74 (0.57–0.90) | unstable | no detectable difference |
+| high | `baysal_gate` | 84% | 1.29 vs 1.22 | 1.05 (0.97–1.23) | 0.84 (0.65–0.95) | — | no detectable difference |
+| high | `baysal_gate` | 86% | 1.36 vs 1.30 | 1.05 (0.99–1.13) | 0.92 (0.78–0.99) | unstable | no detectable difference |
+| high | `gbm` | 78% | 0.77 vs 0.84 | 0.92 (0.71–1.09) | 0.54 (0.45–0.61) | coarse | no detectable difference |
+| high | `gbm` | 80% | 0.86 vs 0.95 | 0.91 (0.70–1.08) | 0.53 (0.45–0.60) | — | no detectable difference |
+| high | `gbm` | 82% | 0.94 vs 1.09 | 0.86 (0.71–1.05) | 0.51 (0.45–0.59) | — | no detectable difference |
+| high | `gbm` | 84% | 0.99 vs 1.22 | 0.81 (0.73–1.03) | 0.50 (0.45–0.59) | — | no detectable difference |
+| high | `gbm` | 86% | 1.11 vs 1.30 | 0.86 (0.74–1.07) | 0.53 (0.45–0.64) | unstable | no detectable difference |
+| high | `iforest_causal_gate` | 78% | 1.14 vs 0.84 | 1.36 (1.14–1.56) | 0.80 (0.68–0.92) | — | worse than retuned trend |
+| high | `iforest_causal_gate` | 80% | 1.20 vs 0.95 | 1.27 (1.08–1.47) | 0.83 (0.71–0.92) | — | worse than retuned trend |
+| high | `iforest_causal_gate` | 82% | 1.25 vs 1.09 | 1.15 (1.03–1.37) | 0.84 (0.74–0.93) | — | worse than retuned trend |
+| high | `iforest_causal_gate` | 84% | 1.30 vs 1.22 | 1.06 (1.01–1.26) | 0.86 (0.78–0.99) | — | worse than retuned trend |
+| high | `iforest_causal_gate` | 86% | 1.38 vs 1.30 | 1.06 (1.00–1.12) | 0.95 (0.83–1.02) | unstable | worse than retuned trend |
+| high | `matched_filter_causal_gate` | 78% | nan vs 0.84 | nan (nan–nan) | nan (nan–nan) | coarse, unstable | not estimable |
+| high | `matched_filter_causal_gate` | 80% | nan vs 0.95 | nan (1.08–1.08) | nan (1.03–1.03) | coarse, unstable | not estimable |
+| high | `matched_filter_causal_gate` | 82% | nan vs 1.09 | nan (1.06–1.26) | nan (1.02–1.12) | coarse, unstable | not estimable |
+| high | `matched_filter_causal_gate` | 84% | nan vs 1.22 | nan (1.05–1.25) | nan (1.01–1.12) | coarse, unstable | not estimable |
+| high | `matched_filter_causal_gate` | 86% | 1.41 vs 1.30 | 1.09 (1.02–1.15) | 1.03 (1.00–1.08) | unstable | worse than retuned trend |
+| standard | `baysal_gate` | 62% | nan vs 0.99 | nan (nan–nan) | nan (nan–nan) | coarse, unstable | not estimable |
+| standard | `baysal_gate` | 64% | nan vs 1.09 | nan (nan–nan) | nan (nan–nan) | coarse, unstable | not estimable |
+| standard | `baysal_gate` | 66% | nan vs 1.20 | nan (nan–nan) | nan (nan–nan) | coarse, unstable | not estimable |
+| standard | `baysal_gate` | 68% | nan vs 1.42 | nan (nan–nan) | nan (nan–nan) | coarse, unstable | not estimable |
+| standard | `baysal_gate` | 70% | nan vs 1.55 | nan (nan–nan) | nan (nan–nan) | coarse, unstable | not estimable |
+| standard | `gbm` | 62% | 0.86 vs 0.99 | 0.87 (0.50–1.19) | 0.59 (0.43–0.70) | coarse, unstable | no detectable difference |
+| standard | `gbm` | 64% | 0.90 vs 1.09 | 0.83 (0.50–1.20) | 0.59 (0.42–0.69) | coarse, unstable | no detectable difference |
+| standard | `gbm` | 66% | nan vs 1.20 | nan (0.51–1.19) | nan (0.43–0.69) | coarse, unstable | not estimable |
+| standard | `gbm` | 68% | nan vs 1.42 | nan (0.51–1.18) | nan (0.43–0.69) | coarse, unstable | not estimable |
+| standard | `gbm` | 70% | nan vs 1.55 | nan (0.51–1.19) | nan (0.42–0.69) | coarse, unstable | not estimable |
+| standard | `iforest_causal_gate` | 62% | 1.26 vs 0.99 | 1.27 (0.80–1.70) | 0.78 (0.52–0.97) | coarse, unstable | no detectable difference |
+| standard | `iforest_causal_gate` | 64% | 1.35 vs 1.09 | 1.24 (0.80–1.66) | 0.85 (0.52–0.94) | coarse, unstable | no detectable difference |
+| standard | `iforest_causal_gate` | 66% | nan vs 1.20 | nan (0.78–1.62) | nan (0.52–0.92) | coarse, unstable | not estimable |
+| standard | `iforest_causal_gate` | 68% | nan vs 1.42 | nan (0.77–1.64) | nan (0.53–0.93) | coarse, unstable | not estimable |
+| standard | `iforest_causal_gate` | 70% | nan vs 1.55 | nan (0.75–1.68) | nan (0.52–0.94) | coarse, unstable | not estimable |
+| standard | `matched_filter_causal_gate` | 62% | nan vs 0.99 | nan (nan–nan) | nan (nan–nan) | coarse, unstable | not estimable |
+| standard | `matched_filter_causal_gate` | 64% | nan vs 1.09 | nan (nan–nan) | nan (nan–nan) | coarse, unstable | not estimable |
+| standard | `matched_filter_causal_gate` | 66% | nan vs 1.20 | nan (nan–nan) | nan (nan–nan) | coarse, unstable | not estimable |
+| standard | `matched_filter_causal_gate` | 68% | nan vs 1.42 | nan (nan–nan) | nan (nan–nan) | coarse, unstable | not estimable |
+| standard | `matched_filter_causal_gate` | 70% | nan vs 1.55 | nan (nan–nan) | nan (nan–nan) | coarse, unstable | not estimable |
+
+**Finding.** In this benchmark (30 virtual patients, one smooth sensor-noise model, thresholds chosen on in-sample training scores; secondary and post hoc), the published compression gates add no value over retuning the trend alarm's threshold: at matched level 2 sensitivity, no gate gives fewer false alarms per day with a CI below 1 at any stable grid point, and neither does CGM-only gradient boosting. Not compared: `matched_filter_causal_gate` (no stable grid point: its curve does not reach far enough below trend's sensitivity). By comparator (all mixes): `baysal_gate`: 3 stable points (default, high mix); total ratio 1.05–1.24, worse than retuned trend at 2; fewer compression false alarms (CI below 1) at 1, ratio 0.84; `gbm`: 7 stable points (default, high mix); total ratio 0.81–1.08, worse than retuned trend at 0; fewer compression false alarms (CI below 1) at 7, ratio 0.50–0.66; `iforest_causal_gate`: 8 stable points (default, high mix); total ratio 1.05–1.36, worse than retuned trend at 6; fewer compression false alarms (CI below 1) at 4, ratio 0.80–0.86. 42 of 60 grid points were not estimable or unstable and are not read (the standard mix has 32 level 2 lows, and the Baysal and matched-filter curves there are single points).
+
+![curves__a13](figures/curves__a13.png)
 
 ### By age group (D14)
 
@@ -378,7 +451,7 @@ On AZT1D every CI includes 1; the widest, `gbm` (0.84–1.21), does not exclude 
 
 ## Reproducibility
 
-Each benchmark run records the commit it ran at (`results/tables/<run>__git_commit.txt`): `4563778` for `curves`; `cb3d87a` for `robust_delta05`, `robust_early20`, `robust_early45`, `robust_lag6`, `robust_late30`, `robust_tau20`, `robust_tau5`, `rq1_all_faults`; `4725089` for `rq1_pisa_sweep`; `49895a2` for `rq3_kalman`. The warning-time, age-group and RQ3 tables were derived afterwards from each run's `metrics.csv` by `experiments/run_all.py` at later commits, and the real-data tables (`real__*`) carry no commit record.
+Each benchmark run records the commit it ran at (`results/tables/<run>__git_commit.txt`): `c05c370` for `curves`; `cb3d87a` for `robust_delta05`, `robust_early20`, `robust_early45`, `robust_lag6`, `robust_late30`, `robust_tau20`, `robust_tau5`, `rq1_all_faults`; `4725089` for `rq1_pisa_sweep`; `49895a2` for `rq3_kalman`. The warning-time, age-group and RQ3 tables were derived afterwards from each run's `metrics.csv` by `experiments/run_all.py` at later commits, and the real-data tables (`real__*`) carry no commit record.
 
 `make reproduce` (`scripts/check_reproducible.py`) clones the commit recorded for `rq1_pisa_sweep`, installs it with `uv sync --locked`, reruns that config on the cached cohort, compares the tables, and re-simulates three randomly chosen patient-runs. On 2026-10-18 it reproduced `summary.csv` (540 rows), `contrasts_h2.csv` (108), `contrast_h1.csv` (3) and `thresholds.csv` (450) exactly from commit `4725089`, and the three re-simulated runs matched the cached cohort exactly.
 
