@@ -286,11 +286,11 @@ def run_tasks(func, arg_iter, workers: int, kwargs: dict):
             yield pending.popleft().result()
 
 
-def run_benchmark(config: BenchConfig, out_dir: Path, extra_alarms=()) -> dict[str, pd.DataFrame]:
-    """Run `config` (plus any user alarms in `extra_alarms`) and write the outputs to `out_dir`."""
+def prepare(config: BenchConfig) -> dict:
+    """The cohort, true lows, windows, folds and the faulted, labelled training data (D19) that a
+    run of `config` uses; shared by the benchmark and the trade-off curves (amendment A11)."""
     from ..sim.run import SimConfig, load, run
 
-    t0 = time.time()
     sim_path = Path(config.simulation)
     data = load(run(SimConfig.load(sim_path if sim_path.is_absolute() else REPO / sim_path)))
     samples, truth = data["samples"], data["truth"]
@@ -320,6 +320,29 @@ def run_benchmark(config: BenchConfig, out_dir: Path, extra_alarms=()) -> dict[s
     train_config = config.fault_config(train_level, test=False)
     train_obs, train_faults = apply_faults(samples, train_config, seed=config.fault_seed)
     train_obs["label"] = low_labels(train_obs, events, horizon_min=config.label_horizon_min)
+    return {
+        "samples": samples,
+        "truth": truth,
+        "events": events,
+        "windows": windows,
+        "patients": patients,
+        "folds": folds,
+        "mixes": mixes,
+        "train_level": train_level,
+        "realistic": realistic,
+        "train_obs": train_obs,
+        "train_faults": train_faults,
+    }
+
+
+def run_benchmark(config: BenchConfig, out_dir: Path, extra_alarms=()) -> dict[str, pd.DataFrame]:
+    """Run `config` (plus any user alarms in `extra_alarms`) and write the outputs to `out_dir`."""
+    t0 = time.time()
+    prep = prepare(config)
+    samples, truth, events, windows = (prep[k] for k in ("samples", "truth", "events", "windows"))
+    patients, folds, mixes = prep["patients"], prep["folds"], prep["mixes"]
+    train_level, realistic = prep["train_level"], prep["realistic"]
+    train_obs, train_faults = prep["train_obs"], prep["train_faults"]
 
     alarms_all = select_alarms(config.alarms) + list(extra_alarms)
     for alarm in alarms_all:

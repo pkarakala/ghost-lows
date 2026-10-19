@@ -1,0 +1,34 @@
+# Trade-off curves (amendment A11; secondary, post hoc): experiments/run_curves.py.
+# Same cohort, folds, training level and faults as rq1_pisa_sweep and rq3_kalman; held-out
+# patients are scored at PISA on every night (the level H2 is read at).
+name: curves
+simulation: experiments/configs/sim_full.yaml
+sweep: pisa
+levels: [1.0]
+severity: 0.5
+train_level: realistic
+alarms:
+  - threshold
+  - trend
+  - baysal_gate
+  - matched_filter_causal_gate
+  - iforest_causal_gate
+  - threshold_combined_time
+  - threshold_combined_time_ctx
+  - trend_combined_time
+  - trend_combined_time_ctx
+  - baysal_combined_time
+  - baysal_combined_time_ctx
+  - matched_filter_causal_combined_time
+  - matched_filter_causal_combined_time_ctx
+  - iforest_causal_combined_time
+  - iforest_causal_combined_time_ctx
+  - gbm_time
+  - gbm_time_ctx
+  - kalman_pisa_cgm
+  - kalman_pisa
+n_folds: 5
+delta: 0.0
+n_boot: 2000
+fold_seed: 0
+workers: 3

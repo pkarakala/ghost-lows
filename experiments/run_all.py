@@ -4,8 +4,8 @@
     uv run python experiments/run_all.py --force    # recompute everything
 
 Runs the configs below into results/<name>/ (gitignored), draws their figures, copies the
-headline figures and tables into results/figures/ and results/tables/ (committed) and writes
-results/README.md.
+headline figures and tables into results/figures/ and results/tables/ (committed), runs the
+trade-off curves (run_curves.py, amendment A11) and writes results/README.md.
 """
 
 from __future__ import annotations
@@ -101,6 +101,17 @@ def main() -> None:
         ):
             if (out / table).exists():
                 shutil.copy(out / table, tables / f"{name}__{table}")
+    if not args.only:  # trade-off curves (amendment A11), same cohort and folds
+        subprocess.run(
+            [
+                sys.executable,
+                str(REPO / "experiments" / "run_curves.py"),
+                "--workers",
+                str(args.workers),
+            ]
+            + (["--force"] if args.force else []),
+            check=True,
+        )
     subprocess.run(
         [sys.executable, str(REPO / "experiments" / "make_results_readme.py")], check=True
     )
