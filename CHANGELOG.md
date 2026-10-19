@@ -2,6 +2,11 @@
 
 ## Unreleased
 
+Three post-hoc amendments adopted on 2026-10-18 (DECISIONS.md A10–A12; each logged before anything was computed). The v0.1.0 numbers stay in the tag `v0.1.0`.
+
+- **A10: warning-time CIs resample patients.** Each patient is reduced to one value before the bootstrap (hard rule 5). Every `warning.csv` and the warning columns of `results/README.md` changed; old and new side by side in `results/tables/amendments/A10__warning_old_vs_new.csv`. Nothing else changed.
+- **A11: trade-off curves** (secondary, post hoc), as D5 and BENCHMARK.md §4 require: `experiments/run_curves.py`, `results/tables/curves__*.csv`, `results/figures/curves__*.png`. The r = 1 point reproduces every v0.1.0 operating point checked.
+- **A12: the upload report never lowers a number with a flag.** The "without possible compression artifacts" column is gone; flags are annotations and a count, with their measured performance in plain words (`results/tables/flag_survey.json`). Awaiting clinical sign-off (CR12) before the next app release.
 - **Upload report: Try it with sample data.** A synthetic 14-day Clarity-format export (`app/sample_clarity_export.csv`, from `scripts/make_sample_export.py`). It is one simulated benchmark run with injected compression artifacts and a real nocturnal low. It shows under a banner saying it is synthetic, with what really happened (which flags fall on injected artifacts, and the true glucose), and can be downloaded.
 - **How the flags do on simulated data** (PRIVACY_AND_SAFETY.md): 35% of injected PISAs flagged; a median of 4 other flags per 14 days; in 37% of runs a flag overlaps a real low. The README no longer calls the flags "deliberately conservative" without these numbers.
 

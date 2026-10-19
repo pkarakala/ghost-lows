@@ -13,6 +13,7 @@ Read mechanically from the tables below; nothing in this section is typed by han
 - **H2** (default mix, PISA on 100% of nights; compression false alarms with IOB/COB ÷ without, SESOI 0.75): no meaningful reduction: `baysal`, `gbm`, `iforest_causal`, `matched_filter_causal`, `threshold`, `trend`.
 - **H2, secondary** (the ratio is closer to 1 on the high-perturbation mix than on the standard mix): 6 of 6 detectors (point estimates; no CI on the difference).
 - **H3** (the context benefit is closer to 1 on real AZT1D nights than in simulation, matched mix `high`, PISA on 100% of nights; descriptive, A4): holds for 3 of 6 detectors. Uninformative here: on the matched mix the simulation itself shows no meaningful context benefit (every reading 'no meaningful reduction'), so there is no benefit for real data to shrink. AZT1D users are on automated insulin delivery, not the open-loop target population (D9).
+- **Trade-off curves** (secondary, post hoc, amendment A11; default mix; r = training sensitivity kept relative to `trend`): the gates start removing compression false alarms at `baysal_gate` from r = 0.88, compression false alarms × 0.891 (0.809–0.965) for 11 more missed level 2 lows of 249; `iforest_causal_gate` from r = 0.99, compression false alarms × 0.978 (0.959–0.994) for 5 more missed level 2 lows of 249; `matched_filter_causal_gate` from r = 0.97, compression false alarms × 0.991 (0.983–0.997) for 8 more missed level 2 lows of 249. Readings at r = 0.95 and 0.99 match the pre-registered r = 1.00 reading for every detector and mix. No detector reaches a meaningful reduction at any marked point.
 - **RQ3** (exploratory; default mix, PISA on 100% of nights): `kalman_pisa` vs. best CGM + IOB/COB discriminative alarm (`gbm_ctx` in 4 of 5 folds; `matched_filter_causal_combined_ctx` in 1 of 5 folds), false alarms, ratio: 0.88 (0.80–0.98).
 - **RQ3** (exploratory; default mix, PISA on 100% of nights): `kalman_pisa` vs. best CGM + IOB/COB discriminative alarm (`gbm_ctx` in 4 of 5 folds; `matched_filter_causal_combined_ctx` in 1 of 5 folds), compression false alarms, ratio: 0.95 (0.82–1.09).
 - **RQ3** (exploratory; default mix, PISA on 100% of nights): `kalman_pisa` vs. best CGM + IOB/COB discriminative alarm (`gbm_ctx` in 4 of 5 folds; `matched_filter_causal_combined_ctx` in 1 of 5 folds), level 2 sensitivity, difference: 0.02 (-0.01–0.06).
@@ -38,7 +39,7 @@ False alarms per day (95% patient-bootstrap CI), other faults at moderate severi
 | `matched_filter_causal_gate` | 1.26 (1.08–1.46) | 1.30 (1.11–1.49) | 1.32 (1.13–1.52) | 1.39 (1.20–1.58) | 1.45 (1.26–1.64) | 1.53 (1.33–1.72) |
 | `iforest_causal_gate` | 1.26 (1.08–1.46) | 1.30 (1.11–1.49) | 1.33 (1.14–1.52) | 1.39 (1.20–1.58) | 1.45 (1.26–1.65) | 1.53 (1.33–1.73) |
 
-Identical to `trend` here: `baysal_gate`, `iforest_causal_gate`. `matched_filter_causal_gate` differs from `trend` by less than 0.01 false alarms/day. At the pre-registered operating point (D5, δ = 0), which allows no loss of training sensitivity against `trend`, the thresholds chosen for these gates suppress no or almost no trend alarms (`thresholds.csv`). This describes the operating point, not what the detectors can do: without curves across thresholds (BENCHMARK.md §4, not yet produced; docs/development/REVIEW.md B1) it is not known whether a gate would remove false alarms at a small cost in sensitivity. The δ = 0.05 arm gives one such point.
+Identical to `trend` here: `baysal_gate`, `iforest_causal_gate`. `matched_filter_causal_gate` differs from `trend` by less than 0.01 false alarms/day. At the pre-registered operating point (D5, δ = 0), which allows no loss of training sensitivity against `trend`, the thresholds chosen for these gates suppress no or almost no trend alarms (`thresholds.csv`). This describes the operating point, not what the detectors can do. The trade-off curves below (secondary, post hoc; amendment A11) show what each gate removes as training sensitivity is given up, and at what cost in lows.
 
 At the highest level (100% of nights), by cause and with lows caught:
 
@@ -105,6 +106,83 @@ At PISA level 100% of nights. Reading rule (pre-registered, SESOI 0.75): see RES
 | `trend` | standard | 861 | 912 | 0.94 (0.90–0.98) | no meaningful reduction |
 
 The pre-registered H2 estimand does not name a PISA level; the table shows the highest, as the reporting code at the tag `protocol-v1` already did. Readings change across PISA levels 10%–100% for: `gbm` (standard) (`contrasts_h2.csv`).
+
+### Trade-off curves (secondary, post hoc; amendment A11)
+
+D5 and BENCHMARK.md §4 call for curves across thresholds; v0.1.0 reported only operating points. These curves were added after all v0.1.0 results had been seen, so they are secondary: the pre-registered tests above stay the primary results. Each alarm is fitted as in the benchmark (D19). In each fold, the threshold at retention r is the one D5 picks with the constraint "training level 2 sensitivity ≥ r × the trend alarm's"; r = 1.00 is the pre-registered δ = 0 point. Held-out patients are scored with PISA on 100% of nights, other faults moderate. The r = 1.00 points (and the published thresholds of `threshold` and `trend`) reproduce the v0.1.0 thresholds, rates and CIs exactly (795 of 795 checks, `curves__check.csv`). `trend` here sweeps its own prediction threshold; its published rule is the r = 1.00 row in the tables above.
+
+**Default mix, CGM-only alarms** (held out; false alarms per day split by cause; 95% patient-bootstrap CIs):
+
+| Alarm | r | Training sensitivity given up (mean over folds) | Level 2 caught | Lows caught / lows | Compression false alarms/day | Other false alarms/day |
+|---|---|---|---|---|---|---|
+| `trend` | 1.00 | 0.000 | 90% (86%–93%) | 224 / 249 | 0.32 (0.30–0.35) | 1.20 (1.02–1.39) |
+| `trend` | 0.99 | 0.000 | 90% (86%–93%) | 224 / 249 | 0.32 (0.30–0.35) | 1.20 (1.02–1.39) |
+| `trend` | 0.95 | 0.007 | 88% (84%–91%) | 219 / 249 | 0.32 (0.29–0.34) | 1.14 (0.96–1.34) |
+| `trend` | 0.90 | 0.067 | 84% (79%–88%) | 208 / 249 | 0.28 (0.26–0.31) | 0.78 (0.67–0.90) |
+| `trend` | 0.80 | 0.154 | 76% (70%–81%) | 188 / 249 | 0.25 (0.23–0.28) | 0.54 (0.46–0.63) |
+| `baysal_gate` | 1.00 | 0.000 | 90% (86%–93%) | 224 / 249 | 0.32 (0.30–0.35) | 1.20 (1.02–1.39) |
+| `baysal_gate` | 0.99 | 0.000 | 90% (86%–93%) | 224 / 249 | 0.32 (0.30–0.35) | 1.20 (1.02–1.39) |
+| `baysal_gate` | 0.95 | 0.000 | 90% (86%–93%) | 224 / 249 | 0.32 (0.30–0.35) | 1.20 (1.02–1.39) |
+| `baysal_gate` | 0.90 | 0.000 | 90% (86%–93%) | 224 / 249 | 0.32 (0.30–0.35) | 1.20 (1.02–1.39) |
+| `baysal_gate` | 0.80 | 0.120 | 78% (73%–83%) | 194 / 249 | 0.18 (0.15–0.21) | 0.96 (0.81–1.13) |
+| `matched_filter_causal_gate` | 1.00 | 0.000 | 90% (86%–93%) | 224 / 249 | 0.32 (0.30–0.35) | 1.20 (1.02–1.39) |
+| `matched_filter_causal_gate` | 0.99 | 0.003 | 89% (86%–92%) | 222 / 249 | 0.32 (0.30–0.35) | 1.20 (1.02–1.39) |
+| `matched_filter_causal_gate` | 0.95 | 0.041 | 86% (81%–90%) | 213 / 249 | 0.32 (0.29–0.35) | 1.14 (0.96–1.32) |
+| `matched_filter_causal_gate` | 0.90 | 0.048 | 85% (81%–90%) | 212 / 249 | 0.32 (0.29–0.35) | 1.11 (0.94–1.29) |
+| `matched_filter_causal_gate` | 0.80 | 0.048 | 85% (81%–90%) | 212 / 249 | 0.32 (0.29–0.35) | 1.11 (0.94–1.29) |
+| `iforest_causal_gate` | 1.00 | 0.000 | 90% (86%–93%) | 224 / 249 | 0.32 (0.30–0.35) | 1.20 (1.02–1.39) |
+| `iforest_causal_gate` | 0.99 | 0.001 | 88% (81%–93%) | 219 / 249 | 0.32 (0.29–0.35) | 1.18 (1.00–1.37) |
+| `iforest_causal_gate` | 0.95 | 0.032 | 87% (80%–92%) | 217 / 249 | 0.28 (0.26–0.31) | 1.13 (0.95–1.32) |
+| `iforest_causal_gate` | 0.90 | 0.078 | 82% (75%–87%) | 204 / 249 | 0.23 (0.21–0.26) | 1.06 (0.88–1.23) |
+| `iforest_causal_gate` | 0.80 | 0.170 | 71% (64%–77%) | 178 / 249 | 0.18 (0.15–0.21) | 0.92 (0.77–1.07) |
+
+**When do the gates start removing compression false alarms?** For each gate and mix: the largest r below 1 at which held-out compression false alarms per day are lower than at r = 1 with a paired-bootstrap CI of the ratio below 1, and what that costs in level 2 lows (definition fixed in A11 before computing).
+
+| Gate | Mix | r | Compression false alarms, ratio to r = 1 | Level 2 sensitivity, difference (percentage points) | Extra missed level 2 lows |
+|---|---|---|---|---|---|
+| `baysal_gate` | default | 0.88 | 0.891 (0.809–0.965) | −4.4 (−8.7 to −0.9) | 11 of 249 |
+| `iforest_causal_gate` | default | 0.99 | 0.978 (0.959–0.994) | −2.0 (−6.5 to +0.0) | 5 of 249 |
+| `matched_filter_causal_gate` | default | 0.97 | 0.991 (0.983–0.997) | −3.2 (−5.3 to −1.3) | 8 of 249 |
+| `baysal_gate` | high | 0.91 | 0.681 (0.573–0.785) | −5.5 (−8.2 to −3.0) | 28 of 511 |
+| `iforest_causal_gate` | high | 0.98 | 0.946 (0.926–0.966) | −1.4 (−3.1 to +0.0) | 7 of 511 |
+| `matched_filter_causal_gate` | high | 0.97 | 0.992 (0.985–0.998) | −2.5 (−4.7 to −0.8) | 13 of 511 |
+| `baysal_gate` | standard | none | — | — | — |
+| `iforest_causal_gate` | standard | 0.95 | 0.977 (0.951–0.996) | +0.0 (+0.0 to +0.0) | 0 of 32 |
+| `matched_filter_causal_gate` | standard | none | — | — | — |
+
+**Gate or simpler threshold?** Each gate at r = 0.80, compared with the `trend` alarm made less eager (its own prediction threshold lowered) to the nearest held-out level 2 sensitivity at or above the gate's (default mix; point estimates, no CI on the differences): `baysal_gate` at r = 0.80 (level 2 caught 78%): 1.14 false alarms/day, 0.18 from compression; `trend` with its own threshold lowered to catch 80%: 0.95, 0.27 from compression; `matched_filter_causal_gate` at r = 0.80 (level 2 caught 85%): 1.43 false alarms/day, 0.32 from compression; `trend` with its own threshold lowered to catch 87%: 1.37, 0.31 from compression; `iforest_causal_gate` at r = 0.80 (level 2 caught 71%): 1.10 false alarms/day, 0.18 from compression; `trend` with its own threshold lowered to catch 72%: 0.74, 0.24 from compression.
+
+**H2 on the curves.** Context over CGM-arm rate ratio of held-out compression false alarms at the marked retentions, read with the pre-registered H2 rule (SESOI 0.75). Secondary: the pre-registered H2 test is the r = 1.00 column, which reproduces the H2 table above. The two arms are compared at the same training retention, not at the same held-out sensitivity. The Kalman pair is exploratory (A3).
+
+| Detector | Mix | r = 1.00 | r = 0.99 | r = 0.95 | Reading at 0.99 / 0.95 |
+|---|---|---|---|---|---|
+| `baysal` | default | 0.99 (0.98–1.00) | 1.00 (0.99–1.00) | 1.00 (0.99–1.00) | no meaningful reduction / no meaningful reduction |
+| `baysal` | high | 0.99 (0.98–1.00) | 0.98 (0.97–1.00) | 0.98 (0.96–0.99) | no meaningful reduction / no meaningful reduction |
+| `baysal` | standard | 0.96 (0.92–0.98) | 0.96 (0.92–0.98) | 0.92 (0.88–0.95) | no meaningful reduction / no meaningful reduction |
+| `gbm` | default | 0.96 (0.92–1.00) | 0.97 (0.93–1.01) | 0.92 (0.87–0.96) | no meaningful reduction / no meaningful reduction |
+| `gbm` | high | 0.96 (0.88–1.05) | 0.97 (0.92–1.03) | 1.00 (0.94–1.06) | no meaningful reduction / no meaningful reduction |
+| `gbm` | standard | 0.82 (0.74–0.89) | 0.82 (0.74–0.89) | 0.83 (0.75–0.90) | inconclusive / inconclusive |
+| `iforest_causal` | default | 1.00 (0.99–1.00) | 0.99 (0.98–1.00) | 0.95 (0.91–0.99) | no meaningful reduction / no meaningful reduction |
+| `iforest_causal` | high | 1.00 (0.99–1.01) | 1.07 (1.04–1.12) | 0.99 (0.99–1.00) | no meaningful reduction / no meaningful reduction |
+| `iforest_causal` | standard | 1.01 (1.00–1.03) | 1.01 (1.00–1.03) | 1.01 (1.00–1.03) | no meaningful reduction / no meaningful reduction |
+| `kalman` | default | 0.91 (0.87–0.95) | 0.87 (0.81–0.93) | 0.99 (0.98–1.01) | no meaningful reduction / no meaningful reduction |
+| `kalman` | high | 0.99 (0.96–1.02) | 0.99 (0.96–1.02) | 1.01 (0.99–1.03) | no meaningful reduction / no meaningful reduction |
+| `kalman` | standard | 0.94 (0.89–1.00) | 0.94 (0.89–1.00) | 0.97 (0.92–1.02) | no meaningful reduction / no meaningful reduction |
+| `matched_filter_causal` | default | 0.99 (0.98–1.00) | 0.99 (0.98–1.00) | 1.03 (0.97–1.09) | no meaningful reduction / no meaningful reduction |
+| `matched_filter_causal` | high | 1.00 (0.99–1.00) | 0.99 (0.99–1.00) | 1.00 (0.99–1.01) | no meaningful reduction / no meaningful reduction |
+| `matched_filter_causal` | standard | 0.91 (0.88–0.95) | 0.91 (0.88–0.95) | 0.96 (0.93–0.98) | no meaningful reduction / no meaningful reduction |
+| `threshold` | default | 0.98 (0.97–1.00) | 0.95 (0.92–0.98) | 0.97 (0.95–1.00) | no meaningful reduction / no meaningful reduction |
+| `threshold` | high | 1.03 (1.00–1.08) | 1.01 (0.99–1.03) | 1.00 (0.99–1.02) | no meaningful reduction / no meaningful reduction |
+| `threshold` | standard | 1.04 (1.00–1.09) | 1.04 (1.00–1.09) | 1.07 (1.02–1.13) | no meaningful reduction / no meaningful reduction |
+| `trend` | default | 0.94 (0.90–0.96) | 0.96 (0.93–0.98) | 0.98 (0.96–0.99) | no meaningful reduction / no meaningful reduction |
+| `trend` | high | 0.99 (0.98–1.01) | 0.99 (0.98–1.01) | 0.99 (0.97–1.00) | no meaningful reduction / no meaningful reduction |
+| `trend` | standard | 0.94 (0.90–0.98) | 0.94 (0.90–0.98) | 0.97 (0.92–1.02) | no meaningful reduction / no meaningful reduction |
+
+Readings at r = 0.95 and 0.99 match the pre-registered r = 1.00 reading for every detector and mix. No detector reaches a meaningful reduction at any marked point.
+
+![curves__default](figures/curves__default.png)
+![curves__high](figures/curves__high.png)
+![curves__standard](figures/curves__standard.png)
 
 ### By age group (D14)
 
@@ -266,7 +344,7 @@ Kalman alarms at 100% PISA nights: false alarms/day, compression false alarms/da
 | `trend` | 50% | 0.73 (0.66–0.80) | 0.07 (0.06–0.08) | 89% (87%–90%) | 100% (100%–100%) |
 | `trend` | 100% | 0.80 (0.73–0.88) | 0.14 (0.12–0.16) | 89% (87%–90%) | 100% (100%–100%) |
 
-Identical to `trend` here: `baysal_gate`, `matched_filter_causal_gate`, `iforest_causal_gate`. At the pre-registered operating point (D5, δ = 0), which allows no loss of training sensitivity against `trend`, the thresholds chosen for these gates suppress no or almost no trend alarms (`thresholds.csv`). This describes the operating point, not what the detectors can do: without curves across thresholds (BENCHMARK.md §4, not yet produced; docs/development/REVIEW.md B1) it is not known whether a gate would remove false alarms at a small cost in sensitivity. The δ = 0.05 arm gives one such point.
+Identical to `trend` here: `baysal_gate`, `matched_filter_causal_gate`, `iforest_causal_gate`. At the pre-registered operating point (D5, δ = 0), which allows no loss of training sensitivity against `trend`, the thresholds chosen for these gates suppress no or almost no trend alarms (`thresholds.csv`). This describes the operating point, not what the detectors can do. Trade-off curves were produced for the simulation only (amendment A11), not for the real-data tracks.
 
 ### Face validity of simulated lows (D16)
 
@@ -300,7 +378,7 @@ On AZT1D every CI includes 1; the widest, `gbm` (0.84–1.21), does not exclude 
 
 ## Reproducibility
 
-Each benchmark run records the commit it ran at (`results/tables/<run>__git_commit.txt`): `cb3d87a` for `robust_delta05`, `robust_early20`, `robust_early45`, `robust_lag6`, `robust_late30`, `robust_tau20`, `robust_tau5`, `rq1_all_faults`; `4725089` for `rq1_pisa_sweep`; `49895a2` for `rq3_kalman`. The warning-time, age-group and RQ3 tables were derived afterwards from each run's `metrics.csv` by `experiments/run_all.py` at later commits, and the real-data tables (`real__*`) carry no commit record.
+Each benchmark run records the commit it ran at (`results/tables/<run>__git_commit.txt`): `4563778` for `curves`; `cb3d87a` for `robust_delta05`, `robust_early20`, `robust_early45`, `robust_lag6`, `robust_late30`, `robust_tau20`, `robust_tau5`, `rq1_all_faults`; `4725089` for `rq1_pisa_sweep`; `49895a2` for `rq3_kalman`. The warning-time, age-group and RQ3 tables were derived afterwards from each run's `metrics.csv` by `experiments/run_all.py` at later commits, and the real-data tables (`real__*`) carry no commit record.
 
 `make reproduce` (`scripts/check_reproducible.py`) clones the commit recorded for `rq1_pisa_sweep`, installs it with `uv sync --locked`, reruns that config on the cached cohort, compares the tables, and re-simulates three randomly chosen patient-runs. On 2026-10-18 it reproduced `summary.csv` (540 rows), `contrasts_h2.csv` (108), `contrast_h1.csv` (3) and `thresholds.csv` (450) exactly from commit `4725089`, and the three re-simulated runs matched the cached cohort exactly.
 
@@ -321,7 +399,7 @@ H1 and H2 are read mechanically from the tables above with the rules in docs/RES
 - The model's blood-to-interstitial lag (τ = 1/ksc, 6.6–19.9 min, median about 11) is longer than the 5–6 min measured in healthy fasted adults [Basu 2013], so simulated warning times are pessimistic; a sensitivity arm uses 6 min (D1).
 - No public dataset has PISA labels. The one labelled real set (36 adults, two G6 sensors) is held by Padova [Idi 2024].
 - Insulin and carb context exists only for pump/AID users or people who log; many standalone G7 users have none. AZT1D, the H3 data, comes from users of automated insulin delivery, not the open-loop population RQ2 targets (D9).
-- Every result is read at one operating point (D5, δ = 0: no loss of training level 2 sensitivity against the trend alarm). The threshold-free curves the protocol calls for were not produced (P2), so "a gate suppresses nothing" and "context adds nothing" are statements about that operating point.
+- The pre-registered results are read at one operating point (D5, δ = 0: no loss of training level 2 sensitivity against the trend alarm). The curves across thresholds the protocol calls for were added only after the v0.1.0 results had been seen (amendment A11), so they are secondary. They show that the gates start removing compression false alarms only once some level 2 lows are given up, and that H2 reads the same at 95% and 99% retention.
 - Learned alarms choose their threshold on scores from the patients they were fitted on, which is optimistic (P6). The RQ3 comparator is chosen from the same in-sample rates.
 - The matched filter, the flag rule and the Kalman filter's pressure mode use the same PISA model that generates the injected artifacts, so they have a home advantage that real artifacts would not give them. The τ-mismatch arms test part of this, but not for the Kalman alarms (P7).
 - The realistic training PISA fraction is calibrated on the whole default-mix cohort, test patients included (a fault-generator setting, not outcome information; P8).

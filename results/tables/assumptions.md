@@ -20,6 +20,7 @@
 - `src/ghostlows/alarms/learned.py:283` `self.model = HistGradientBoostingClassifier(random_state=self.seed).fit(x, y)`: library defaults with a fixed seed; no tuning on test patients
 - `src/ghostlows/alarms/rules.py:15` `TREND_WINDOW_MIN = 15.0`: the stand-in fits a line to the last 15 min (4 readings at 5 min); the device's prediction model is not public (RESEARCH.md §6)
 - `src/ghostlows/bench/analysis.py:19` `SESOI_RATE_RATIO = 0.75`: smallest effect size of interest for H2
+- `src/ghostlows/bench/curves.py:45` `RETENTIONS = tuple(round(r, 2) for r in np.arange(0.50, 1.0 + 1e-9, 0.01))`: retention grid of amendment A11 (training sensitivity as a fraction of the trend alarm's, 0.50 to 1.00 in steps of 0.01)
 - `src/ghostlows/bench/events.py:12` `NIGHT_HOURS = (23, 7)`: same window as PISA onsets (SIMULATION.md §4.1)
 - `src/ghostlows/bench/events.py:104` `LABEL_HORIZON_MIN = 30.0`: training target horizon, 30 min like the default early matching window (D12). The window robustness arms keep it at 30 (proposed amendment P4 in DECISIONS.md)
 - `src/ghostlows/bench/pipeline.py:50` `N_CANDIDATES = 30`: candidate thresholds per learned alarm (training quantiles)

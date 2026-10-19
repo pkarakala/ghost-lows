@@ -254,7 +254,7 @@ def same_series(s: pd.DataFrame, a: str, b: str, col: str = "false_per_day") -> 
     return len(x) > 0 and len(x) == len(y) and bool(np.allclose(x, y, rtol=0, atol=1e-9))
 
 
-def gates_note(s: pd.DataFrame) -> list[str]:
+def gates_note(s: pd.DataFrame, curves: bool = True) -> list[str]:
     """Say when the published gates suppressed nothing, or almost nothing, at the operating point."""
     gates = [
         a
@@ -282,11 +282,155 @@ def gates_note(s: pd.DataFrame) -> list[str]:
         "At the pre-registered operating point (D5, δ = 0), which allows no loss of training "
         "sensitivity against `trend`, the thresholds chosen for these gates suppress no or almost "
         "no trend alarms (`thresholds.csv`). This describes the operating point, not what the "
-        "detectors can do: without curves across thresholds (BENCHMARK.md §4, not yet produced; "
-        "docs/development/REVIEW.md B1) it is not known whether a gate would remove false alarms "
-        "at a small cost in sensitivity. The δ = 0.05 arm gives one such point."
+        "detectors can do. "
+    )
+    text += (
+        "The trade-off curves below (secondary, post hoc; amendment A11) show what each gate removes "
+        "as training sensitivity is given up, and at what cost in lows."
+        if curves
+        else "Trade-off curves were produced for the simulation only (amendment A11), not for the "
+        "real-data tracks."
     )
     return ["", text]
+
+
+# ------------------------------------------------------------------ trade-off curves (A11)
+
+CURVE_GATES = ("baysal_gate", "matched_filter_causal_gate", "iforest_causal_gate")
+CURVE_ROWS = ("r=1.00", "r=0.99", "r=0.95", "r=0.90", "r=0.80")
+
+
+def curve_cell(r, col: str, pct: bool = False) -> str:
+    if pct:
+        return f"{r[col]:.0%} ({r[col + '_lo']:.0%}–{r[col + '_hi']:.0%})"
+    return f"{r[col]:.2f} ({r[col + '_lo']:.2f}–{r[col + '_hi']:.2f})"
+
+
+def section_curves() -> list[str]:
+    """Trade-off curves (amendment A11): secondary and post hoc, read from curves__*.csv."""
+    lines = ["### Trade-off curves (secondary, post hoc; amendment A11)", ""]
+    s, g = table(TABLES / "curves__summary.csv"), table(TABLES / "curves__gates.csv")
+    h, meta = table(TABLES / "curves__h2.csv"), read_json(TABLES / "curves__meta.json")
+    if s is None or g is None or h is None:
+        return lines + ["Not computed: `uv run python experiments/run_curves.py`.", ""]
+    lines += [
+        "D5 and BENCHMARK.md §4 call for curves across thresholds; v0.1.0 reported only operating points. "
+        "These curves were added after all v0.1.0 results had been seen, so they are secondary: the pre-registered tests above stay the primary results. "
+        "Each alarm is fitted as in the benchmark (D19). In each fold, the threshold at retention r is the one D5 picks with the constraint "
+        '"training level 2 sensitivity ≥ r × the trend alarm\'s"; r = 1.00 is the pre-registered δ = 0 point. '
+        f"Held-out patients are scored with PISA on {meta.get('test_level', 1.0):.0%} of nights, other faults moderate. "
+        f"The r = 1.00 points (and the published thresholds of `threshold` and `trend`) reproduce the v0.1.0 thresholds, rates and CIs exactly ({meta.get('checks_reproduced')} of {meta.get('checks')} checks, `curves__check.csv`). "
+        "`trend` here sweeps its own prediction threshold; its published rule is the r = 1.00 row in the tables above.",
+        "",
+        "**Default mix, CGM-only alarms** (held out; false alarms per day split by cause; 95% patient-bootstrap CIs):",
+        "",
+        "| Alarm | r | Training sensitivity given up (mean over folds) | Level 2 caught | Lows caught / lows | Compression false alarms/day | Other false alarms/day |",
+        "|---|---|---|---|---|---|---|",
+    ]
+    d = s[s["mix"] == "default"]
+    for alarm in ("trend", *CURVE_GATES):
+        for point in CURVE_ROWS:
+            r = d[(d["alarm_name"] == alarm) & (d["point"] == point)]
+            if r.empty:
+                continue
+            r = r.iloc[0]
+            lines.append(
+                f"| `{alarm}` | {point[2:]} | {r['train_sens_loss']:.3f} | {curve_cell(r, 'sens_l2', pct=True)} | "
+                f"{r['caught_l2']:.0f} / {r['events_l2']:.0f} | {curve_cell(r, 'false_compression_per_day')} | {curve_cell(r, 'false_other_per_day')} |"
+            )
+    lines += [
+        "",
+        "**When do the gates start removing compression false alarms?** For each gate and mix: the largest r below 1 at which held-out compression false alarms per day are lower than at r = 1 with a paired-bootstrap CI of the ratio below 1, and what that costs in level 2 lows (definition fixed in A11 before computing).",
+        "",
+        "| Gate | Mix | r | Compression false alarms, ratio to r = 1 | Level 2 sensitivity, difference (percentage points) | Extra missed level 2 lows |",
+        "|---|---|---|---|---|---|",
+    ]
+    for _, r in g.sort_values(["mix", "alarm_name"]).iterrows():
+        if pd.isna(r["retention"]):
+            lines.append(f"| `{r['alarm_name']}` | {r['mix']} | none | — | — | — |")
+            continue
+        lines.append(
+            f"| `{r['alarm_name']}` | {r['mix']} | {r['retention']:.2f} | "
+            f"{fmt_ci(r['compression_ratio'], r['compression_ratio_lo'], r['compression_ratio_hi'], 3)} | "
+            f"{pp(r['sens_l2_diff'])} ({pp(r['sens_l2_diff_lo'])} to {pp(r['sens_l2_diff_hi'])}) | "
+            f"{r['extra_missed_l2']:.0f} of {r['events_l2']:.0f} |"
+        )
+    lines += ["", gates_vs_trend(d), ""]
+    lines += [
+        "**H2 on the curves.** Context over CGM-arm rate ratio of held-out compression false alarms at the marked retentions, read with the pre-registered H2 rule (SESOI 0.75). "
+        "Secondary: the pre-registered H2 test is the r = 1.00 column, which reproduces the H2 table above. "
+        "The two arms are compared at the same training retention, not at the same held-out sensitivity. The Kalman pair is exploratory (A3).",
+        "",
+        "| Detector | Mix | r = 1.00 | r = 0.99 | r = 0.95 | Reading at 0.99 / 0.95 |",
+        "|---|---|---|---|---|---|",
+    ]
+    for (det, mix), x in h.groupby(["detector", "mix"]):
+        x = x.set_index("retention")
+        cells = [
+            fmt_ci(x.at[r, "rate_ratio"], x.at[r, "lo"], x.at[r, "hi"]) if r in x.index else "—"
+            for r in (1.0, 0.99, 0.95)
+        ]
+        reads = " / ".join(x.at[r, "reading"] for r in (0.99, 0.95) if r in x.index)
+        lines.append(f"| `{det}` | {mix} | {' | '.join(cells)} | {reads} |")
+    lines += ["", h2_curves_note(h), ""]
+    for fig in sorted((REPO / "results" / "figures").glob("curves__*.png")):
+        lines.append(f"![{fig.stem}](figures/{fig.name})")
+    return lines + [""]
+
+
+def pp(x: float) -> str:
+    return f"{100 * x:+.1f}".replace("-", "−")
+
+
+def gates_vs_trend(d: pd.DataFrame, point: str = CURVE_ROWS[-1]) -> str:
+    """Each gate at the deepest suppression in the table against the `trend` sweep point with the
+    nearest held-out sensitivity at or above it (point estimates; default mix)."""
+    trend = d[(d["alarm_name"] == "trend") & d["retention"].notna()]
+    parts = []
+    for gate in CURVE_GATES:
+        for _, r in d[(d["alarm_name"] == gate) & (d["point"] == point)].iterrows():
+            t = trend[trend["sens_l2"] >= r["sens_l2"] - 1e-12].sort_values("sens_l2").head(1)
+            if t.empty:
+                continue
+            t = t.iloc[0]
+            parts.append(
+                f"`{gate}` at r = {r['retention']:.2f} (level 2 caught {r['sens_l2']:.0%}): "
+                f"{r['false_per_day']:.2f} false alarms/day, {r['false_compression_per_day']:.2f} from compression; "
+                f"`trend` with its own threshold lowered to catch {t['sens_l2']:.0%}: {t['false_per_day']:.2f}, "
+                f"{t['false_compression_per_day']:.2f} from compression"
+            )
+    if not parts:
+        return ""
+    return (
+        f"**Gate or simpler threshold?** Each gate at r = {point[2:]}, compared with the `trend` alarm made less eager "
+        "(its own prediction threshold lowered) to the nearest held-out level 2 sensitivity at or above the gate's (default mix; point estimates, no CI on the differences): "
+        + "; ".join(parts)
+        + "."
+    )
+
+
+def h2_curves_note(h: pd.DataFrame) -> str:
+    """Whether H2 reads the same at r = 0.95 and 0.99 as at the pre-registered point."""
+    pivot = h.pivot_table(
+        index=["detector", "mix"], columns="retention", values="reading", aggfunc="first"
+    )
+    cols = [c for c in (0.95, 0.99, 1.0) if c in pivot]
+    same = pivot[cols].nunique(axis=1) == 1
+    changed = ", ".join(f"`{d}` ({m})" for d, m in pivot.index[~same])
+    meaningful = ", ".join(
+        f"`{d}` ({m}, r = {r:.2f})"
+        for (d, m), row in pivot.iterrows()
+        for r in cols
+        if row[r] == "meaningful reduction"
+    )
+    text = "Readings at r = 0.95 and 0.99 match the pre-registered r = 1.00 reading for " + (
+        "every detector and mix." if same.all() else f"every detector and mix except {changed}."
+    )
+    return text + (
+        f" Meaningful reduction at: {meaningful}."
+        if meaningful
+        else " No detector reaches a meaningful reduction at any marked point."
+    )
 
 
 def section_age_groups() -> list[str]:
@@ -520,6 +664,21 @@ def section_summary(meta: dict) -> list[str]:
                 )
                 + " AZT1D users are on automated insulin delivery, not the open-loop target population (D9)."
             )
+    g, hc = table(TABLES / "curves__gates.csv"), table(TABLES / "curves__h2.csv")
+    if g is not None and hc is not None:
+        d = g[(g["mix"] == "default") & g["retention"].notna()]
+        parts = [
+            f"`{r['alarm_name']}` from r = {r['retention']:.2f}, compression false alarms × "
+            f"{fmt_ci(r['compression_ratio'], r['compression_ratio_lo'], r['compression_ratio_hi'], 3)} "
+            f"for {r['extra_missed_l2']:.0f} more missed level 2 lows of {r['events_l2']:.0f}"
+            for _, r in d.sort_values("alarm_name").iterrows()
+        ]
+        lines.append(
+            "- **Trade-off curves** (secondary, post hoc, amendment A11; default mix; r = training sensitivity kept relative to `trend`): the gates start removing compression false alarms at "
+            + "; ".join(parts)
+            + ". "
+            + h2_curves_note(hc)
+        )
     rq3 = table(TABLES / "rq3_kalman__contrasts_rq3.csv")
     if rq3 is not None and len(rq3):
         r = rq3[(rq3["mix"] == "default") & (rq3["level"] == rq3["level"].max())]
@@ -555,7 +714,7 @@ def section_real() -> list[str]:
             f"| `{r['alarm_name']}` | {r['level']:.0%} | {ci(r, 'false_per_day')} | {ci(r, 'false_compression_per_day')} | "
             f"{ci(r, 'sens_l1', pct=True)} | {ci(r, 'sens_l2', pct=True)} |"
         )
-    lines += gates_note(s)
+    lines += gates_note(s, curves=False)
     fv = table(TABLES / "real__face_validity.csv")
     lines += ["", "### Face validity of simulated lows (D16)", ""]
     if fv is None:
@@ -729,6 +888,7 @@ def main() -> None:
             *section_h1(table(TABLES / f"{MAIN}__contrast_h1.csv")),
             *section_all_faults(),
             *section_h2(table(TABLES / f"{MAIN}__contrasts_h2.csv"), meta.get("train_level")),
+            *section_curves(),
             *section_age_groups(),
             *section_robustness(),
             *section_rq3(

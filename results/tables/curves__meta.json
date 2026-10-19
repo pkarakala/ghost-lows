@@ -1,0 +1,18 @@
+{
+  "amendment": "A11 (secondary, post hoc)",
+  "test_level": 1.0,
+  "train_level": 0.8642730397276527,
+  "retentions": [
+    0.5,
+    1.0,
+    0.01
+  ],
+  "marked": [
+    0.95,
+    0.99,
+    1.0
+  ],
+  "n_boot": 2000,
+  "checks": 795,
+  "checks_reproduced": 795
+}

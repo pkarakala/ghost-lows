@@ -1,0 +1,796 @@
+source,alarm_name,mix,point,measure,v0.1.0,curve,reproduced
+rq1_pisa_sweep,baysal_combined_time,default,r=1.00,sens_l2,0.9036144578313252,0.9036144578313253,True
+rq1_pisa_sweep,baysal_combined_time,default,r=1.00,sens_l2_lo,0.8652006518385829,0.8652006518385829,True
+rq1_pisa_sweep,baysal_combined_time,default,r=1.00,sens_l2_hi,0.9392743221690588,0.9392743221690589,True
+rq1_pisa_sweep,baysal_combined_time,default,r=1.00,false_per_day,1.7095238095238094,1.7095238095238094,True
+rq1_pisa_sweep,baysal_combined_time,default,r=1.00,false_per_day_lo,1.4676190476190476,1.4676190476190476,True
+rq1_pisa_sweep,baysal_combined_time,default,r=1.00,false_per_day_hi,1.9452738095238091,1.9452738095238093,True
+rq1_pisa_sweep,baysal_combined_time,default,r=1.00,false_compression_per_day,0.2942857142857142,0.29428571428571426,True
+rq1_pisa_sweep,baysal_combined_time,default,r=1.00,false_compression_per_day_lo,0.2652380952380952,0.2652380952380952,True
+rq1_pisa_sweep,baysal_combined_time,default,r=1.00,false_compression_per_day_hi,0.3238095238095238,0.3238095238095238,True
+rq1_pisa_sweep,baysal_combined_time,high,r=1.00,sens_l2,0.9001956947162426,0.9001956947162426,True
+rq1_pisa_sweep,baysal_combined_time,high,r=1.00,sens_l2_lo,0.8732080196133111,0.8732080196133111,True
+rq1_pisa_sweep,baysal_combined_time,high,r=1.00,sens_l2_hi,0.9254703557312252,0.9254703557312252,True
+rq1_pisa_sweep,baysal_combined_time,high,r=1.00,false_per_day,1.460952380952381,1.460952380952381,True
+rq1_pisa_sweep,baysal_combined_time,high,r=1.00,false_per_day_lo,1.279,1.2790000000000001,True
+rq1_pisa_sweep,baysal_combined_time,high,r=1.00,false_per_day_hi,1.6457142857142857,1.6457142857142857,True
+rq1_pisa_sweep,baysal_combined_time,high,r=1.00,false_compression_per_day,0.2295238095238095,0.22952380952380952,True
+rq1_pisa_sweep,baysal_combined_time,high,r=1.00,false_compression_per_day_lo,0.209047619047619,0.20904761904761904,True
+rq1_pisa_sweep,baysal_combined_time,high,r=1.00,false_compression_per_day_hi,0.2509523809523809,0.2509523809523809,True
+rq1_pisa_sweep,baysal_combined_time,standard,r=1.00,sens_l2,0.78125,0.78125,True
+rq1_pisa_sweep,baysal_combined_time,standard,r=1.00,sens_l2_lo,0.6521739130434783,0.6521739130434783,True
+rq1_pisa_sweep,baysal_combined_time,standard,r=1.00,sens_l2_hi,0.8974999999999996,0.8974999999999996,True
+rq1_pisa_sweep,baysal_combined_time,standard,r=1.00,false_per_day,1.552857142857143,1.552857142857143,True
+rq1_pisa_sweep,baysal_combined_time,standard,r=1.00,false_per_day_lo,1.3585595238095238,1.3585595238095238,True
+rq1_pisa_sweep,baysal_combined_time,standard,r=1.00,false_per_day_hi,1.7461904761904763,1.7461904761904763,True
+rq1_pisa_sweep,baysal_combined_time,standard,r=1.00,false_compression_per_day,0.369047619047619,0.36904761904761907,True
+rq1_pisa_sweep,baysal_combined_time,standard,r=1.00,false_compression_per_day_lo,0.3214166666666667,0.3214166666666667,True
+rq1_pisa_sweep,baysal_combined_time,standard,r=1.00,false_compression_per_day_hi,0.4147619047619048,0.4147619047619048,True
+rq1_pisa_sweep,baysal_combined_time_ctx,default,r=1.00,sens_l2,0.9076305220883534,0.9076305220883534,True
+rq1_pisa_sweep,baysal_combined_time_ctx,default,r=1.00,sens_l2_lo,0.8675771579468559,0.8675771579468559,True
+rq1_pisa_sweep,baysal_combined_time_ctx,default,r=1.00,sens_l2_hi,0.9460613475243288,0.9460613475243287,True
+rq1_pisa_sweep,baysal_combined_time_ctx,default,r=1.00,false_per_day,1.6557142857142857,1.6557142857142857,True
+rq1_pisa_sweep,baysal_combined_time_ctx,default,r=1.00,false_per_day_lo,1.4217976190476194,1.4217976190476194,True
+rq1_pisa_sweep,baysal_combined_time_ctx,default,r=1.00,false_per_day_hi,1.8871666666666669,1.8871666666666667,True
+rq1_pisa_sweep,baysal_combined_time_ctx,default,r=1.00,false_compression_per_day,0.2923809523809524,0.2923809523809524,True
+rq1_pisa_sweep,baysal_combined_time_ctx,default,r=1.00,false_compression_per_day_lo,0.2628571428571428,0.26285714285714284,True
+rq1_pisa_sweep,baysal_combined_time_ctx,default,r=1.00,false_compression_per_day_hi,0.3219166666666666,0.32191666666666663,True
+rq1_pisa_sweep,baysal_combined_time_ctx,high,r=1.00,sens_l2,0.8904109589041096,0.8904109589041096,True
+rq1_pisa_sweep,baysal_combined_time_ctx,high,r=1.00,sens_l2_lo,0.864638830162086,0.864638830162086,True
+rq1_pisa_sweep,baysal_combined_time_ctx,high,r=1.00,sens_l2_hi,0.9148981343452138,0.9148981343452138,True
+rq1_pisa_sweep,baysal_combined_time_ctx,high,r=1.00,false_per_day,1.4352380952380952,1.4352380952380952,True
+rq1_pisa_sweep,baysal_combined_time_ctx,high,r=1.00,false_per_day_lo,1.258559523809524,1.258559523809524,True
+rq1_pisa_sweep,baysal_combined_time_ctx,high,r=1.00,false_per_day_hi,1.6109761904761903,1.6109761904761903,True
+rq1_pisa_sweep,baysal_combined_time_ctx,high,r=1.00,false_compression_per_day,0.2271428571428571,0.22714285714285715,True
+rq1_pisa_sweep,baysal_combined_time_ctx,high,r=1.00,false_compression_per_day_lo,0.2071428571428571,0.20714285714285716,True
+rq1_pisa_sweep,baysal_combined_time_ctx,high,r=1.00,false_compression_per_day_hi,0.2480952380952381,0.2480952380952381,True
+rq1_pisa_sweep,baysal_combined_time_ctx,standard,r=1.00,sens_l2,0.78125,0.78125,True
+rq1_pisa_sweep,baysal_combined_time_ctx,standard,r=1.00,sens_l2_lo,0.6521739130434783,0.6521739130434783,True
+rq1_pisa_sweep,baysal_combined_time_ctx,standard,r=1.00,sens_l2_hi,0.8974999999999996,0.8974999999999996,True
+rq1_pisa_sweep,baysal_combined_time_ctx,standard,r=1.00,false_per_day,1.4061904761904762,1.4061904761904762,True
+rq1_pisa_sweep,baysal_combined_time_ctx,standard,r=1.00,false_per_day_lo,1.2004761904761905,1.2004761904761905,True
+rq1_pisa_sweep,baysal_combined_time_ctx,standard,r=1.00,false_per_day_hi,1.616202380952381,1.616202380952381,True
+rq1_pisa_sweep,baysal_combined_time_ctx,standard,r=1.00,false_compression_per_day,0.3528571428571428,0.35285714285714287,True
+rq1_pisa_sweep,baysal_combined_time_ctx,standard,r=1.00,false_compression_per_day_lo,0.3023690476190476,0.30236904761904765,True
+rq1_pisa_sweep,baysal_combined_time_ctx,standard,r=1.00,false_compression_per_day_hi,0.4019166666666666,0.40191666666666664,True
+rq1_pisa_sweep,baysal_gate,default,r=1.00,sens_l2,0.8995983935742972,0.8995983935742972,True
+rq1_pisa_sweep,baysal_gate,default,r=1.00,sens_l2_lo,0.8630091526245606,0.8630091526245606,True
+rq1_pisa_sweep,baysal_gate,default,r=1.00,sens_l2_hi,0.933579696148524,0.933579696148524,True
+rq1_pisa_sweep,baysal_gate,default,r=1.00,false_per_day,1.5266666666666666,1.5266666666666666,True
+rq1_pisa_sweep,baysal_gate,default,r=1.00,false_per_day_lo,1.3338095238095238,1.3338095238095238,True
+rq1_pisa_sweep,baysal_gate,default,r=1.00,false_per_day_hi,1.7257142857142858,1.7257142857142858,True
+rq1_pisa_sweep,baysal_gate,default,r=1.00,false_compression_per_day,0.3238095238095238,0.3238095238095238,True
+rq1_pisa_sweep,baysal_gate,default,r=1.00,false_compression_per_day_lo,0.2971428571428571,0.29714285714285715,True
+rq1_pisa_sweep,baysal_gate,default,r=1.00,false_compression_per_day_hi,0.3509523809523809,0.35095238095238096,True
+rq1_pisa_sweep,baysal_gate,high,r=1.00,sens_l2,0.8786692759295499,0.8786692759295499,True
+rq1_pisa_sweep,baysal_gate,high,r=1.00,sens_l2_lo,0.8542904070401707,0.8542904070401707,True
+rq1_pisa_sweep,baysal_gate,high,r=1.00,sens_l2_hi,0.900812838170192,0.9008128381701919,True
+rq1_pisa_sweep,baysal_gate,high,r=1.00,false_per_day,1.4361904761904762,1.4361904761904762,True
+rq1_pisa_sweep,baysal_gate,high,r=1.00,false_per_day_lo,1.275702380952381,1.275702380952381,True
+rq1_pisa_sweep,baysal_gate,high,r=1.00,false_per_day_hi,1.604297619047619,1.604297619047619,True
+rq1_pisa_sweep,baysal_gate,high,r=1.00,false_compression_per_day,0.2809523809523809,0.28095238095238095,True
+rq1_pisa_sweep,baysal_gate,high,r=1.00,false_compression_per_day_lo,0.2614285714285714,0.26142857142857145,True
+rq1_pisa_sweep,baysal_gate,high,r=1.00,false_compression_per_day_hi,0.3014285714285714,0.30142857142857143,True
+rq1_pisa_sweep,baysal_gate,standard,r=1.00,sens_l2,0.71875,0.71875,True
+rq1_pisa_sweep,baysal_gate,standard,r=1.00,sens_l2_lo,0.5757575757575758,0.5757575757575758,True
+rq1_pisa_sweep,baysal_gate,standard,r=1.00,sens_l2_hi,0.8787878787878788,0.8787878787878788,True
+rq1_pisa_sweep,baysal_gate,standard,r=1.00,false_per_day,1.1723809523809523,1.1723809523809523,True
+rq1_pisa_sweep,baysal_gate,standard,r=1.00,false_per_day_lo,0.965702380952381,0.965702380952381,True
+rq1_pisa_sweep,baysal_gate,standard,r=1.00,false_per_day_hi,1.3881547619047616,1.3881547619047616,True
+rq1_pisa_sweep,baysal_gate,standard,r=1.00,false_compression_per_day,0.2209523809523809,0.22095238095238096,True
+rq1_pisa_sweep,baysal_gate,standard,r=1.00,false_compression_per_day_lo,0.1785595238095238,0.17855952380952383,True
+rq1_pisa_sweep,baysal_gate,standard,r=1.00,false_compression_per_day_hi,0.2647619047619047,0.26476190476190475,True
+rq1_pisa_sweep,gbm_time,default,r=1.00,sens_l2,0.9036144578313252,0.9036144578313253,True
+rq1_pisa_sweep,gbm_time,default,r=1.00,sens_l2_lo,0.868,0.868,True
+rq1_pisa_sweep,gbm_time,default,r=1.00,sens_l2_hi,0.9380174431361076,0.9380174431361077,True
+rq1_pisa_sweep,gbm_time,default,r=1.00,false_per_day,1.3947619047619049,1.3947619047619049,True
+rq1_pisa_sweep,gbm_time,default,r=1.00,false_per_day_lo,1.2022857142857144,1.2022857142857144,True
+rq1_pisa_sweep,gbm_time,default,r=1.00,false_per_day_hi,1.601440476190476,1.6014404761904761,True
+rq1_pisa_sweep,gbm_time,default,r=1.00,false_compression_per_day,0.2033333333333333,0.20333333333333334,True
+rq1_pisa_sweep,gbm_time,default,r=1.00,false_compression_per_day_lo,0.17475,0.17475000000000002,True
+rq1_pisa_sweep,gbm_time,default,r=1.00,false_compression_per_day_hi,0.2328571428571428,0.23285714285714285,True
+rq1_pisa_sweep,gbm_time,high,r=1.00,sens_l2,0.87279843444227,0.87279843444227,True
+rq1_pisa_sweep,gbm_time,high,r=1.00,sens_l2_lo,0.8458383184901115,0.8458383184901115,True
+rq1_pisa_sweep,gbm_time,high,r=1.00,sens_l2_hi,0.8994349313763593,0.8994349313763593,True
+rq1_pisa_sweep,gbm_time,high,r=1.00,false_per_day,1.1657142857142857,1.1657142857142857,True
+rq1_pisa_sweep,gbm_time,high,r=1.00,false_per_day_lo,1.0152380952380953,1.0152380952380953,True
+rq1_pisa_sweep,gbm_time,high,r=1.00,false_per_day_hi,1.3338333333333332,1.3338333333333332,True
+rq1_pisa_sweep,gbm_time,high,r=1.00,false_compression_per_day,0.1385714285714285,0.13857142857142857,True
+rq1_pisa_sweep,gbm_time,high,r=1.00,false_compression_per_day_lo,0.1223690476190476,0.12236904761904764,True
+rq1_pisa_sweep,gbm_time,high,r=1.00,false_compression_per_day_hi,0.1552499999999999,0.15524999999999992,True
+rq1_pisa_sweep,gbm_time,standard,r=1.00,sens_l2,0.75,0.75,True
+rq1_pisa_sweep,gbm_time,standard,r=1.00,sens_l2_lo,0.5516810344827587,0.5516810344827587,True
+rq1_pisa_sweep,gbm_time,standard,r=1.00,sens_l2_hi,0.8918918918918919,0.8918918918918919,True
+rq1_pisa_sweep,gbm_time,standard,r=1.00,false_per_day,0.7380952380952381,0.7380952380952381,True
+rq1_pisa_sweep,gbm_time,standard,r=1.00,false_per_day_lo,0.6376071428571429,0.6376071428571429,True
+rq1_pisa_sweep,gbm_time,standard,r=1.00,false_per_day_hi,0.8342857142857143,0.8342857142857143,True
+rq1_pisa_sweep,gbm_time,standard,r=1.00,false_compression_per_day,0.2004761904761904,0.20047619047619047,True
+rq1_pisa_sweep,gbm_time,standard,r=1.00,false_compression_per_day_lo,0.1642857142857142,0.16428571428571428,True
+rq1_pisa_sweep,gbm_time,standard,r=1.00,false_compression_per_day_hi,0.2352499999999999,0.23524999999999993,True
+rq1_pisa_sweep,gbm_time_ctx,default,r=1.00,sens_l2,0.8835341365461847,0.8835341365461847,True
+rq1_pisa_sweep,gbm_time_ctx,default,r=1.00,sens_l2_lo,0.8448830658927962,0.8448830658927962,True
+rq1_pisa_sweep,gbm_time_ctx,default,r=1.00,sens_l2_hi,0.9241137079831933,0.9241137079831933,True
+rq1_pisa_sweep,gbm_time_ctx,default,r=1.00,false_per_day,1.3842857142857143,1.3842857142857143,True
+rq1_pisa_sweep,gbm_time_ctx,default,r=1.00,false_per_day_lo,1.182845238095238,1.1828452380952381,True
+rq1_pisa_sweep,gbm_time_ctx,default,r=1.00,false_per_day_hi,1.5990595238095238,1.5990595238095238,True
+rq1_pisa_sweep,gbm_time_ctx,default,r=1.00,false_compression_per_day,0.1952380952380952,0.19523809523809524,True
+rq1_pisa_sweep,gbm_time_ctx,default,r=1.00,false_compression_per_day_lo,0.1657142857142857,0.1657142857142857,True
+rq1_pisa_sweep,gbm_time_ctx,default,r=1.00,false_compression_per_day_hi,0.2233333333333333,0.22333333333333333,True
+rq1_pisa_sweep,gbm_time_ctx,high,r=1.00,sens_l2,0.8767123287671232,0.8767123287671232,True
+rq1_pisa_sweep,gbm_time_ctx,high,r=1.00,sens_l2_lo,0.8490048385343046,0.8490048385343046,True
+rq1_pisa_sweep,gbm_time_ctx,high,r=1.00,sens_l2_hi,0.9028084311959496,0.9028084311959497,True
+rq1_pisa_sweep,gbm_time_ctx,high,r=1.00,false_per_day,1.0904761904761904,1.0904761904761904,True
+rq1_pisa_sweep,gbm_time_ctx,high,r=1.00,false_per_day_lo,0.9499404761904764,0.9499404761904763,True
+rq1_pisa_sweep,gbm_time_ctx,high,r=1.00,false_per_day_hi,1.2304761904761905,1.2304761904761905,True
+rq1_pisa_sweep,gbm_time_ctx,high,r=1.00,false_compression_per_day,0.1333333333333333,0.13333333333333333,True
+rq1_pisa_sweep,gbm_time_ctx,high,r=1.00,false_compression_per_day_lo,0.1161904761904761,0.11619047619047619,True
+rq1_pisa_sweep,gbm_time_ctx,high,r=1.00,false_compression_per_day_hi,0.1509523809523809,0.15095238095238095,True
+rq1_pisa_sweep,gbm_time_ctx,standard,r=1.00,sens_l2,0.71875,0.71875,True
+rq1_pisa_sweep,gbm_time_ctx,standard,r=1.00,sens_l2_lo,0.5,0.5,True
+rq1_pisa_sweep,gbm_time_ctx,standard,r=1.00,sens_l2_hi,0.875,0.875,True
+rq1_pisa_sweep,gbm_time_ctx,standard,r=1.00,false_per_day,0.5095238095238095,0.5095238095238095,True
+rq1_pisa_sweep,gbm_time_ctx,standard,r=1.00,false_per_day_lo,0.4242738095238095,0.42427380952380955,True
+rq1_pisa_sweep,gbm_time_ctx,standard,r=1.00,false_per_day_hi,0.6009523809523809,0.6009523809523809,True
+rq1_pisa_sweep,gbm_time_ctx,standard,r=1.00,false_compression_per_day,0.1638095238095238,0.16380952380952382,True
+rq1_pisa_sweep,gbm_time_ctx,standard,r=1.00,false_compression_per_day_lo,0.1299880952380952,0.12998809523809526,True
+rq1_pisa_sweep,gbm_time_ctx,standard,r=1.00,false_compression_per_day_hi,0.1980952380952381,0.1980952380952381,True
+rq1_pisa_sweep,iforest_causal_combined_time,default,r=1.00,sens_l2,0.9036144578313252,0.9036144578313253,True
+rq1_pisa_sweep,iforest_causal_combined_time,default,r=1.00,sens_l2_lo,0.8706858066502463,0.8706858066502463,True
+rq1_pisa_sweep,iforest_causal_combined_time,default,r=1.00,sens_l2_hi,0.9356064670308232,0.9356064670308232,True
+rq1_pisa_sweep,iforest_causal_combined_time,default,r=1.00,false_per_day,1.7666666666666666,1.7666666666666666,True
+rq1_pisa_sweep,iforest_causal_combined_time,default,r=1.00,false_per_day_lo,1.5542619047619048,1.5542619047619048,True
+rq1_pisa_sweep,iforest_causal_combined_time,default,r=1.00,false_per_day_hi,1.9800119047619047,1.9800119047619047,True
+rq1_pisa_sweep,iforest_causal_combined_time,default,r=1.00,false_compression_per_day,0.349047619047619,0.34904761904761905,True
+rq1_pisa_sweep,iforest_causal_combined_time,default,r=1.00,false_compression_per_day_lo,0.3252380952380952,0.3252380952380952,True
+rq1_pisa_sweep,iforest_causal_combined_time,default,r=1.00,false_compression_per_day_hi,0.3719166666666666,0.3719166666666666,True
+rq1_pisa_sweep,iforest_causal_combined_time,high,r=1.00,sens_l2,0.929549902152642,0.9295499021526419,True
+rq1_pisa_sweep,iforest_causal_combined_time,high,r=1.00,sens_l2_lo,0.9136546184738956,0.9136546184738956,True
+rq1_pisa_sweep,iforest_causal_combined_time,high,r=1.00,sens_l2_hi,0.9461709064363664,0.9461709064363664,True
+rq1_pisa_sweep,iforest_causal_combined_time,high,r=1.00,false_per_day,2.025714285714286,2.025714285714286,True
+rq1_pisa_sweep,iforest_causal_combined_time,high,r=1.00,false_per_day_lo,1.7933214285714285,1.7933214285714285,True
+rq1_pisa_sweep,iforest_causal_combined_time,high,r=1.00,false_per_day_hi,2.260988095238095,2.260988095238095,True
+rq1_pisa_sweep,iforest_causal_combined_time,high,r=1.00,false_compression_per_day,0.3166666666666666,0.31666666666666665,True
+rq1_pisa_sweep,iforest_causal_combined_time,high,r=1.00,false_compression_per_day_lo,0.2928571428571428,0.29285714285714287,True
+rq1_pisa_sweep,iforest_causal_combined_time,high,r=1.00,false_compression_per_day_hi,0.3414285714285714,0.3414285714285714,True
+rq1_pisa_sweep,iforest_causal_combined_time,standard,r=1.00,sens_l2,0.78125,0.78125,True
+rq1_pisa_sweep,iforest_causal_combined_time,standard,r=1.00,sens_l2_lo,0.6153846153846154,0.6153846153846154,True
+rq1_pisa_sweep,iforest_causal_combined_time,standard,r=1.00,sens_l2_hi,0.9200263157894736,0.9200263157894736,True
+rq1_pisa_sweep,iforest_causal_combined_time,standard,r=1.00,false_per_day,1.488095238095238,1.4880952380952381,True
+rq1_pisa_sweep,iforest_causal_combined_time,standard,r=1.00,false_per_day_lo,1.2909523809523809,1.2909523809523809,True
+rq1_pisa_sweep,iforest_causal_combined_time,standard,r=1.00,false_per_day_hi,1.68,1.68,True
+rq1_pisa_sweep,iforest_causal_combined_time,standard,r=1.00,false_compression_per_day,0.4438095238095238,0.4438095238095238,True
+rq1_pisa_sweep,iforest_causal_combined_time,standard,r=1.00,false_compression_per_day_lo,0.3971428571428571,0.39714285714285713,True
+rq1_pisa_sweep,iforest_causal_combined_time,standard,r=1.00,false_compression_per_day_hi,0.4900119047619047,0.4900119047619047,True
+rq1_pisa_sweep,iforest_causal_combined_time_ctx,default,r=1.00,sens_l2,0.9036144578313252,0.9036144578313253,True
+rq1_pisa_sweep,iforest_causal_combined_time_ctx,default,r=1.00,sens_l2_lo,0.8706858066502463,0.8706858066502463,True
+rq1_pisa_sweep,iforest_causal_combined_time_ctx,default,r=1.00,sens_l2_hi,0.9356064670308232,0.9356064670308232,True
+rq1_pisa_sweep,iforest_causal_combined_time_ctx,default,r=1.00,false_per_day,1.7604761904761903,1.7604761904761905,True
+rq1_pisa_sweep,iforest_causal_combined_time_ctx,default,r=1.00,false_per_day_lo,1.5442619047619048,1.5442619047619048,True
+rq1_pisa_sweep,iforest_causal_combined_time_ctx,default,r=1.00,false_per_day_hi,1.9671547619047616,1.9671547619047618,True
+rq1_pisa_sweep,iforest_causal_combined_time_ctx,default,r=1.00,false_compression_per_day,0.3476190476190476,0.3476190476190476,True
+rq1_pisa_sweep,iforest_causal_combined_time_ctx,default,r=1.00,false_compression_per_day_lo,0.3238095238095238,0.3238095238095238,True
+rq1_pisa_sweep,iforest_causal_combined_time_ctx,default,r=1.00,false_compression_per_day_hi,0.3714285714285714,0.37142857142857144,True
+rq1_pisa_sweep,iforest_causal_combined_time_ctx,high,r=1.00,sens_l2,0.9275929549902152,0.9275929549902152,True
+rq1_pisa_sweep,iforest_causal_combined_time_ctx,high,r=1.00,sens_l2_lo,0.9126546128429198,0.9126546128429198,True
+rq1_pisa_sweep,iforest_causal_combined_time_ctx,high,r=1.00,sens_l2_hi,0.9427967146391202,0.9427967146391202,True
+rq1_pisa_sweep,iforest_causal_combined_time_ctx,high,r=1.00,false_per_day,1.9985714285714289,1.9985714285714287,True
+rq1_pisa_sweep,iforest_causal_combined_time_ctx,high,r=1.00,false_per_day_lo,1.7776190476190477,1.7776190476190477,True
+rq1_pisa_sweep,iforest_causal_combined_time_ctx,high,r=1.00,false_per_day_hi,2.221904761904762,2.221904761904762,True
+rq1_pisa_sweep,iforest_causal_combined_time_ctx,high,r=1.00,false_compression_per_day,0.3161904761904762,0.3161904761904762,True
+rq1_pisa_sweep,iforest_causal_combined_time_ctx,high,r=1.00,false_compression_per_day_lo,0.2938095238095238,0.2938095238095238,True
+rq1_pisa_sweep,iforest_causal_combined_time_ctx,high,r=1.00,false_compression_per_day_hi,0.3395238095238095,0.3395238095238095,True
+rq1_pisa_sweep,iforest_causal_combined_time_ctx,standard,r=1.00,sens_l2,0.84375,0.84375,True
+rq1_pisa_sweep,iforest_causal_combined_time_ctx,standard,r=1.00,sens_l2_lo,0.7333333333333333,0.7333333333333333,True
+rq1_pisa_sweep,iforest_causal_combined_time_ctx,standard,r=1.00,sens_l2_hi,0.9523809523809524,0.9523809523809523,True
+rq1_pisa_sweep,iforest_causal_combined_time_ctx,standard,r=1.00,false_per_day,1.556190476190476,1.5561904761904761,True
+rq1_pisa_sweep,iforest_causal_combined_time_ctx,standard,r=1.00,false_per_day_lo,1.3766666666666667,1.3766666666666667,True
+rq1_pisa_sweep,iforest_causal_combined_time_ctx,standard,r=1.00,false_per_day_hi,1.73525,1.73525,True
+rq1_pisa_sweep,iforest_causal_combined_time_ctx,standard,r=1.00,false_compression_per_day,0.45,0.45,True
+rq1_pisa_sweep,iforest_causal_combined_time_ctx,standard,r=1.00,false_compression_per_day_lo,0.4052261904761905,0.4052261904761905,True
+rq1_pisa_sweep,iforest_causal_combined_time_ctx,standard,r=1.00,false_compression_per_day_hi,0.4947619047619047,0.49476190476190474,True
+rq1_pisa_sweep,iforest_causal_gate,default,r=1.00,sens_l2,0.8995983935742972,0.8995983935742972,True
+rq1_pisa_sweep,iforest_causal_gate,default,r=1.00,sens_l2_lo,0.8630091526245606,0.8630091526245606,True
+rq1_pisa_sweep,iforest_causal_gate,default,r=1.00,sens_l2_hi,0.933579696148524,0.933579696148524,True
+rq1_pisa_sweep,iforest_causal_gate,default,r=1.00,false_per_day,1.5266666666666666,1.5266666666666666,True
+rq1_pisa_sweep,iforest_causal_gate,default,r=1.00,false_per_day_lo,1.3338095238095238,1.3338095238095238,True
+rq1_pisa_sweep,iforest_causal_gate,default,r=1.00,false_per_day_hi,1.7257142857142858,1.7257142857142858,True
+rq1_pisa_sweep,iforest_causal_gate,default,r=1.00,false_compression_per_day,0.3238095238095238,0.3238095238095238,True
+rq1_pisa_sweep,iforest_causal_gate,default,r=1.00,false_compression_per_day_lo,0.2971428571428571,0.29714285714285715,True
+rq1_pisa_sweep,iforest_causal_gate,default,r=1.00,false_compression_per_day_hi,0.3509523809523809,0.35095238095238096,True
+rq1_pisa_sweep,iforest_causal_gate,high,r=1.00,sens_l2,0.8786692759295499,0.8786692759295499,True
+rq1_pisa_sweep,iforest_causal_gate,high,r=1.00,sens_l2_lo,0.8542904070401707,0.8542904070401707,True
+rq1_pisa_sweep,iforest_causal_gate,high,r=1.00,sens_l2_hi,0.900812838170192,0.9008128381701919,True
+rq1_pisa_sweep,iforest_causal_gate,high,r=1.00,false_per_day,1.4361904761904762,1.4361904761904762,True
+rq1_pisa_sweep,iforest_causal_gate,high,r=1.00,false_per_day_lo,1.275702380952381,1.275702380952381,True
+rq1_pisa_sweep,iforest_causal_gate,high,r=1.00,false_per_day_hi,1.604297619047619,1.604297619047619,True
+rq1_pisa_sweep,iforest_causal_gate,high,r=1.00,false_compression_per_day,0.2809523809523809,0.28095238095238095,True
+rq1_pisa_sweep,iforest_causal_gate,high,r=1.00,false_compression_per_day_lo,0.2614285714285714,0.26142857142857145,True
+rq1_pisa_sweep,iforest_causal_gate,high,r=1.00,false_compression_per_day_hi,0.3014285714285714,0.30142857142857143,True
+rq1_pisa_sweep,iforest_causal_gate,standard,r=1.00,sens_l2,0.65625,0.65625,True
+rq1_pisa_sweep,iforest_causal_gate,standard,r=1.00,sens_l2_lo,0.4848484848484848,0.48484848484848486,True
+rq1_pisa_sweep,iforest_causal_gate,standard,r=1.00,sens_l2_hi,0.8214810924369744,0.8214810924369744,True
+rq1_pisa_sweep,iforest_causal_gate,standard,r=1.00,false_per_day,1.4761904761904765,1.4761904761904763,True
+rq1_pisa_sweep,iforest_causal_gate,standard,r=1.00,false_per_day_lo,1.2437976190476192,1.2437976190476192,True
+rq1_pisa_sweep,iforest_causal_gate,standard,r=1.00,false_per_day_hi,1.7100238095238094,1.7100238095238094,True
+rq1_pisa_sweep,iforest_causal_gate,standard,r=1.00,false_compression_per_day,0.3495238095238095,0.3495238095238095,True
+rq1_pisa_sweep,iforest_causal_gate,standard,r=1.00,false_compression_per_day_lo,0.3014166666666667,0.3014166666666667,True
+rq1_pisa_sweep,iforest_causal_gate,standard,r=1.00,false_compression_per_day_hi,0.3981190476190475,0.3981190476190475,True
+rq1_pisa_sweep,matched_filter_causal_combined_time,default,r=1.00,sens_l2,0.9116465863453816,0.9116465863453815,True
+rq1_pisa_sweep,matched_filter_causal_combined_time,default,r=1.00,sens_l2_lo,0.8745512899137332,0.8745512899137332,True
+rq1_pisa_sweep,matched_filter_causal_combined_time,default,r=1.00,sens_l2_hi,0.9460721194311956,0.9460721194311955,True
+rq1_pisa_sweep,matched_filter_causal_combined_time,default,r=1.00,false_per_day,1.7419047619047618,1.7419047619047618,True
+rq1_pisa_sweep,matched_filter_causal_combined_time,default,r=1.00,false_per_day_lo,1.501857142857143,1.501857142857143,True
+rq1_pisa_sweep,matched_filter_causal_combined_time,default,r=1.00,false_per_day_hi,1.97,1.97,True
+rq1_pisa_sweep,matched_filter_causal_combined_time,default,r=1.00,false_compression_per_day,0.3323809523809524,0.3323809523809524,True
+rq1_pisa_sweep,matched_filter_causal_combined_time,default,r=1.00,false_compression_per_day_lo,0.3076190476190476,0.3076190476190476,True
+rq1_pisa_sweep,matched_filter_causal_combined_time,default,r=1.00,false_compression_per_day_hi,0.3566666666666667,0.3566666666666667,True
+rq1_pisa_sweep,matched_filter_causal_combined_time,high,r=1.00,sens_l2,0.898238747553816,0.898238747553816,True
+rq1_pisa_sweep,matched_filter_causal_combined_time,high,r=1.00,sens_l2_lo,0.872982190860215,0.872982190860215,True
+rq1_pisa_sweep,matched_filter_causal_combined_time,high,r=1.00,sens_l2_hi,0.9207920792079208,0.9207920792079208,True
+rq1_pisa_sweep,matched_filter_causal_combined_time,high,r=1.00,false_per_day,1.506190476190476,1.506190476190476,True
+rq1_pisa_sweep,matched_filter_causal_combined_time,high,r=1.00,false_per_day_lo,1.3237857142857143,1.3237857142857143,True
+rq1_pisa_sweep,matched_filter_causal_combined_time,high,r=1.00,false_per_day_hi,1.6919166666666663,1.6919166666666665,True
+rq1_pisa_sweep,matched_filter_causal_combined_time,high,r=1.00,false_compression_per_day,0.2576190476190476,0.25761904761904764,True
+rq1_pisa_sweep,matched_filter_causal_combined_time,high,r=1.00,false_compression_per_day_lo,0.2385714285714285,0.23857142857142857,True
+rq1_pisa_sweep,matched_filter_causal_combined_time,high,r=1.00,false_compression_per_day_hi,0.2766666666666666,0.27666666666666667,True
+rq1_pisa_sweep,matched_filter_causal_combined_time,standard,r=1.00,sens_l2,0.75,0.75,True
+rq1_pisa_sweep,matched_filter_causal_combined_time,standard,r=1.00,sens_l2_lo,0.6051315789473687,0.6051315789473687,True
+rq1_pisa_sweep,matched_filter_causal_combined_time,standard,r=1.00,sens_l2_hi,0.8787878787878788,0.8787878787878788,True
+rq1_pisa_sweep,matched_filter_causal_combined_time,standard,r=1.00,false_per_day,1.9861904761904765,1.9861904761904763,True
+rq1_pisa_sweep,matched_filter_causal_combined_time,standard,r=1.00,false_per_day_lo,1.7251904761904764,1.7251904761904764,True
+rq1_pisa_sweep,matched_filter_causal_combined_time,standard,r=1.00,false_per_day_hi,2.265297619047619,2.265297619047619,True
+rq1_pisa_sweep,matched_filter_causal_combined_time,standard,r=1.00,false_compression_per_day,0.4842857142857142,0.48428571428571426,True
+rq1_pisa_sweep,matched_filter_causal_combined_time,standard,r=1.00,false_compression_per_day_lo,0.4304642857142857,0.43046428571428574,True
+rq1_pisa_sweep,matched_filter_causal_combined_time,standard,r=1.00,false_compression_per_day_hi,0.539047619047619,0.539047619047619,True
+rq1_pisa_sweep,matched_filter_causal_combined_time_ctx,default,r=1.00,sens_l2,0.9076305220883534,0.9076305220883534,True
+rq1_pisa_sweep,matched_filter_causal_combined_time_ctx,default,r=1.00,sens_l2_lo,0.866170271931622,0.866170271931622,True
+rq1_pisa_sweep,matched_filter_causal_combined_time_ctx,default,r=1.00,sens_l2_hi,0.9446761228131618,0.9446761228131618,True
+rq1_pisa_sweep,matched_filter_causal_combined_time_ctx,default,r=1.00,false_per_day,1.7295238095238097,1.7295238095238095,True
+rq1_pisa_sweep,matched_filter_causal_combined_time_ctx,default,r=1.00,false_per_day_lo,1.4980714285714287,1.4980714285714287,True
+rq1_pisa_sweep,matched_filter_causal_combined_time_ctx,default,r=1.00,false_per_day_hi,1.950011904761905,1.9500119047619047,True
+rq1_pisa_sweep,matched_filter_causal_combined_time_ctx,default,r=1.00,false_compression_per_day,0.329047619047619,0.32904761904761903,True
+rq1_pisa_sweep,matched_filter_causal_combined_time_ctx,default,r=1.00,false_compression_per_day_lo,0.3033333333333333,0.30333333333333334,True
+rq1_pisa_sweep,matched_filter_causal_combined_time_ctx,default,r=1.00,false_compression_per_day_hi,0.3542857142857142,0.35428571428571426,True
+rq1_pisa_sweep,matched_filter_causal_combined_time_ctx,high,r=1.00,sens_l2,0.8943248532289628,0.8943248532289628,True
+rq1_pisa_sweep,matched_filter_causal_combined_time_ctx,high,r=1.00,sens_l2_lo,0.8676169875730044,0.8676169875730044,True
+rq1_pisa_sweep,matched_filter_causal_combined_time_ctx,high,r=1.00,sens_l2_hi,0.9177361909114652,0.9177361909114652,True
+rq1_pisa_sweep,matched_filter_causal_combined_time_ctx,high,r=1.00,false_per_day,1.4866666666666666,1.4866666666666666,True
+rq1_pisa_sweep,matched_filter_causal_combined_time_ctx,high,r=1.00,false_per_day_lo,1.3085119047619047,1.3085119047619047,True
+rq1_pisa_sweep,matched_filter_causal_combined_time_ctx,high,r=1.00,false_per_day_hi,1.6666904761904762,1.6666904761904762,True
+rq1_pisa_sweep,matched_filter_causal_combined_time_ctx,high,r=1.00,false_compression_per_day,0.2566666666666666,0.25666666666666665,True
+rq1_pisa_sweep,matched_filter_causal_combined_time_ctx,high,r=1.00,false_compression_per_day_lo,0.2380833333333333,0.23808333333333334,True
+rq1_pisa_sweep,matched_filter_causal_combined_time_ctx,high,r=1.00,false_compression_per_day_hi,0.2752380952380952,0.2752380952380952,True
+rq1_pisa_sweep,matched_filter_causal_combined_time_ctx,standard,r=1.00,sens_l2,0.71875,0.71875,True
+rq1_pisa_sweep,matched_filter_causal_combined_time_ctx,standard,r=1.00,sens_l2_lo,0.56,0.56,True
+rq1_pisa_sweep,matched_filter_causal_combined_time_ctx,standard,r=1.00,sens_l2_hi,0.84375,0.84375,True
+rq1_pisa_sweep,matched_filter_causal_combined_time_ctx,standard,r=1.00,false_per_day,1.6576190476190475,1.6576190476190475,True
+rq1_pisa_sweep,matched_filter_causal_combined_time_ctx,standard,r=1.00,false_per_day_lo,1.4276190476190476,1.4276190476190476,True
+rq1_pisa_sweep,matched_filter_causal_combined_time_ctx,standard,r=1.00,false_per_day_hi,1.886690476190476,1.8866904761904761,True
+rq1_pisa_sweep,matched_filter_causal_combined_time_ctx,standard,r=1.00,false_compression_per_day,0.4428571428571428,0.44285714285714284,True
+rq1_pisa_sweep,matched_filter_causal_combined_time_ctx,standard,r=1.00,false_compression_per_day_lo,0.3928571428571428,0.39285714285714285,True
+rq1_pisa_sweep,matched_filter_causal_combined_time_ctx,standard,r=1.00,false_compression_per_day_hi,0.4914523809523808,0.4914523809523808,True
+rq1_pisa_sweep,matched_filter_causal_gate,default,r=1.00,sens_l2,0.8995983935742972,0.8995983935742972,True
+rq1_pisa_sweep,matched_filter_causal_gate,default,r=1.00,sens_l2_lo,0.8630091526245606,0.8630091526245606,True
+rq1_pisa_sweep,matched_filter_causal_gate,default,r=1.00,sens_l2_hi,0.933579696148524,0.933579696148524,True
+rq1_pisa_sweep,matched_filter_causal_gate,default,r=1.00,false_per_day,1.5252380952380953,1.5252380952380953,True
+rq1_pisa_sweep,matched_filter_causal_gate,default,r=1.00,false_per_day_lo,1.3333214285714283,1.3333214285714285,True
+rq1_pisa_sweep,matched_filter_causal_gate,default,r=1.00,false_per_day_hi,1.723809523809524,1.723809523809524,True
+rq1_pisa_sweep,matched_filter_causal_gate,default,r=1.00,false_compression_per_day,0.3238095238095238,0.3238095238095238,True
+rq1_pisa_sweep,matched_filter_causal_gate,default,r=1.00,false_compression_per_day_lo,0.2971428571428571,0.29714285714285715,True
+rq1_pisa_sweep,matched_filter_causal_gate,default,r=1.00,false_compression_per_day_hi,0.3509523809523809,0.35095238095238096,True
+rq1_pisa_sweep,matched_filter_causal_gate,high,r=1.00,sens_l2,0.8767123287671232,0.8767123287671232,True
+rq1_pisa_sweep,matched_filter_causal_gate,high,r=1.00,sens_l2_lo,0.8522954091816367,0.8522954091816367,True
+rq1_pisa_sweep,matched_filter_causal_gate,high,r=1.00,sens_l2_hi,0.8998255813953489,0.8998255813953489,True
+rq1_pisa_sweep,matched_filter_causal_gate,high,r=1.00,false_per_day,1.4357142857142855,1.4357142857142857,True
+rq1_pisa_sweep,matched_filter_causal_gate,high,r=1.00,false_per_day_lo,1.2752380952380953,1.2752380952380953,True
+rq1_pisa_sweep,matched_filter_causal_gate,high,r=1.00,false_per_day_hi,1.6038095238095238,1.6038095238095238,True
+rq1_pisa_sweep,matched_filter_causal_gate,high,r=1.00,false_compression_per_day,0.2809523809523809,0.28095238095238095,True
+rq1_pisa_sweep,matched_filter_causal_gate,high,r=1.00,false_compression_per_day_lo,0.2614285714285714,0.26142857142857145,True
+rq1_pisa_sweep,matched_filter_causal_gate,high,r=1.00,false_compression_per_day_hi,0.3014285714285714,0.30142857142857143,True
+rq1_pisa_sweep,matched_filter_causal_gate,standard,r=1.00,sens_l2,0.6875,0.6875,True
+rq1_pisa_sweep,matched_filter_causal_gate,standard,r=1.00,sens_l2_lo,0.5161290322580645,0.5161290322580645,True
+rq1_pisa_sweep,matched_filter_causal_gate,standard,r=1.00,sens_l2_hi,0.875,0.875,True
+rq1_pisa_sweep,matched_filter_causal_gate,standard,r=1.00,false_per_day,1.5976190476190475,1.5976190476190477,True
+rq1_pisa_sweep,matched_filter_causal_gate,standard,r=1.00,false_per_day_lo,1.3671309523809525,1.3671309523809525,True
+rq1_pisa_sweep,matched_filter_causal_gate,standard,r=1.00,false_per_day_hi,1.837154761904762,1.837154761904762,True
+rq1_pisa_sweep,matched_filter_causal_gate,standard,r=1.00,false_compression_per_day,0.4123809523809524,0.4123809523809524,True
+rq1_pisa_sweep,matched_filter_causal_gate,standard,r=1.00,false_compression_per_day_lo,0.3671309523809524,0.3671309523809524,True
+rq1_pisa_sweep,matched_filter_causal_gate,standard,r=1.00,false_compression_per_day_hi,0.4571428571428571,0.45714285714285713,True
+rq1_pisa_sweep,threshold,default,published,sens_l2,0.8634538152610441,0.8634538152610441,True
+rq1_pisa_sweep,threshold,default,published,sens_l2_lo,0.8103333551855251,0.8103333551855251,True
+rq1_pisa_sweep,threshold,default,published,sens_l2_hi,0.9078138065595094,0.9078138065595094,True
+rq1_pisa_sweep,threshold,default,published,false_per_day,1.351904761904762,1.351904761904762,True
+rq1_pisa_sweep,threshold,default,published,false_per_day_lo,1.148059523809524,1.148059523809524,True
+rq1_pisa_sweep,threshold,default,published,false_per_day_hi,1.559047619047619,1.559047619047619,True
+rq1_pisa_sweep,threshold,default,published,false_compression_per_day,0.2452380952380952,0.24523809523809523,True
+rq1_pisa_sweep,threshold,default,published,false_compression_per_day_lo,0.2057023809523809,0.20570238095238097,True
+rq1_pisa_sweep,threshold,default,published,false_compression_per_day_hi,0.2857142857142857,0.2857142857142857,True
+rq1_pisa_sweep,threshold,high,published,sens_l2,0.8297455968688845,0.8297455968688845,True
+rq1_pisa_sweep,threshold,high,published,sens_l2_lo,0.7962608005642744,0.7962608005642744,True
+rq1_pisa_sweep,threshold,high,published,sens_l2_hi,0.8611135824436537,0.8611135824436537,True
+rq1_pisa_sweep,threshold,high,published,false_per_day,1.3138095238095238,1.3138095238095238,True
+rq1_pisa_sweep,threshold,high,published,false_per_day_lo,1.148095238095238,1.148095238095238,True
+rq1_pisa_sweep,threshold,high,published,false_per_day_hi,1.4876190476190476,1.4876190476190476,True
+rq1_pisa_sweep,threshold,high,published,false_compression_per_day,0.1828571428571428,0.18285714285714286,True
+rq1_pisa_sweep,threshold,high,published,false_compression_per_day_lo,0.1619047619047619,0.1619047619047619,True
+rq1_pisa_sweep,threshold,high,published,false_compression_per_day_hi,0.2042857142857143,0.2042857142857143,True
+rq1_pisa_sweep,threshold,standard,published,sens_l2,0.75,0.75,True
+rq1_pisa_sweep,threshold,standard,published,sens_l2_lo,0.625,0.625,True
+rq1_pisa_sweep,threshold,standard,published,sens_l2_hi,0.8710685483870962,0.8710685483870962,True
+rq1_pisa_sweep,threshold,standard,published,false_per_day,1.3376190476190477,1.3376190476190477,True
+rq1_pisa_sweep,threshold,standard,published,false_per_day_lo,1.0909166666666668,1.0909166666666668,True
+rq1_pisa_sweep,threshold,standard,published,false_per_day_hi,1.5847619047619048,1.5847619047619048,True
+rq1_pisa_sweep,threshold,standard,published,false_compression_per_day,0.3338095238095238,0.33380952380952383,True
+rq1_pisa_sweep,threshold,standard,published,false_compression_per_day_lo,0.2699880952380952,0.26998809523809525,True
+rq1_pisa_sweep,threshold,standard,published,false_compression_per_day_hi,0.3957142857142857,0.39571428571428574,True
+rq1_pisa_sweep,threshold_combined_time,default,r=1.00,sens_l2,0.9076305220883534,0.9076305220883534,True
+rq1_pisa_sweep,threshold_combined_time,default,r=1.00,sens_l2_lo,0.8604651162790697,0.8604651162790697,True
+rq1_pisa_sweep,threshold_combined_time,default,r=1.00,sens_l2_hi,0.9493683199527164,0.9493683199527163,True
+rq1_pisa_sweep,threshold_combined_time,default,r=1.00,false_per_day,2.0504761904761906,2.0504761904761906,True
+rq1_pisa_sweep,threshold_combined_time,default,r=1.00,false_per_day_lo,1.7447619047619047,1.7447619047619047,True
+rq1_pisa_sweep,threshold_combined_time,default,r=1.00,false_per_day_hi,2.3666785714285714,2.3666785714285714,True
+rq1_pisa_sweep,threshold_combined_time,default,r=1.00,false_compression_per_day,0.2742857142857143,0.2742857142857143,True
+rq1_pisa_sweep,threshold_combined_time,default,r=1.00,false_compression_per_day_lo,0.2376190476190476,0.23761904761904762,True
+rq1_pisa_sweep,threshold_combined_time,default,r=1.00,false_compression_per_day_hi,0.3114404761904761,0.31144047619047616,True
+rq1_pisa_sweep,threshold_combined_time,high,r=1.00,sens_l2,0.9060665362035224,0.9060665362035225,True
+rq1_pisa_sweep,threshold_combined_time,high,r=1.00,sens_l2_lo,0.8775021137180301,0.8775021137180301,True
+rq1_pisa_sweep,threshold_combined_time,high,r=1.00,sens_l2_hi,0.9332127525352716,0.9332127525352716,True
+rq1_pisa_sweep,threshold_combined_time,high,r=1.00,false_per_day,2.1157142857142857,2.1157142857142857,True
+rq1_pisa_sweep,threshold_combined_time,high,r=1.00,false_per_day_lo,1.7680833333333337,1.7680833333333335,True
+rq1_pisa_sweep,threshold_combined_time,high,r=1.00,false_per_day_hi,2.486785714285714,2.486785714285714,True
+rq1_pisa_sweep,threshold_combined_time,high,r=1.00,false_compression_per_day,0.1880952380952381,0.1880952380952381,True
+rq1_pisa_sweep,threshold_combined_time,high,r=1.00,false_compression_per_day_lo,0.1666547619047619,0.16665476190476192,True
+rq1_pisa_sweep,threshold_combined_time,high,r=1.00,false_compression_per_day_hi,0.2109523809523809,0.21095238095238095,True
+rq1_pisa_sweep,threshold_combined_time,standard,r=1.00,sens_l2,0.78125,0.78125,True
+rq1_pisa_sweep,threshold_combined_time,standard,r=1.00,sens_l2_lo,0.6756756756756757,0.6756756756756757,True
+rq1_pisa_sweep,threshold_combined_time,standard,r=1.00,sens_l2_hi,0.8846153846153846,0.8846153846153846,True
+rq1_pisa_sweep,threshold_combined_time,standard,r=1.00,false_per_day,1.9290476190476191,1.9290476190476191,True
+rq1_pisa_sweep,threshold_combined_time,standard,r=1.00,false_per_day_lo,1.5904285714285715,1.5904285714285715,True
+rq1_pisa_sweep,threshold_combined_time,standard,r=1.00,false_per_day_hi,2.2657261904761903,2.2657261904761903,True
+rq1_pisa_sweep,threshold_combined_time,standard,r=1.00,false_compression_per_day,0.4047619047619047,0.40476190476190477,True
+rq1_pisa_sweep,threshold_combined_time,standard,r=1.00,false_compression_per_day_lo,0.3319047619047619,0.3319047619047619,True
+rq1_pisa_sweep,threshold_combined_time,standard,r=1.00,false_compression_per_day_hi,0.4766785714285714,0.4766785714285714,True
+rq1_pisa_sweep,threshold_combined_time_ctx,default,r=1.00,sens_l2,0.9156626506024096,0.9156626506024096,True
+rq1_pisa_sweep,threshold_combined_time_ctx,default,r=1.00,sens_l2_lo,0.8608960926907432,0.8608960926907432,True
+rq1_pisa_sweep,threshold_combined_time_ctx,default,r=1.00,sens_l2_hi,0.959517347179608,0.9595173471796081,True
+rq1_pisa_sweep,threshold_combined_time_ctx,default,r=1.00,false_per_day,2.0404761904761903,2.0404761904761903,True
+rq1_pisa_sweep,threshold_combined_time_ctx,default,r=1.00,false_per_day_lo,1.7304642857142858,1.7304642857142858,True
+rq1_pisa_sweep,threshold_combined_time_ctx,default,r=1.00,false_per_day_hi,2.3595238095238096,2.3595238095238096,True
+rq1_pisa_sweep,threshold_combined_time_ctx,default,r=1.00,false_compression_per_day,0.27,0.27,True
+rq1_pisa_sweep,threshold_combined_time_ctx,default,r=1.00,false_compression_per_day_lo,0.2347619047619047,0.23476190476190475,True
+rq1_pisa_sweep,threshold_combined_time_ctx,default,r=1.00,false_compression_per_day_hi,0.3066666666666666,0.30666666666666664,True
+rq1_pisa_sweep,threshold_combined_time_ctx,high,r=1.00,sens_l2,0.9080234833659492,0.9080234833659491,True
+rq1_pisa_sweep,threshold_combined_time_ctx,high,r=1.00,sens_l2_lo,0.8834586466165414,0.8834586466165414,True
+rq1_pisa_sweep,threshold_combined_time_ctx,high,r=1.00,sens_l2_hi,0.9326132338616842,0.9326132338616842,True
+rq1_pisa_sweep,threshold_combined_time_ctx,high,r=1.00,false_per_day,2.1942857142857144,2.1942857142857144,True
+rq1_pisa_sweep,threshold_combined_time_ctx,high,r=1.00,false_per_day_lo,1.8842857142857143,1.8842857142857143,True
+rq1_pisa_sweep,threshold_combined_time_ctx,high,r=1.00,false_per_day_hi,2.53625,2.53625,True
+rq1_pisa_sweep,threshold_combined_time_ctx,high,r=1.00,false_compression_per_day,0.1938095238095238,0.19380952380952382,True
+rq1_pisa_sweep,threshold_combined_time_ctx,high,r=1.00,false_compression_per_day_lo,0.1718928571428571,0.17189285714285715,True
+rq1_pisa_sweep,threshold_combined_time_ctx,high,r=1.00,false_compression_per_day_hi,0.2171428571428571,0.21714285714285714,True
+rq1_pisa_sweep,threshold_combined_time_ctx,standard,r=1.00,sens_l2,0.84375,0.84375,True
+rq1_pisa_sweep,threshold_combined_time_ctx,standard,r=1.00,sens_l2_lo,0.7272727272727273,0.7272727272727273,True
+rq1_pisa_sweep,threshold_combined_time_ctx,standard,r=1.00,sens_l2_hi,0.9523809523809524,0.9523809523809523,True
+rq1_pisa_sweep,threshold_combined_time_ctx,standard,r=1.00,false_per_day,2.0761904761904764,2.0761904761904764,True
+rq1_pisa_sweep,threshold_combined_time_ctx,standard,r=1.00,false_per_day_lo,1.7380833333333334,1.7380833333333334,True
+rq1_pisa_sweep,threshold_combined_time_ctx,standard,r=1.00,false_per_day_hi,2.4167499999999995,2.4167499999999995,True
+rq1_pisa_sweep,threshold_combined_time_ctx,standard,r=1.00,false_compression_per_day,0.4204761904761905,0.4204761904761905,True
+rq1_pisa_sweep,threshold_combined_time_ctx,standard,r=1.00,false_compression_per_day_lo,0.3466309523809524,0.34663095238095243,True
+rq1_pisa_sweep,threshold_combined_time_ctx,standard,r=1.00,false_compression_per_day_hi,0.4928571428571429,0.4928571428571429,True
+rq1_pisa_sweep,trend,default,published,sens_l2,0.8995983935742972,0.8995983935742972,True
+rq1_pisa_sweep,trend,default,published,sens_l2_lo,0.8630091526245606,0.8630091526245606,True
+rq1_pisa_sweep,trend,default,published,sens_l2_hi,0.933579696148524,0.933579696148524,True
+rq1_pisa_sweep,trend,default,published,false_per_day,1.5266666666666666,1.5266666666666666,True
+rq1_pisa_sweep,trend,default,published,false_per_day_lo,1.3338095238095238,1.3338095238095238,True
+rq1_pisa_sweep,trend,default,published,false_per_day_hi,1.7257142857142858,1.7257142857142858,True
+rq1_pisa_sweep,trend,default,published,false_compression_per_day,0.3238095238095238,0.3238095238095238,True
+rq1_pisa_sweep,trend,default,published,false_compression_per_day_lo,0.2971428571428571,0.29714285714285715,True
+rq1_pisa_sweep,trend,default,published,false_compression_per_day_hi,0.3509523809523809,0.35095238095238096,True
+rq1_pisa_sweep,trend,high,published,sens_l2,0.8786692759295499,0.8786692759295499,True
+rq1_pisa_sweep,trend,high,published,sens_l2_lo,0.8542904070401707,0.8542904070401707,True
+rq1_pisa_sweep,trend,high,published,sens_l2_hi,0.900812838170192,0.9008128381701919,True
+rq1_pisa_sweep,trend,high,published,false_per_day,1.4361904761904762,1.4361904761904762,True
+rq1_pisa_sweep,trend,high,published,false_per_day_lo,1.275702380952381,1.275702380952381,True
+rq1_pisa_sweep,trend,high,published,false_per_day_hi,1.604297619047619,1.604297619047619,True
+rq1_pisa_sweep,trend,high,published,false_compression_per_day,0.2809523809523809,0.28095238095238095,True
+rq1_pisa_sweep,trend,high,published,false_compression_per_day_lo,0.2614285714285714,0.26142857142857145,True
+rq1_pisa_sweep,trend,high,published,false_compression_per_day_hi,0.3014285714285714,0.30142857142857143,True
+rq1_pisa_sweep,trend,standard,published,sens_l2,0.71875,0.71875,True
+rq1_pisa_sweep,trend,standard,published,sens_l2_lo,0.5757575757575758,0.5757575757575758,True
+rq1_pisa_sweep,trend,standard,published,sens_l2_hi,0.8787878787878788,0.8787878787878788,True
+rq1_pisa_sweep,trend,standard,published,false_per_day,1.650952380952381,1.650952380952381,True
+rq1_pisa_sweep,trend,standard,published,false_per_day_lo,1.4104404761904763,1.4104404761904763,True
+rq1_pisa_sweep,trend,standard,published,false_per_day_hi,1.9005,1.9004999999999999,True
+rq1_pisa_sweep,trend,standard,published,false_compression_per_day,0.4161904761904761,0.41619047619047617,True
+rq1_pisa_sweep,trend,standard,published,false_compression_per_day_lo,0.3704761904761904,0.37047619047619046,True
+rq1_pisa_sweep,trend,standard,published,false_compression_per_day_hi,0.4614285714285714,0.4614285714285714,True
+rq1_pisa_sweep,trend_combined_time,default,r=1.00,sens_l2,0.9196787148594378,0.9196787148594378,True
+rq1_pisa_sweep,trend_combined_time,default,r=1.00,sens_l2_lo,0.8835309849262521,0.8835309849262521,True
+rq1_pisa_sweep,trend_combined_time,default,r=1.00,sens_l2_hi,0.9545454545454546,0.9545454545454546,True
+rq1_pisa_sweep,trend_combined_time,default,r=1.00,false_per_day,1.747142857142857,1.747142857142857,True
+rq1_pisa_sweep,trend_combined_time,default,r=1.00,false_per_day_lo,1.5028452380952382,1.5028452380952382,True
+rq1_pisa_sweep,trend_combined_time,default,r=1.00,false_per_day_hi,2.012857142857143,2.012857142857143,True
+rq1_pisa_sweep,trend_combined_time,default,r=1.00,false_compression_per_day,0.2814285714285714,0.2814285714285714,True
+rq1_pisa_sweep,trend_combined_time,default,r=1.00,false_compression_per_day_lo,0.2528571428571428,0.25285714285714284,True
+rq1_pisa_sweep,trend_combined_time,default,r=1.00,false_compression_per_day_hi,0.3104761904761904,0.31047619047619046,True
+rq1_pisa_sweep,trend_combined_time,high,r=1.00,sens_l2,0.923679060665362,0.923679060665362,True
+rq1_pisa_sweep,trend_combined_time,high,r=1.00,sens_l2_lo,0.9040844054278216,0.9040844054278216,True
+rq1_pisa_sweep,trend_combined_time,high,r=1.00,sens_l2_hi,0.9424307036247336,0.9424307036247335,True
+rq1_pisa_sweep,trend_combined_time,high,r=1.00,false_per_day,1.7257142857142858,1.7257142857142858,True
+rq1_pisa_sweep,trend_combined_time,high,r=1.00,false_per_day_lo,1.4889880952380952,1.4889880952380952,True
+rq1_pisa_sweep,trend_combined_time,high,r=1.00,false_per_day_hi,1.9714285714285715,1.9714285714285715,True
+rq1_pisa_sweep,trend_combined_time,high,r=1.00,false_compression_per_day,0.2323809523809523,0.23238095238095238,True
+rq1_pisa_sweep,trend_combined_time,high,r=1.00,false_compression_per_day_lo,0.2104761904761904,0.21047619047619048,True
+rq1_pisa_sweep,trend_combined_time,high,r=1.00,false_compression_per_day_hi,0.2557142857142857,0.2557142857142857,True
+rq1_pisa_sweep,trend_combined_time,standard,r=1.00,sens_l2,0.78125,0.78125,True
+rq1_pisa_sweep,trend_combined_time,standard,r=1.00,sens_l2_lo,0.6756756756756757,0.6756756756756757,True
+rq1_pisa_sweep,trend_combined_time,standard,r=1.00,sens_l2_hi,0.8846153846153846,0.8846153846153846,True
+rq1_pisa_sweep,trend_combined_time,standard,r=1.00,false_per_day,2.1228571428571428,2.1228571428571428,True
+rq1_pisa_sweep,trend_combined_time,standard,r=1.00,false_per_day_lo,1.770392857142857,1.7703928571428573,True
+rq1_pisa_sweep,trend_combined_time,standard,r=1.00,false_per_day_hi,2.484345238095238,2.484345238095238,True
+rq1_pisa_sweep,trend_combined_time,standard,r=1.00,false_compression_per_day,0.4342857142857143,0.4342857142857143,True
+rq1_pisa_sweep,trend_combined_time,standard,r=1.00,false_compression_per_day_lo,0.3580714285714286,0.3580714285714286,True
+rq1_pisa_sweep,trend_combined_time,standard,r=1.00,false_compression_per_day_hi,0.5081071428571428,0.5081071428571428,True
+rq1_pisa_sweep,trend_combined_time_ctx,default,r=1.00,sens_l2,0.9036144578313252,0.9036144578313253,True
+rq1_pisa_sweep,trend_combined_time_ctx,default,r=1.00,sens_l2_lo,0.846970066582482,0.846970066582482,True
+rq1_pisa_sweep,trend_combined_time_ctx,default,r=1.00,sens_l2_hi,0.953307392996109,0.953307392996109,True
+rq1_pisa_sweep,trend_combined_time_ctx,default,r=1.00,false_per_day,1.5757142857142856,1.5757142857142856,True
+rq1_pisa_sweep,trend_combined_time_ctx,default,r=1.00,false_per_day_lo,1.3442619047619049,1.3442619047619049,True
+rq1_pisa_sweep,trend_combined_time_ctx,default,r=1.00,false_per_day_hi,1.8119523809523808,1.8119523809523808,True
+rq1_pisa_sweep,trend_combined_time_ctx,default,r=1.00,false_compression_per_day,0.2633333333333333,0.2633333333333333,True
+rq1_pisa_sweep,trend_combined_time_ctx,default,r=1.00,false_compression_per_day_lo,0.2371309523809524,0.23713095238095241,True
+rq1_pisa_sweep,trend_combined_time_ctx,default,r=1.00,false_compression_per_day_hi,0.2904880952380952,0.2904880952380952,True
+rq1_pisa_sweep,trend_combined_time_ctx,high,r=1.00,sens_l2,0.9119373776908024,0.9119373776908023,True
+rq1_pisa_sweep,trend_combined_time_ctx,high,r=1.00,sens_l2_lo,0.8908721456418826,0.8908721456418826,True
+rq1_pisa_sweep,trend_combined_time_ctx,high,r=1.00,sens_l2_hi,0.9337355833590772,0.9337355833590772,True
+rq1_pisa_sweep,trend_combined_time_ctx,high,r=1.00,false_per_day,1.6928571428571428,1.6928571428571428,True
+rq1_pisa_sweep,trend_combined_time_ctx,high,r=1.00,false_per_day_lo,1.47,1.47,True
+rq1_pisa_sweep,trend_combined_time_ctx,high,r=1.00,false_per_day_hi,1.93575,1.9357499999999999,True
+rq1_pisa_sweep,trend_combined_time_ctx,high,r=1.00,false_compression_per_day,0.2309523809523809,0.23095238095238096,True
+rq1_pisa_sweep,trend_combined_time_ctx,high,r=1.00,false_compression_per_day_lo,0.2085714285714285,0.20857142857142857,True
+rq1_pisa_sweep,trend_combined_time_ctx,high,r=1.00,false_compression_per_day_hi,0.2542857142857143,0.2542857142857143,True
+rq1_pisa_sweep,trend_combined_time_ctx,standard,r=1.00,sens_l2,0.84375,0.84375,True
+rq1_pisa_sweep,trend_combined_time_ctx,standard,r=1.00,sens_l2_lo,0.7272727272727273,0.7272727272727273,True
+rq1_pisa_sweep,trend_combined_time_ctx,standard,r=1.00,sens_l2_hi,0.9523809523809524,0.9523809523809523,True
+rq1_pisa_sweep,trend_combined_time_ctx,standard,r=1.00,false_per_day,2.0023809523809524,2.0023809523809524,True
+rq1_pisa_sweep,trend_combined_time_ctx,standard,r=1.00,false_per_day_lo,1.6742738095238097,1.6742738095238097,True
+rq1_pisa_sweep,trend_combined_time_ctx,standard,r=1.00,false_per_day_hi,2.3357380952380953,2.3357380952380953,True
+rq1_pisa_sweep,trend_combined_time_ctx,standard,r=1.00,false_compression_per_day,0.41,0.41,True
+rq1_pisa_sweep,trend_combined_time_ctx,standard,r=1.00,false_compression_per_day_lo,0.3375952380952381,0.3375952380952381,True
+rq1_pisa_sweep,trend_combined_time_ctx,standard,r=1.00,false_compression_per_day_hi,0.4828690476190476,0.4828690476190476,True
+rq1_pisa_sweep,baysal_gate,default,"r=1.00, fold 0",threshold,-1e-09,-1e-09,True
+rq1_pisa_sweep,matched_filter_causal_gate,default,"r=1.00, fold 0",threshold,0.0647491885701417,0.0647491885701417,True
+rq1_pisa_sweep,iforest_causal_gate,default,"r=1.00, fold 0",threshold,0.0002905442776917,0.0002905442776917,True
+rq1_pisa_sweep,threshold_combined_time,default,"r=1.00, fold 0",threshold,0.1931964832541068,0.1931964832541068,True
+rq1_pisa_sweep,threshold_combined_time_ctx,default,"r=1.00, fold 0",threshold,0.1931500246861479,0.1931500246861479,True
+rq1_pisa_sweep,trend_combined_time,default,"r=1.00, fold 0",threshold,0.2517312868016518,0.2517312868016518,True
+rq1_pisa_sweep,trend_combined_time_ctx,default,"r=1.00, fold 0",threshold,0.2522297474905197,0.2522297474905197,True
+rq1_pisa_sweep,baysal_combined_time,default,"r=1.00, fold 0",threshold,0.3280242752880449,0.3280242752880449,True
+rq1_pisa_sweep,baysal_combined_time_ctx,default,"r=1.00, fold 0",threshold,0.3274925721169654,0.3274925721169654,True
+rq1_pisa_sweep,matched_filter_causal_combined_time,default,"r=1.00, fold 0",threshold,0.3225725115319193,0.3225725115319193,True
+rq1_pisa_sweep,matched_filter_causal_combined_time_ctx,default,"r=1.00, fold 0",threshold,0.322901890162706,0.322901890162706,True
+rq1_pisa_sweep,iforest_causal_combined_time,default,"r=1.00, fold 0",threshold,0.3057465477314489,0.3057465477314489,True
+rq1_pisa_sweep,iforest_causal_combined_time_ctx,default,"r=1.00, fold 0",threshold,0.3065430419418961,0.3065430419418961,True
+rq1_pisa_sweep,gbm_time,default,"r=1.00, fold 0",threshold,0.3763504230913738,0.3763504230913738,True
+rq1_pisa_sweep,gbm_time_ctx,default,"r=1.00, fold 0",threshold,0.4083998776562041,0.4083998776562041,True
+rq1_pisa_sweep,baysal_gate,default,"r=1.00, fold 1",threshold,-1e-09,-1e-09,True
+rq1_pisa_sweep,matched_filter_causal_gate,default,"r=1.00, fold 1",threshold,0.0639908612847574,0.0639908612847574,True
+rq1_pisa_sweep,iforest_causal_gate,default,"r=1.00, fold 1",threshold,0.000450535749272,0.000450535749272,True
+rq1_pisa_sweep,threshold_combined_time,default,"r=1.00, fold 1",threshold,0.2454086048368375,0.2454086048368375,True
+rq1_pisa_sweep,threshold_combined_time_ctx,default,"r=1.00, fold 1",threshold,0.2465461915791757,0.2465461915791757,True
+rq1_pisa_sweep,trend_combined_time,default,"r=1.00, fold 1",threshold,0.3108665533025991,0.3108665533025991,True
+rq1_pisa_sweep,trend_combined_time_ctx,default,"r=1.00, fold 1",threshold,0.3124748689957632,0.3124748689957632,True
+rq1_pisa_sweep,baysal_combined_time,default,"r=1.00, fold 1",threshold,0.3183048100813268,0.3183048100813268,True
+rq1_pisa_sweep,baysal_combined_time_ctx,default,"r=1.00, fold 1",threshold,0.3192604781138128,0.3192604781138128,True
+rq1_pisa_sweep,matched_filter_causal_combined_time,default,"r=1.00, fold 1",threshold,0.3135823319140791,0.3135823319140791,True
+rq1_pisa_sweep,matched_filter_causal_combined_time_ctx,default,"r=1.00, fold 1",threshold,0.3151940693337413,0.3151940693337413,True
+rq1_pisa_sweep,iforest_causal_combined_time,default,"r=1.00, fold 1",threshold,0.3184551238235784,0.3184551238235784,True
+rq1_pisa_sweep,iforest_causal_combined_time_ctx,default,"r=1.00, fold 1",threshold,0.3195372220564118,0.3195372220564118,True
+rq1_pisa_sweep,gbm_time,default,"r=1.00, fold 1",threshold,0.3858003161110303,0.3858003161110303,True
+rq1_pisa_sweep,gbm_time_ctx,default,"r=1.00, fold 1",threshold,0.40351768126954,0.40351768126954,True
+rq1_pisa_sweep,baysal_gate,default,"r=1.00, fold 2",threshold,-1e-09,-1e-09,True
+rq1_pisa_sweep,matched_filter_causal_gate,default,"r=1.00, fold 2",threshold,0.0564454549818763,0.0564454549818763,True
+rq1_pisa_sweep,iforest_causal_gate,default,"r=1.00, fold 2",threshold,0.0002841843983437,0.0002841843983437,True
+rq1_pisa_sweep,threshold_combined_time,default,"r=1.00, fold 2",threshold,0.2547393481994625,0.2547393481994625,True
+rq1_pisa_sweep,threshold_combined_time_ctx,default,"r=1.00, fold 2",threshold,0.2558354553462731,0.2558354553462731,True
+rq1_pisa_sweep,trend_combined_time,default,"r=1.00, fold 2",threshold,0.3271779463160342,0.3271779463160342,True
+rq1_pisa_sweep,trend_combined_time_ctx,default,"r=1.00, fold 2",threshold,0.3284246470707183,0.3284246470707183,True
+rq1_pisa_sweep,baysal_combined_time,default,"r=1.00, fold 2",threshold,0.3325049014602877,0.3325049014602877,True
+rq1_pisa_sweep,baysal_combined_time_ctx,default,"r=1.00, fold 2",threshold,0.3342690842575914,0.3342690842575914,True
+rq1_pisa_sweep,matched_filter_causal_combined_time,default,"r=1.00, fold 2",threshold,0.3269345488785951,0.3269345488785951,True
+rq1_pisa_sweep,matched_filter_causal_combined_time_ctx,default,"r=1.00, fold 2",threshold,0.3281630401468255,0.3281630401468255,True
+rq1_pisa_sweep,iforest_causal_combined_time,default,"r=1.00, fold 2",threshold,0.3310547301629725,0.3310547301629725,True
+rq1_pisa_sweep,iforest_causal_combined_time_ctx,default,"r=1.00, fold 2",threshold,0.331784274490336,0.331784274490336,True
+rq1_pisa_sweep,gbm_time,default,"r=1.00, fold 2",threshold,0.3977722412254306,0.3977722412254306,True
+rq1_pisa_sweep,gbm_time_ctx,default,"r=1.00, fold 2",threshold,0.4077869108459039,0.4077869108459039,True
+rq1_pisa_sweep,baysal_gate,default,"r=1.00, fold 3",threshold,-1e-09,-1e-09,True
+rq1_pisa_sweep,matched_filter_causal_gate,default,"r=1.00, fold 3",threshold,3.312764346893818e-05,3.312764346893818e-05,True
+rq1_pisa_sweep,iforest_causal_gate,default,"r=1.00, fold 3",threshold,0.0002441416803498,0.0002441416803498,True
+rq1_pisa_sweep,threshold_combined_time,default,"r=1.00, fold 3",threshold,0.2563990054448747,0.2563990054448747,True
+rq1_pisa_sweep,threshold_combined_time_ctx,default,"r=1.00, fold 3",threshold,0.2573811535506924,0.2573811535506924,True
+rq1_pisa_sweep,trend_combined_time,default,"r=1.00, fold 3",threshold,0.2540271118895507,0.2540271118895507,True
+rq1_pisa_sweep,trend_combined_time_ctx,default,"r=1.00, fold 3",threshold,0.3295396251977487,0.3295396251977487,True
+rq1_pisa_sweep,baysal_combined_time,default,"r=1.00, fold 3",threshold,0.3094596458954936,0.3094596458954936,True
+rq1_pisa_sweep,baysal_combined_time_ctx,default,"r=1.00, fold 3",threshold,0.3326022620565346,0.3326022620565346,True
+rq1_pisa_sweep,matched_filter_causal_combined_time,default,"r=1.00, fold 3",threshold,0.3244503516359875,0.3244503516359875,True
+rq1_pisa_sweep,matched_filter_causal_combined_time_ctx,default,"r=1.00, fold 3",threshold,0.3273029882791775,0.3273029882791775,True
+rq1_pisa_sweep,iforest_causal_combined_time,default,"r=1.00, fold 3",threshold,0.3082972017340664,0.3082972017340664,True
+rq1_pisa_sweep,iforest_causal_combined_time_ctx,default,"r=1.00, fold 3",threshold,0.3096088697693023,0.3096088697693023,True
+rq1_pisa_sweep,gbm_time,default,"r=1.00, fold 3",threshold,0.3884117417137612,0.3884117417137612,True
+rq1_pisa_sweep,gbm_time_ctx,default,"r=1.00, fold 3",threshold,0.3963334394166249,0.3963334394166249,True
+rq1_pisa_sweep,baysal_gate,default,"r=1.00, fold 4",threshold,-1e-09,-1e-09,True
+rq1_pisa_sweep,matched_filter_causal_gate,default,"r=1.00, fold 4",threshold,0.0583371902422041,0.0583371902422041,True
+rq1_pisa_sweep,iforest_causal_gate,default,"r=1.00, fold 4",threshold,0.0004210587231111,0.0004210587231111,True
+rq1_pisa_sweep,threshold_combined_time,default,"r=1.00, fold 4",threshold,0.2405978694683657,0.2405978694683657,True
+rq1_pisa_sweep,threshold_combined_time_ctx,default,"r=1.00, fold 4",threshold,0.2414878670638332,0.2414878670638332,True
+rq1_pisa_sweep,trend_combined_time,default,"r=1.00, fold 4",threshold,0.3055458637517739,0.3055458637517739,True
+rq1_pisa_sweep,trend_combined_time_ctx,default,"r=1.00, fold 4",threshold,0.3282302570347282,0.3282302570347282,True
+rq1_pisa_sweep,baysal_combined_time,default,"r=1.00, fold 4",threshold,0.3132798675123196,0.3132798675123196,True
+rq1_pisa_sweep,baysal_combined_time_ctx,default,"r=1.00, fold 4",threshold,0.3153826885996513,0.3153826885996513,True
+rq1_pisa_sweep,matched_filter_causal_combined_time,default,"r=1.00, fold 4",threshold,0.3084401704761262,0.3084401704761262,True
+rq1_pisa_sweep,matched_filter_causal_combined_time_ctx,default,"r=1.00, fold 4",threshold,0.3090256899609557,0.3090256899609557,True
+rq1_pisa_sweep,iforest_causal_combined_time,default,"r=1.00, fold 4",threshold,0.3139654238538857,0.3139654238538857,True
+rq1_pisa_sweep,iforest_causal_combined_time_ctx,default,"r=1.00, fold 4",threshold,0.3149118584381117,0.3149118584381117,True
+rq1_pisa_sweep,gbm_time,default,"r=1.00, fold 4",threshold,0.3851422642806819,0.3851422642806819,True
+rq1_pisa_sweep,gbm_time_ctx,default,"r=1.00, fold 4",threshold,0.3943023009940167,0.3943023009940167,True
+rq1_pisa_sweep,baysal_gate,high,"r=1.00, fold 0",threshold,-1e-09,-1e-09,True
+rq1_pisa_sweep,matched_filter_causal_gate,high,"r=1.00, fold 0",threshold,8.564050265030293e-06,8.564050265030293e-06,True
+rq1_pisa_sweep,iforest_causal_gate,high,"r=1.00, fold 0",threshold,0.0001727014778592,0.0001727014778592,True
+rq1_pisa_sweep,threshold_combined_time,high,"r=1.00, fold 0",threshold,0.3097776672798858,0.3097776672798858,True
+rq1_pisa_sweep,threshold_combined_time_ctx,high,"r=1.00, fold 0",threshold,0.3096335712400683,0.3096335712400683,True
+rq1_pisa_sweep,trend_combined_time,high,"r=1.00, fold 0",threshold,0.4009495540556394,0.4009495540556394,True
+rq1_pisa_sweep,trend_combined_time_ctx,high,"r=1.00, fold 0",threshold,0.4012962501100028,0.4012962501100028,True
+rq1_pisa_sweep,baysal_combined_time,high,"r=1.00, fold 0",threshold,0.4780388363332924,0.4780388363332924,True
+rq1_pisa_sweep,baysal_combined_time_ctx,high,"r=1.00, fold 0",threshold,0.4785669338892014,0.4785669338892014,True
+rq1_pisa_sweep,matched_filter_causal_combined_time,high,"r=1.00, fold 0",threshold,0.4747274282621167,0.4747274282621167,True
+rq1_pisa_sweep,matched_filter_causal_combined_time_ctx,high,"r=1.00, fold 0",threshold,0.4747869378886329,0.4747869378886329,True
+rq1_pisa_sweep,iforest_causal_combined_time,high,"r=1.00, fold 0",threshold,0.388523517677078,0.388523517677078,True
+rq1_pisa_sweep,iforest_causal_combined_time_ctx,high,"r=1.00, fold 0",threshold,0.3888790221733423,0.3888790221733423,True
+rq1_pisa_sweep,gbm_time,high,"r=1.00, fold 0",threshold,0.4534570167753487,0.4534570167753487,True
+rq1_pisa_sweep,gbm_time_ctx,high,"r=1.00, fold 0",threshold,0.5506502149966844,0.5506502149966844,True
+rq1_pisa_sweep,baysal_gate,high,"r=1.00, fold 1",threshold,-1e-09,-1e-09,True
+rq1_pisa_sweep,matched_filter_causal_gate,high,"r=1.00, fold 1",threshold,2.3687118598874657e-05,2.3687118598874657e-05,True
+rq1_pisa_sweep,iforest_causal_gate,high,"r=1.00, fold 1",threshold,0.0004863731543722,0.0004863731543722,True
+rq1_pisa_sweep,threshold_combined_time,high,"r=1.00, fold 1",threshold,0.3009083209777553,0.3009083209777553,True
+rq1_pisa_sweep,threshold_combined_time_ctx,high,"r=1.00, fold 1",threshold,0.2997223830774155,0.2997223830774155,True
+rq1_pisa_sweep,trend_combined_time,high,"r=1.00, fold 1",threshold,0.3903295861208893,0.3903295861208893,True
+rq1_pisa_sweep,trend_combined_time_ctx,high,"r=1.00, fold 1",threshold,0.3897751966269377,0.3897751966269377,True
+rq1_pisa_sweep,baysal_combined_time,high,"r=1.00, fold 1",threshold,0.3797225295815074,0.3797225295815074,True
+rq1_pisa_sweep,baysal_combined_time_ctx,high,"r=1.00, fold 1",threshold,0.3806505714389233,0.3806505714389233,True
+rq1_pisa_sweep,matched_filter_causal_combined_time,high,"r=1.00, fold 1",threshold,0.3769991961048486,0.3769991961048486,True
+rq1_pisa_sweep,matched_filter_causal_combined_time_ctx,high,"r=1.00, fold 1",threshold,0.3783057904124405,0.3783057904124405,True
+rq1_pisa_sweep,iforest_causal_combined_time,high,"r=1.00, fold 1",threshold,0.3793429731126498,0.3793429731126498,True
+rq1_pisa_sweep,iforest_causal_combined_time_ctx,high,"r=1.00, fold 1",threshold,0.379843337657747,0.379843337657747,True
+rq1_pisa_sweep,gbm_time,high,"r=1.00, fold 1",threshold,0.5591046411008157,0.5591046411008157,True
+rq1_pisa_sweep,gbm_time_ctx,high,"r=1.00, fold 1",threshold,0.5478158134198421,0.5478158134198421,True
+rq1_pisa_sweep,baysal_gate,high,"r=1.00, fold 2",threshold,-1e-09,-1e-09,True
+rq1_pisa_sweep,matched_filter_causal_gate,high,"r=1.00, fold 2",threshold,0.0422891897187099,0.0422891897187099,True
+rq1_pisa_sweep,iforest_causal_gate,high,"r=1.00, fold 2",threshold,0.000132659624642,0.000132659624642,True
+rq1_pisa_sweep,threshold_combined_time,high,"r=1.00, fold 2",threshold,0.2937247049885231,0.2937247049885231,True
+rq1_pisa_sweep,threshold_combined_time_ctx,high,"r=1.00, fold 2",threshold,0.2935069640645357,0.2935069640645357,True
+rq1_pisa_sweep,trend_combined_time,high,"r=1.00, fold 2",threshold,0.3844723556549401,0.3844723556549401,True
+rq1_pisa_sweep,trend_combined_time_ctx,high,"r=1.00, fold 2",threshold,0.3838404786398814,0.3838404786398814,True
+rq1_pisa_sweep,baysal_combined_time,high,"r=1.00, fold 2",threshold,0.4640268945775465,0.4640268945775465,True
+rq1_pisa_sweep,baysal_combined_time_ctx,high,"r=1.00, fold 2",threshold,0.4656519564287162,0.4656519564287162,True
+rq1_pisa_sweep,matched_filter_causal_combined_time,high,"r=1.00, fold 2",threshold,0.4610745499098509,0.4610745499098509,True
+rq1_pisa_sweep,matched_filter_causal_combined_time_ctx,high,"r=1.00, fold 2",threshold,0.4610156636669179,0.4610156636669179,True
+rq1_pisa_sweep,iforest_causal_combined_time,high,"r=1.00, fold 2",threshold,0.3714812267704545,0.3714812267704545,True
+rq1_pisa_sweep,iforest_causal_combined_time_ctx,high,"r=1.00, fold 2",threshold,0.3717365769602237,0.3717365769602237,True
+rq1_pisa_sweep,gbm_time,high,"r=1.00, fold 2",threshold,0.5305292710459368,0.5305292710459368,True
+rq1_pisa_sweep,gbm_time_ctx,high,"r=1.00, fold 2",threshold,0.5332031697252102,0.5332031697252102,True
+rq1_pisa_sweep,baysal_gate,high,"r=1.00, fold 3",threshold,-1e-09,-1e-09,True
+rq1_pisa_sweep,matched_filter_causal_gate,high,"r=1.00, fold 3",threshold,8.564050265030293e-06,8.564050265030293e-06,True
+rq1_pisa_sweep,iforest_causal_gate,high,"r=1.00, fold 3",threshold,6.106551617632241e-05,6.106551617632241e-05,True
+rq1_pisa_sweep,threshold_combined_time,high,"r=1.00, fold 3",threshold,0.379851088321069,0.379851088321069,True
+rq1_pisa_sweep,threshold_combined_time_ctx,high,"r=1.00, fold 3",threshold,0.3125741298804479,0.3125741298804479,True
+rq1_pisa_sweep,trend_combined_time,high,"r=1.00, fold 3",threshold,0.402815668827806,0.402815668827806,True
+rq1_pisa_sweep,trend_combined_time_ctx,high,"r=1.00, fold 3",threshold,0.4047842528584553,0.4047842528584553,True
+rq1_pisa_sweep,baysal_combined_time,high,"r=1.00, fold 3",threshold,0.4803371491502386,0.4803371491502386,True
+rq1_pisa_sweep,baysal_combined_time_ctx,high,"r=1.00, fold 3",threshold,0.4829729121829967,0.4829729121829967,True
+rq1_pisa_sweep,matched_filter_causal_combined_time,high,"r=1.00, fold 3",threshold,0.476512625065418,0.476512625065418,True
+rq1_pisa_sweep,matched_filter_causal_combined_time_ctx,high,"r=1.00, fold 3",threshold,0.4782297355336104,0.4782297355336104,True
+rq1_pisa_sweep,iforest_causal_combined_time,high,"r=1.00, fold 3",threshold,0.389144197969078,0.389144197969078,True
+rq1_pisa_sweep,iforest_causal_combined_time_ctx,high,"r=1.00, fold 3",threshold,0.389924234074337,0.389924234074337,True
+rq1_pisa_sweep,gbm_time,high,"r=1.00, fold 3",threshold,0.5348490781409003,0.5348490781409003,True
+rq1_pisa_sweep,gbm_time_ctx,high,"r=1.00, fold 3",threshold,0.5447855570730594,0.5447855570730594,True
+rq1_pisa_sweep,baysal_gate,high,"r=1.00, fold 4",threshold,-1e-09,-1e-09,True
+rq1_pisa_sweep,matched_filter_causal_gate,high,"r=1.00, fold 4",threshold,8.564050265030293e-06,8.564050265030293e-06,True
+rq1_pisa_sweep,iforest_causal_gate,high,"r=1.00, fold 4",threshold,0.0002991327759951,0.0002991327759951,True
+rq1_pisa_sweep,threshold_combined_time,high,"r=1.00, fold 4",threshold,0.2925293422295206,0.2925293422295206,True
+rq1_pisa_sweep,threshold_combined_time_ctx,high,"r=1.00, fold 4",threshold,0.2919199360865113,0.2919199360865113,True
+rq1_pisa_sweep,trend_combined_time,high,"r=1.00, fold 4",threshold,0.3824713487567794,0.3824713487567794,True
+rq1_pisa_sweep,trend_combined_time_ctx,high,"r=1.00, fold 4",threshold,0.3825560370868126,0.3825560370868126,True
+rq1_pisa_sweep,baysal_combined_time,high,"r=1.00, fold 4",threshold,0.464079242865606,0.464079242865606,True
+rq1_pisa_sweep,baysal_combined_time_ctx,high,"r=1.00, fold 4",threshold,0.4662634846393046,0.4662634846393046,True
+rq1_pisa_sweep,matched_filter_causal_combined_time,high,"r=1.00, fold 4",threshold,0.4612766066601241,0.4612766066601241,True
+rq1_pisa_sweep,matched_filter_causal_combined_time_ctx,high,"r=1.00, fold 4",threshold,0.4628679927715176,0.4628679927715176,True
+rq1_pisa_sweep,iforest_causal_combined_time,high,"r=1.00, fold 4",threshold,0.373152554864797,0.373152554864797,True
+rq1_pisa_sweep,iforest_causal_combined_time_ctx,high,"r=1.00, fold 4",threshold,0.3734193968710522,0.3734193968710522,True
+rq1_pisa_sweep,gbm_time,high,"r=1.00, fold 4",threshold,0.5517536867237335,0.5517536867237335,True
+rq1_pisa_sweep,gbm_time_ctx,high,"r=1.00, fold 4",threshold,0.5339200246788688,0.5339200246788688,True
+rq1_pisa_sweep,baysal_gate,standard,"r=1.00, fold 0",threshold,0.999999999,0.999999999,True
+rq1_pisa_sweep,matched_filter_causal_gate,standard,"r=1.00, fold 0",threshold,0.999999999,0.999999999,True
+rq1_pisa_sweep,iforest_causal_gate,standard,"r=1.00, fold 0",threshold,0.0334681500505612,0.0334681500505612,True
+rq1_pisa_sweep,threshold_combined_time,standard,"r=1.00, fold 0",threshold,0.0943034296961966,0.0943034296961966,True
+rq1_pisa_sweep,threshold_combined_time_ctx,standard,"r=1.00, fold 0",threshold,0.0950573048757296,0.0950573048757296,True
+rq1_pisa_sweep,trend_combined_time,standard,"r=1.00, fold 0",threshold,0.0937849343985153,0.0937849343985153,True
+rq1_pisa_sweep,trend_combined_time_ctx,standard,"r=1.00, fold 0",threshold,0.0946285429378107,0.0946285429378107,True
+rq1_pisa_sweep,baysal_combined_time,standard,"r=1.00, fold 0",threshold,0.1209054855885623,0.1209054855885623,True
+rq1_pisa_sweep,baysal_combined_time_ctx,standard,"r=1.00, fold 0",threshold,0.1737674560104514,0.1737674560104514,True
+rq1_pisa_sweep,matched_filter_causal_combined_time,standard,"r=1.00, fold 0",threshold,0.1141939826545301,0.1141939826545301,True
+rq1_pisa_sweep,matched_filter_causal_combined_time_ctx,standard,"r=1.00, fold 0",threshold,0.1520278329765285,0.1520278329765285,True
+rq1_pisa_sweep,iforest_causal_combined_time,standard,"r=1.00, fold 0",threshold,0.1671011899804874,0.1671011899804874,True
+rq1_pisa_sweep,iforest_causal_combined_time_ctx,standard,"r=1.00, fold 0",threshold,0.1565776109731607,0.1565776109731607,True
+rq1_pisa_sweep,gbm_time,standard,"r=1.00, fold 0",threshold,0.2741683784504409,0.2741683784504409,True
+rq1_pisa_sweep,gbm_time_ctx,standard,"r=1.00, fold 0",threshold,0.3896540669108169,0.3896540669108169,True
+rq1_pisa_sweep,baysal_gate,standard,"r=1.00, fold 1",threshold,0.999999999,0.999999999,True
+rq1_pisa_sweep,matched_filter_causal_gate,standard,"r=1.00, fold 1",threshold,0.7286476062811894,0.7286476062811894,True
+rq1_pisa_sweep,iforest_causal_gate,standard,"r=1.00, fold 1",threshold,0.0340033944226871,0.0340033944226871,True
+rq1_pisa_sweep,threshold_combined_time,standard,"r=1.00, fold 1",threshold,0.1119832938986999,0.1119832938986999,True
+rq1_pisa_sweep,threshold_combined_time_ctx,standard,"r=1.00, fold 1",threshold,0.0864068703164403,0.0864068703164403,True
+rq1_pisa_sweep,trend_combined_time,standard,"r=1.00, fold 1",threshold,0.0841960569604334,0.0841960569604334,True
+rq1_pisa_sweep,trend_combined_time_ctx,standard,"r=1.00, fold 1",threshold,0.1127082340355295,0.1127082340355295,True
+rq1_pisa_sweep,baysal_combined_time,standard,"r=1.00, fold 1",threshold,0.1480980844076718,0.1480980844076718,True
+rq1_pisa_sweep,baysal_combined_time_ctx,standard,"r=1.00, fold 1",threshold,0.1605694598564959,0.1605694598564959,True
+rq1_pisa_sweep,matched_filter_causal_combined_time,standard,"r=1.00, fold 1",threshold,0.1377068698827054,0.1377068698827054,True
+rq1_pisa_sweep,matched_filter_causal_combined_time_ctx,standard,"r=1.00, fold 1",threshold,0.1493012463257298,0.1493012463257298,True
+rq1_pisa_sweep,iforest_causal_combined_time,standard,"r=1.00, fold 1",threshold,0.1507531056847401,0.1507531056847401,True
+rq1_pisa_sweep,iforest_causal_combined_time_ctx,standard,"r=1.00, fold 1",threshold,0.1417298870612552,0.1417298870612552,True
+rq1_pisa_sweep,gbm_time,standard,"r=1.00, fold 1",threshold,0.231684751630313,0.231684751630313,True
+rq1_pisa_sweep,gbm_time_ctx,standard,"r=1.00, fold 1",threshold,0.5786854792078537,0.5786854792078537,True
+rq1_pisa_sweep,baysal_gate,standard,"r=1.00, fold 2",threshold,0.999999999,0.999999999,True
+rq1_pisa_sweep,matched_filter_causal_gate,standard,"r=1.00, fold 2",threshold,0.7350741587890305,0.7350741587890305,True
+rq1_pisa_sweep,iforest_causal_gate,standard,"r=1.00, fold 2",threshold,0.0340483612377246,0.0340483612377246,True
+rq1_pisa_sweep,threshold_combined_time,standard,"r=1.00, fold 2",threshold,0.138224599916752,0.138224599916752,True
+rq1_pisa_sweep,threshold_combined_time_ctx,standard,"r=1.00, fold 2",threshold,0.1396748103561536,0.1396748103561536,True
+rq1_pisa_sweep,trend_combined_time,standard,"r=1.00, fold 2",threshold,0.1372962285086024,0.1372962285086024,True
+rq1_pisa_sweep,trend_combined_time_ctx,standard,"r=1.00, fold 2",threshold,0.1390066275806475,0.1390066275806475,True
+rq1_pisa_sweep,baysal_combined_time,standard,"r=1.00, fold 2",threshold,0.1829681867102386,0.1829681867102386,True
+rq1_pisa_sweep,baysal_combined_time_ctx,standard,"r=1.00, fold 2",threshold,0.1837126473138361,0.1837126473138361,True
+rq1_pisa_sweep,matched_filter_causal_combined_time,standard,"r=1.00, fold 2",threshold,0.1600212390670632,0.1600212390670632,True
+rq1_pisa_sweep,matched_filter_causal_combined_time_ctx,standard,"r=1.00, fold 2",threshold,0.160567764790013,0.160567764790013,True
+rq1_pisa_sweep,iforest_causal_combined_time,standard,"r=1.00, fold 2",threshold,0.1767743911386808,0.1767743911386808,True
+rq1_pisa_sweep,iforest_causal_combined_time_ctx,standard,"r=1.00, fold 2",threshold,0.1787408791212118,0.1787408791212118,True
+rq1_pisa_sweep,gbm_time,standard,"r=1.00, fold 2",threshold,0.3865564251538466,0.3865564251538466,True
+rq1_pisa_sweep,gbm_time_ctx,standard,"r=1.00, fold 2",threshold,0.509114828455124,0.509114828455124,True
+rq1_pisa_sweep,baysal_gate,standard,"r=1.00, fold 3",threshold,0.999999999,0.999999999,True
+rq1_pisa_sweep,matched_filter_causal_gate,standard,"r=1.00, fold 3",threshold,0.740771249011212,0.740771249011212,True
+rq1_pisa_sweep,iforest_causal_gate,standard,"r=1.00, fold 3",threshold,0.0610907677717287,0.0610907677717287,True
+rq1_pisa_sweep,threshold_combined_time,standard,"r=1.00, fold 3",threshold,0.1297476204098811,0.1297476204098811,True
+rq1_pisa_sweep,threshold_combined_time_ctx,standard,"r=1.00, fold 3",threshold,0.1313554496645068,0.1313554496645068,True
+rq1_pisa_sweep,trend_combined_time,standard,"r=1.00, fold 3",threshold,0.1289617055127921,0.1289617055127921,True
+rq1_pisa_sweep,trend_combined_time_ctx,standard,"r=1.00, fold 3",threshold,0.1311598587369916,0.1311598587369916,True
+rq1_pisa_sweep,baysal_combined_time,standard,"r=1.00, fold 3",threshold,0.1740510824997553,0.1740510824997553,True
+rq1_pisa_sweep,baysal_combined_time_ctx,standard,"r=1.00, fold 3",threshold,0.1747051681209898,0.1747051681209898,True
+rq1_pisa_sweep,matched_filter_causal_combined_time,standard,"r=1.00, fold 3",threshold,0.1123674784144028,0.1123674784144028,True
+rq1_pisa_sweep,matched_filter_causal_combined_time_ctx,standard,"r=1.00, fold 3",threshold,0.1643674179990173,0.1643674179990173,True
+rq1_pisa_sweep,iforest_causal_combined_time,standard,"r=1.00, fold 3",threshold,0.1655632520053299,0.1655632520053299,True
+rq1_pisa_sweep,iforest_causal_combined_time_ctx,standard,"r=1.00, fold 3",threshold,0.1667106997420755,0.1667106997420755,True
+rq1_pisa_sweep,gbm_time,standard,"r=1.00, fold 3",threshold,0.3939741642097543,0.3939741642097543,True
+rq1_pisa_sweep,gbm_time_ctx,standard,"r=1.00, fold 3",threshold,0.3896023610933973,0.3896023610933973,True
+rq1_pisa_sweep,baysal_gate,standard,"r=1.00, fold 4",threshold,0.999999999,0.999999999,True
+rq1_pisa_sweep,matched_filter_causal_gate,standard,"r=1.00, fold 4",threshold,0.7409229539282246,0.7409229539282246,True
+rq1_pisa_sweep,iforest_causal_gate,standard,"r=1.00, fold 4",threshold,0.0310565662546237,0.0310565662546237,True
+rq1_pisa_sweep,threshold_combined_time,standard,"r=1.00, fold 4",threshold,0.1143474927930413,0.1143474927930413,True
+rq1_pisa_sweep,threshold_combined_time_ctx,standard,"r=1.00, fold 4",threshold,0.1153643831043716,0.1153643831043716,True
+rq1_pisa_sweep,trend_combined_time,standard,"r=1.00, fold 4",threshold,0.1143114649143101,0.1143114649143101,True
+rq1_pisa_sweep,trend_combined_time_ctx,standard,"r=1.00, fold 4",threshold,0.1155737179699592,0.1155737179699592,True
+rq1_pisa_sweep,baysal_combined_time,standard,"r=1.00, fold 4",threshold,0.1889662530411977,0.1889662530411977,True
+rq1_pisa_sweep,baysal_combined_time_ctx,standard,"r=1.00, fold 4",threshold,0.1907989890040734,0.1907989890040734,True
+rq1_pisa_sweep,matched_filter_causal_combined_time,standard,"r=1.00, fold 4",threshold,0.144322962086952,0.144322962086952,True
+rq1_pisa_sweep,matched_filter_causal_combined_time_ctx,standard,"r=1.00, fold 4",threshold,0.145632242346524,0.145632242346524,True
+rq1_pisa_sweep,iforest_causal_combined_time,standard,"r=1.00, fold 4",threshold,0.147687522145115,0.147687522145115,True
+rq1_pisa_sweep,iforest_causal_combined_time_ctx,standard,"r=1.00, fold 4",threshold,0.1493413390692696,0.1493413390692696,True
+rq1_pisa_sweep,gbm_time,standard,"r=1.00, fold 4",threshold,0.469016173346408,0.469016173346408,True
+rq1_pisa_sweep,gbm_time_ctx,standard,"r=1.00, fold 4",threshold,0.5185942946183442,0.5185942946183442,True
+rq3_kalman,kalman_pisa,default,r=1.00,sens_l2,0.9036144578313252,0.9036144578313253,True
+rq3_kalman,kalman_pisa,default,r=1.00,sens_l2_lo,0.8614706454594095,0.8614706454594095,True
+rq3_kalman,kalman_pisa,default,r=1.00,sens_l2_hi,0.942634612821538,0.942634612821538,True
+rq3_kalman,kalman_pisa,default,r=1.00,false_per_day,1.3833333333333333,1.3833333333333333,True
+rq3_kalman,kalman_pisa,default,r=1.00,false_per_day_lo,1.1561428571428574,1.1561428571428574,True
+rq3_kalman,kalman_pisa,default,r=1.00,false_per_day_hi,1.6272023809523808,1.6272023809523808,True
+rq3_kalman,kalman_pisa,default,r=1.00,false_compression_per_day,0.2228571428571428,0.22285714285714286,True
+rq3_kalman,kalman_pisa,default,r=1.00,false_compression_per_day_lo,0.1871309523809524,0.1871309523809524,True
+rq3_kalman,kalman_pisa,default,r=1.00,false_compression_per_day_hi,0.2590595238095237,0.25905952380952374,True
+rq3_kalman,kalman_pisa,high,r=1.00,sens_l2,0.8884540117416829,0.8884540117416829,True
+rq3_kalman,kalman_pisa,high,r=1.00,sens_l2_lo,0.8642646706586826,0.8642646706586826,True
+rq3_kalman,kalman_pisa,high,r=1.00,sens_l2_hi,0.9112469715324044,0.9112469715324045,True
+rq3_kalman,kalman_pisa,high,r=1.00,false_per_day,1.5004761904761903,1.5004761904761905,True
+rq3_kalman,kalman_pisa,high,r=1.00,false_per_day_lo,1.3304642857142857,1.3304642857142857,True
+rq3_kalman,kalman_pisa,high,r=1.00,false_per_day_hi,1.678595238095238,1.678595238095238,True
+rq3_kalman,kalman_pisa,high,r=1.00,false_compression_per_day,0.189047619047619,0.18904761904761905,True
+rq3_kalman,kalman_pisa,high,r=1.00,false_compression_per_day_lo,0.1685714285714285,0.16857142857142857,True
+rq3_kalman,kalman_pisa,high,r=1.00,false_compression_per_day_hi,0.2104761904761904,0.21047619047619048,True
+rq3_kalman,kalman_pisa,standard,r=1.00,sens_l2,0.71875,0.71875,True
+rq3_kalman,kalman_pisa,standard,r=1.00,sens_l2_lo,0.5555555555555556,0.5555555555555556,True
+rq3_kalman,kalman_pisa,standard,r=1.00,sens_l2_hi,0.8666666666666667,0.8666666666666667,True
+rq3_kalman,kalman_pisa,standard,r=1.00,false_per_day,0.7657142857142857,0.7657142857142857,True
+rq3_kalman,kalman_pisa,standard,r=1.00,false_per_day_lo,0.6185595238095238,0.6185595238095238,True
+rq3_kalman,kalman_pisa,standard,r=1.00,false_per_day_hi,0.9223809523809524,0.9223809523809524,True
+rq3_kalman,kalman_pisa,standard,r=1.00,false_compression_per_day,0.2033333333333333,0.20333333333333334,True
+rq3_kalman,kalman_pisa,standard,r=1.00,false_compression_per_day_lo,0.1623809523809523,0.16238095238095238,True
+rq3_kalman,kalman_pisa,standard,r=1.00,false_compression_per_day_hi,0.2438214285714285,0.2438214285714285,True
+rq3_kalman,kalman_pisa_cgm,default,r=1.00,sens_l2,0.9076305220883534,0.9076305220883534,True
+rq3_kalman,kalman_pisa_cgm,default,r=1.00,sens_l2_lo,0.872093023255814,0.872093023255814,True
+rq3_kalman,kalman_pisa_cgm,default,r=1.00,sens_l2_hi,0.941181857358328,0.9411818573583279,True
+rq3_kalman,kalman_pisa_cgm,default,r=1.00,false_per_day,1.5985714285714283,1.5985714285714285,True
+rq3_kalman,kalman_pisa_cgm,default,r=1.00,false_per_day_lo,1.3661785714285717,1.3661785714285715,True
+rq3_kalman,kalman_pisa_cgm,default,r=1.00,false_per_day_hi,1.8552738095238093,1.8552738095238093,True
+rq3_kalman,kalman_pisa_cgm,default,r=1.00,false_compression_per_day,0.2442857142857142,0.24428571428571427,True
+rq3_kalman,kalman_pisa_cgm,default,r=1.00,false_compression_per_day_lo,0.21,0.21,True
+rq3_kalman,kalman_pisa_cgm,default,r=1.00,false_compression_per_day_hi,0.279047619047619,0.27904761904761904,True
+rq3_kalman,kalman_pisa_cgm,high,r=1.00,sens_l2,0.8884540117416829,0.8884540117416829,True
+rq3_kalman,kalman_pisa_cgm,high,r=1.00,sens_l2_lo,0.8630685090296955,0.8630685090296955,True
+rq3_kalman,kalman_pisa_cgm,high,r=1.00,sens_l2_hi,0.912779199490542,0.912779199490542,True
+rq3_kalman,kalman_pisa_cgm,high,r=1.00,false_per_day,1.4766666666666666,1.4766666666666666,True
+rq3_kalman,kalman_pisa_cgm,high,r=1.00,false_per_day_lo,1.3118928571428572,1.3118928571428572,True
+rq3_kalman,kalman_pisa_cgm,high,r=1.00,false_per_day_hi,1.654297619047619,1.654297619047619,True
+rq3_kalman,kalman_pisa_cgm,high,r=1.00,false_compression_per_day,0.1909523809523809,0.19095238095238096,True
+rq3_kalman,kalman_pisa_cgm,high,r=1.00,false_compression_per_day_lo,0.1695238095238095,0.16952380952380952,True
+rq3_kalman,kalman_pisa_cgm,high,r=1.00,false_compression_per_day_hi,0.2128571428571428,0.21285714285714286,True
+rq3_kalman,kalman_pisa_cgm,standard,r=1.00,sens_l2,0.6875,0.6875,True
+rq3_kalman,kalman_pisa_cgm,standard,r=1.00,sens_l2_lo,0.5277412280701755,0.5277412280701755,True
+rq3_kalman,kalman_pisa_cgm,standard,r=1.00,sens_l2_hi,0.8285714285714286,0.8285714285714286,True
+rq3_kalman,kalman_pisa_cgm,standard,r=1.00,false_per_day,0.7995238095238095,0.7995238095238095,True
+rq3_kalman,kalman_pisa_cgm,standard,r=1.00,false_per_day_lo,0.6328333333333334,0.6328333333333334,True
+rq3_kalman,kalman_pisa_cgm,standard,r=1.00,false_per_day_hi,0.990535714285714,0.990535714285714,True
+rq3_kalman,kalman_pisa_cgm,standard,r=1.00,false_compression_per_day,0.2161904761904761,0.21619047619047618,True
+rq3_kalman,kalman_pisa_cgm,standard,r=1.00,false_compression_per_day_lo,0.1719047619047619,0.1719047619047619,True
+rq3_kalman,kalman_pisa_cgm,standard,r=1.00,false_compression_per_day_hi,0.2604761904761905,0.2604761904761905,True
+rq3_kalman,trend,default,published,sens_l2,0.8995983935742972,0.8995983935742972,True
+rq3_kalman,trend,default,published,sens_l2_lo,0.8630091526245606,0.8630091526245606,True
+rq3_kalman,trend,default,published,sens_l2_hi,0.933579696148524,0.933579696148524,True
+rq3_kalman,trend,default,published,false_per_day,1.5266666666666666,1.5266666666666666,True
+rq3_kalman,trend,default,published,false_per_day_lo,1.3338095238095238,1.3338095238095238,True
+rq3_kalman,trend,default,published,false_per_day_hi,1.7257142857142858,1.7257142857142858,True
+rq3_kalman,trend,default,published,false_compression_per_day,0.3238095238095238,0.3238095238095238,True
+rq3_kalman,trend,default,published,false_compression_per_day_lo,0.2971428571428571,0.29714285714285715,True
+rq3_kalman,trend,default,published,false_compression_per_day_hi,0.3509523809523809,0.35095238095238096,True
+rq3_kalman,trend,high,published,sens_l2,0.8786692759295499,0.8786692759295499,True
+rq3_kalman,trend,high,published,sens_l2_lo,0.8542904070401707,0.8542904070401707,True
+rq3_kalman,trend,high,published,sens_l2_hi,0.900812838170192,0.9008128381701919,True
+rq3_kalman,trend,high,published,false_per_day,1.4361904761904762,1.4361904761904762,True
+rq3_kalman,trend,high,published,false_per_day_lo,1.275702380952381,1.275702380952381,True
+rq3_kalman,trend,high,published,false_per_day_hi,1.604297619047619,1.604297619047619,True
+rq3_kalman,trend,high,published,false_compression_per_day,0.2809523809523809,0.28095238095238095,True
+rq3_kalman,trend,high,published,false_compression_per_day_lo,0.2614285714285714,0.26142857142857145,True
+rq3_kalman,trend,high,published,false_compression_per_day_hi,0.3014285714285714,0.30142857142857143,True
+rq3_kalman,trend,standard,published,sens_l2,0.71875,0.71875,True
+rq3_kalman,trend,standard,published,sens_l2_lo,0.5757575757575758,0.5757575757575758,True
+rq3_kalman,trend,standard,published,sens_l2_hi,0.8787878787878788,0.8787878787878788,True
+rq3_kalman,trend,standard,published,false_per_day,1.650952380952381,1.650952380952381,True
+rq3_kalman,trend,standard,published,false_per_day_lo,1.4104404761904763,1.4104404761904763,True
+rq3_kalman,trend,standard,published,false_per_day_hi,1.9005,1.9004999999999999,True
+rq3_kalman,trend,standard,published,false_compression_per_day,0.4161904761904761,0.41619047619047617,True
+rq3_kalman,trend,standard,published,false_compression_per_day_lo,0.3704761904761904,0.37047619047619046,True
+rq3_kalman,trend,standard,published,false_compression_per_day_hi,0.4614285714285714,0.4614285714285714,True
+rq3_kalman,kalman_pisa,default,"r=1.00, fold 0",threshold,0.3317805626836684,0.3317805626836684,True
+rq3_kalman,kalman_pisa_cgm,default,"r=1.00, fold 0",threshold,0.2511772613669347,0.2511772613669347,True
+rq3_kalman,kalman_pisa,default,"r=1.00, fold 1",threshold,0.3385784028285915,0.3385784028285915,True
+rq3_kalman,kalman_pisa_cgm,default,"r=1.00, fold 1",threshold,0.3366166572600533,0.3366166572600533,True
+rq3_kalman,kalman_pisa,default,"r=1.00, fold 2",threshold,0.1312772051898247,0.1312772051898247,True
+rq3_kalman,kalman_pisa_cgm,default,"r=1.00, fold 2",threshold,0.1271029237403338,0.1271029237403338,True
+rq3_kalman,kalman_pisa,default,"r=1.00, fold 3",threshold,0.3228679600767778,0.3228679600767778,True
+rq3_kalman,kalman_pisa_cgm,default,"r=1.00, fold 3",threshold,0.2417358486028899,0.2417358486028899,True
+rq3_kalman,kalman_pisa,default,"r=1.00, fold 4",threshold,0.337313197082778,0.337313197082778,True
+rq3_kalman,kalman_pisa_cgm,default,"r=1.00, fold 4",threshold,0.3367132171276903,0.3367132171276903,True
+rq3_kalman,kalman_pisa,high,"r=1.00, fold 0",threshold,0.2718282503014093,0.2718282503014093,True
+rq3_kalman,kalman_pisa_cgm,high,"r=1.00, fold 0",threshold,0.2739965226319079,0.2739965226319079,True
+rq3_kalman,kalman_pisa,high,"r=1.00, fold 1",threshold,0.2639368416539782,0.2639368416539782,True
+rq3_kalman,kalman_pisa_cgm,high,"r=1.00, fold 1",threshold,0.2662877767304596,0.2662877767304596,True
+rq3_kalman,kalman_pisa,high,"r=1.00, fold 2",threshold,0.2509014311102967,0.2509014311102967,True
+rq3_kalman,kalman_pisa_cgm,high,"r=1.00, fold 2",threshold,0.2531835834704963,0.2531835834704963,True
+rq3_kalman,kalman_pisa,high,"r=1.00, fold 3",threshold,0.2698735080030318,0.2698735080030318,True
+rq3_kalman,kalman_pisa_cgm,high,"r=1.00, fold 3",threshold,0.271828546373013,0.271828546373013,True
+rq3_kalman,kalman_pisa,high,"r=1.00, fold 4",threshold,0.2482295506287665,0.2482295506287665,True
+rq3_kalman,kalman_pisa_cgm,high,"r=1.00, fold 4",threshold,0.2484772186445416,0.2484772186445416,True
+rq3_kalman,kalman_pisa,standard,"r=1.00, fold 0",threshold,0.373014078721347,0.373014078721347,True
+rq3_kalman,kalman_pisa_cgm,standard,"r=1.00, fold 0",threshold,0.3016620635224636,0.3016620635224636,True
+rq3_kalman,kalman_pisa,standard,"r=1.00, fold 1",threshold,0.2288541072995456,0.2288541072995456,True
+rq3_kalman,kalman_pisa_cgm,standard,"r=1.00, fold 1",threshold,0.2171935189883262,0.2171935189883262,True
+rq3_kalman,kalman_pisa,standard,"r=1.00, fold 2",threshold,0.3744649688982721,0.3744649688982721,True
+rq3_kalman,kalman_pisa_cgm,standard,"r=1.00, fold 2",threshold,0.2965372554520151,0.2965372554520151,True
+rq3_kalman,kalman_pisa,standard,"r=1.00, fold 3",threshold,0.3549969768117422,0.3549969768117422,True
+rq3_kalman,kalman_pisa_cgm,standard,"r=1.00, fold 3",threshold,0.3481416121809068,0.3481416121809068,True
+rq3_kalman,kalman_pisa,standard,"r=1.00, fold 4",threshold,0.3483324205279675,0.3483324205279675,True
+rq3_kalman,kalman_pisa_cgm,standard,"r=1.00, fold 4",threshold,0.4249176263841612,0.4249176263841612,True

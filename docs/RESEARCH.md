@@ -1,6 +1,6 @@
 # Research plan
 
-Citations in [brackets] resolve to entries in [`CITATIONS.md`](CITATIONS.md). Items marked **[clinical review]** are listed in [`CLINICAL_REVIEW.md`](CLINICAL_REVIEW.md). Design decisions D1–D19, amendments A1–A9 and proposed amendments P1–P9, with their evidence, are in [`DECISIONS.md`](DECISIONS.md).
+Citations in [brackets] resolve to entries in [`CITATIONS.md`](CITATIONS.md). Items marked **[clinical review]** are listed in [`CLINICAL_REVIEW.md`](CLINICAL_REVIEW.md). Design decisions D1–D19, amendments A1–A12 and proposed amendments P4–P9 (P1–P3 adopted as A10–A12), with their evidence, are in [`DECISIONS.md`](DECISIONS.md).
 
 ## 1. Definitions
 
@@ -89,7 +89,7 @@ Confidence: medium. The patent scan read summaries, not claims. See `CITATIONS.m
 - The model's blood-to-interstitial lag (τ = 1/ksc, 6.6–19.9 min, median about 11) is longer than the 5–6 min measured in healthy fasted adults [Basu 2013], so simulated warning times are pessimistic; a sensitivity arm uses 6 min (D1).
 - No public dataset has PISA labels. The one labelled real set (36 adults, two G6 sensors) is held by Padova [Idi 2024].
 - Insulin and carb context exists only for pump/AID users or people who log; many standalone G7 users have none. AZT1D, the H3 data, comes from users of automated insulin delivery, not the open-loop population RQ2 targets (D9).
-- Every result is read at one operating point (D5, δ = 0: no loss of training level 2 sensitivity against the trend alarm). The threshold-free curves the protocol calls for were not produced (P2), so "a gate suppresses nothing" and "context adds nothing" are statements about that operating point.
+- The pre-registered results are read at one operating point (D5, δ = 0: no loss of training level 2 sensitivity against the trend alarm). The curves across thresholds the protocol calls for were added only after the v0.1.0 results had been seen (amendment A11), so they are secondary. They show that the gates start removing compression false alarms only once some level 2 lows are given up, and that H2 reads the same at 95% and 99% retention.
 - Learned alarms choose their threshold on scores from the patients they were fitted on, which is optimistic (P6). The RQ3 comparator is chosen from the same in-sample rates.
 - The matched filter, the flag rule and the Kalman filter's pressure mode use the same PISA model that generates the injected artifacts, so they have a home advantage that real artifacts would not give them. The τ-mismatch arms test part of this, but not for the Kalman alarms (P7).
 - The realistic training PISA fraction is calibrated on the whole default-mix cohort, test patients included (a fault-generator setting, not outcome information; P8).

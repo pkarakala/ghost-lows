@@ -69,7 +69,7 @@ Reimplementations of published methods follow the papers as closely as their tex
 | **Leak (D3)** | AUC of IOB at nocturnal (23:00–07:00) true level 1 onsets vs. all nocturnal samples, per scenario mix and dataset |
 | **FDA-style alert rates** | True alert rate and detection rate within ±15 min of a reference low, following the definitions in the iCGM special controls [21 CFR 862.1355] and the Libre 3 decision summary [FDA K212132] |
 
-Also produce: sensitivity vs. false-alarms-per-day curves for each alarm across thresholds (the threshold-free comparison), and every metric as a function of fault severity.
+Also produce: sensitivity vs. false-alarms-per-day curves for each alarm across thresholds (the threshold-free comparison), and every metric as a function of fault severity. As implemented (amendment A11, post hoc): `experiments/run_curves.py` sweeps the D5 rule over a training-sensitivity retention r (0.50–1.00) and scores held-out patients at PISA on every night, with false alarms split into compression and other causes (`results/tables/curves__*.csv`).
 
 ## 5. Operating point (pre-registered, D5)
 

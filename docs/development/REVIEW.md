@@ -252,7 +252,18 @@ The project lead was away for part of Phase 2. Choices made in that time are log
 | m11 | Unused constants removed. Makefile targets added for the orphan scripts. The faults figure is referenced from SIMULATION.md. | `5f5cec4`, `498ae63` |
 | m13 | `docs/PUBLICATION.md` deleted. Its facts were moved to the README, `results/README.md` and this file. | `498ae63` |
 
-**Correction to this review.** m10 said the H2 readings are identical at every PISA level. That holds on the default mix only. On the standard mix, `gbm`'s reading changes across levels. The generated note in `results/README.md` says so.
+### Amendments A10–A12 (adopted by the project lead, 2026-10-18)
+
+P1–P3 were adopted as post-hoc amendments, each logged in `DECISIONS.md` before anything was computed (`7d4b27f`).
+
+| Finding | What changed | Commit |
+|---|---|---|
+| B2 (A10) | Warning-time CIs resample patients. Two tests fail on the old code. All ten `warning.csv` tables recomputed; CIs about 20% wider (median), point estimates moved by a median of 0.5 min (max 9 min). Old and new: `results/tables/amendments/A10__warning_old_vs_new.csv`. Nothing else changed. | `c88d522` |
+| B1 (A11) | Trade-off curves for the five CGM-only alarms, the six H2 pairs and the Kalman pair, held out at PISA on every night. The r = 1 point reproduces 795 of 795 v0.1.0 thresholds, rates and CIs. Secondary: the gates remove compression false alarms only once level 2 lows are given up (default mix: 5–11 more missed of 249 at the first significant reduction), and H2 reads the same at r = 0.95 and 0.99. | `4563778`, next commit |
+| B4 (A12) | The upload report shows time below range from all readings only; flags are annotations and a count, with measured performance in plain words. `retro.without_flagged` removed; tests pin the quoted numbers to `results/tables/flag_survey.json` (re-run: 35%, 37%, unchanged). Browser tests pass locally. | `47c9d13` |
+| m9 (part) | The flag survey numbers are saved in `results/tables/flag_survey.json`. | `47c9d13` |
+
+**Correction to this review. m10 said the H2 readings are identical at every PISA level. That holds on the default mix only. On the standard mix, `gbm`'s reading changes across levels. The generated note in `results/README.md` says so.
 
 ### Left for the project lead
 
@@ -260,9 +271,9 @@ The project lead was away for part of Phase 2. Choices made in that time are log
 
 | Proposal | Changes results? |
 |---|---|
-| P1 patient-level warning-time CIs | yes |
-| P2 threshold-free curves | yes |
-| P3 the upload report's "without" column | yes |
+| P1 patient-level warning-time CIs | adopted as A10 |
+| P2 threshold-free curves | adopted as A11 |
+| P3 the upload report's "without" column | adopted as A12 |
 | P4 label horizon in the window arms | — |
 | P5 treatment-rule arm | yes |
 | P6 out-of-fold thresholds | yes |
@@ -288,7 +299,7 @@ The project lead was away for part of Phase 2. Choices made in that time are log
 
 ### Needs the clinical co-lead (Cohen Ferrari)
 
-- **CR12, B4/P3:** the upload report's "without possible compression artifacts" column and the flag wording, before the next app release.
+- **CR12 (A12):** the upload report's flag annotations, the plain-words performance text and the flag rule. The "without" column is gone. Sign-off is needed before the next app release. Note that `.github/workflows/pages.yml` redeploys the app on every push that touches `app/` or `src/ghostlows/`, so the A12 version went live when it was pushed. It is safer than the version it replaced (no number is lowered by a flag), but it is not signed off.
 - **CR9/CR16:** the SESOI and the zero-loss cost asymmetry. Every headline result depends on that operating point.
 - **CR17, M3/P5:** the treatment rule and its coupling to the alarm thresholds.
 - **CR14:** whether the device's urgent-low alarm behaves like the ungated floor.
