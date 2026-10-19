@@ -21,16 +21,42 @@ Hypotheses H1–H3 were pre-registered in the git tag `protocol-v1`. Every later
 
 ## Key results (`ghostlows-bench v1`)
 
-Simulated cohort: 30 virtual patients (UVA/Padova 2008 via simglucose), 14 days, 5 seeds, default scenario mix. 95% CIs come from a patient bootstrap and describe this cohort, not a population. Full tables: [`results/README.md`](results/README.md).
+Simulated cohort: 30 virtual patients (UVA/Padova 2008 via simglucose), 14 days, 5 seeds; default scenario mix unless stated. 95% CIs come from a patient bootstrap and describe this cohort, not a population. "Severe lows" are level 2 lows (below 54 mg/dL for 15 min). Full tables: [`results/README.md`](results/README.md). Each result is followed by the limitations from [`docs/RESEARCH.md`](docs/RESEARCH.md) §6 that bound it.
 
-- **Compression is a minor share of false alarms (RQ1).** Even with a PISA every night, compression causes 0.32 (0.30–0.35) of the trend alarm's 1.53 (1.33–1.73) false alarms per day. Noise (0.68) and the other faults (0.43) cause more. The trend alarm catches 90% (86–93%) of level 2 lows.
+### Primary: the pre-registered tests
+
 - **Trend alarms degrade faster than threshold alarms (H1, supported), but only slightly.** The slope difference is 0.09 (0.07–0.10) false alarms per day per unit fraction of compressed nights: about one extra false alarm every 11 days with compression every night.
-- **Context did not meaningfully reduce compression false alarms (H2).** For all six detectors, the rate ratio with versus without insulin and carb context lies between 0.94 and 1.00. For example, gradient boosting gives 0.96 (0.92–1.00) and the trend combiner 0.94 (0.90–0.96), all above the pre-registered smallest effect of interest (0.75).
-- **Both findings hold at one operating point.** At the pre-registered operating point (no loss of level 2 sensitivity against the trend alarm), the published compression gates suppressed no or almost no alarms. Allowing a 5-point loss, the isolation-forest gate gives 1.27 (1.08–1.45) false alarms per day against trend's 1.39 at half of nights compressed. Curves across thresholds were added after these results were seen (amendment A11) and are secondary; see [`results/README.md`](results/README.md).
-- **The real-data check is uninformative (H3).** On real AZT1D nights with injected artifacts, all ratios include 1. The matched simulation shows no benefit to shrink, and AZT1D users are on automated insulin delivery rather than the open-loop target population.
+  *Limits:* one smooth sensor-noise model; the PISA model's time constant and the realistic PISA frequency come from abstracts (Facchinetti 2016, Lobo 2026).
+- **Context did not meaningfully reduce compression false alarms at the frozen operating point (H2, null).** For all six detectors, the rate ratio with versus without insulin and carb context lies between 0.94 and 1.00. For example, gradient boosting gives 0.96 (0.92–1.00) and the trend combiner 0.94 (0.90–0.96). All are above the pre-registered smallest effect of interest (0.75). At that operating point (no loss of severe-low sensitivity against the trend alarm), the published compression gates suppressed no or almost no alarms. In the pre-registered 5-point-loss arm, the isolation-forest gate gives 1.27 (1.08–1.45) false alarms per day against trend's 1.39, with half of nights compressed.
+  *Limits:* one operating point, whose cost asymmetry awaits clinical review (CR9, CR16); thresholds are chosen on in-sample training scores (P6); the three scenario mixes span a narrow range of how much recorded insulin explains nocturnal lows (leak AUC 0.63–0.69).
+- **The real-data check is uninformative (H3).** On real AZT1D nights with injected artifacts, all ratios include 1. The matched simulation shows no benefit to shrink.
+  *Limits:* AZT1D users are on automated insulin delivery rather than the open-loop target population, and the artifacts are injected, not real.
 - **The compressed state adds nothing (RQ3, exploratory).** A Kalman filter with an explicit compressed state raises fewer false alarms than the best discriminative alarm: ratio 0.88 (0.80–0.98). The same filter without the compressed state does as well: 1.05 (0.93–1.18).
+  *Limits:* the filter's pressure mode uses the same PISA model that generates the injected artifacts, and its design was tuned with held-out checks on the standard mix (amendments A3, A9).
 
-## Limitations
+### Secondary: trade-off curves (post hoc, amendments A11 and A13)
+
+Both analyses were defined after the v0.1.0 results had been seen.
+
+- **Gates remove compression false alarms only by giving up severe lows (A11).** As each gate's threshold is relaxed, compression false alarms first fall with a CI below 1 at these costs:
+  - Baysal: 0.89 (0.81–0.96) times as many, for 11 more missed severe lows of 249.
+  - Isolation forest: 0.98 (0.96–0.99), for 5 more missed.
+  - Matched filter: 0.99 (0.98–1.00), for 8 more missed.
+
+  The H2 reading is unchanged when 1% or 5% of the trend alarm's training sensitivity is given up.
+- **No published gate beats simply retuning the trend alarm (A13).** At matched held-out severe-low sensitivity, no gate gives fewer false alarms per day than the trend alarm with its own threshold lowered. This holds at every one of the 18 stable comparison points in the default and high mixes.
+  - The isolation-forest gate gives more false alarms in total: at 82% sensitivity, 1.29 against 0.99 per day, ratio 1.30 (1.05–1.51). It lowers compression false alarms at 4 of its 8 stable points (0.80–0.86 times retuned trend's), but its total is still higher.
+  - CGM-only gradient boosting shows no detectable difference in the total (ratios 0.81–1.08, every CI includes 1), but it raises fewer compression false alarms (0.50–0.66 times retuned trend's).
+  - The matched-filter gate could not be compared, because its curve never reaches far enough below trend's sensitivity.
+
+  *Limits:* post hoc and exploratory, with 60 comparisons and no multiplicity correction. 42 of the 60 points were not estimable or unstable, including the whole standard mix (32 severe lows). Other limits: 30 virtual patients and one smooth noise model; thresholds chosen on in-sample training scores (P6); virtual patients treat lows at the alarms' own cut-offs, which shapes sensitivity; the matched filter shares its PISA model with the injected artifacts.
+
+### Descriptive
+
+- **Compression is about a fifth of false alarms (RQ1).** Even with a PISA every night, compression causes 0.32 (0.30–0.35) of the trend alarm's 1.53 (1.33–1.73) false alarms per day, about 21%. Noise (0.68) and the other faults (0.43) cause more. The trend alarm catches 90% (86–93%) of severe lows.
+  *Limits:* the share depends on the assumed PISA frequency and shape and on one smooth noise model. Cause attribution gives an alarm to the first fault active in the 30 min before it, so long drift labels can absorb alarms that noise alone would raise.
+
+## Limitations that apply throughout
 
 - **Simulated lows are the weakest part.** The 2008 model has no counter-regulation. Virtual patients treat lows at the same cut-offs the alarms use (≤55 mg/dL at night, <70 by day), which shapes how deep and how long simulated lows are.
 - **The cohort is small and smooth.** It has 30 virtual patients and one smooth sensor-noise model. Results describe this cohort, not people with diabetes.

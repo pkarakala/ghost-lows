@@ -40,6 +40,20 @@ Compression detectors have been published, but each was evaluated on its own dat
 
 The intended users are researchers who develop or evaluate CGM alarms and artifact detectors, and device and algorithm teams who want a public, falsifiable baseline. The consensus CGM metrics [@Battelino2019] and the browser report also serve people who want to inspect their own exports.
 
+# What the benchmark shows
+
+The results describe 30 virtual patients with one smooth sensor-noise model, not people with diabetes. Confidence intervals are 95% patient-bootstrap intervals. "Severe lows" are below 54 mg/dL for 15 minutes.
+
+*Pre-registered tests (primary).*
+- Trend alarms degrade faster than threshold alarms as compressed nights increase (H1), but the effect is small: 0.09 (0.07–0.10) false alarms per day per unit fraction of compressed nights. This is bounded by the PISA model's assumed shape and frequency, which come from abstracts.
+- At the frozen operating point (no loss of severe-low sensitivity against the trend alarm), insulin and carbohydrate context did not meaningfully reduce compression false alarms for any detector (H2). Rate ratios were 0.94–1.00 in the default mix, against a smallest effect of interest of 0.75. That operating point awaits clinical review, and thresholds are chosen on in-sample training scores.
+
+*Trade-off curves (secondary, defined after these results were seen; amendments A11 and A13).*
+- Along each published gate's curve, compression false alarms fall only once severe lows are given up. The Baysal gate's first clear reduction, to 0.89 (0.81–0.96) times as many, costs 11 more missed severe lows of 249.
+- At matched held-out severe-low sensitivity, no published gate gave fewer false alarms per day than the trend alarm with its own threshold lowered, at any of the 18 comparison points that could be estimated. The isolation-forest gate gave more, for example 1.29 against 0.99 per day at 82% sensitivity, ratio 1.30 (1.05–1.51). CGM-only gradient boosting showed no detectable difference in total false alarms but fewer compression false alarms (0.50–0.66 times). These comparisons are exploratory: 42 of 60 could not be estimated stably, and no correction was made for multiplicity.
+
+*Descriptive.* Even with a compression artifact every night, compression causes 0.32 (0.30–0.35) of the trend alarm's 1.53 (1.33–1.73) false alarms per day, about 21%. Sensor noise and the other faults cause more. This share depends on the assumed compression frequency and on the noise model.
+
 # Limitations
 
 The 2008 simulator lacks the 2013 model's hypoglycaemia nonlinearity and glucagon counter-regulation, so simulated lows are the weakest part of the cohort. The semi-synthetic real-data track exists to check them. Without counter-regulation, untreated simulated lows run on until the insulin wears off, so the virtual patients treat lows with a fixed rule taken from public-health advice, and that rule shapes how long and how deep simulated lows are. The simulated sensor error is smooth, so sample-level noise is gentler than a real sensor's. No public dataset labels real compression artifacts: real-data results use injected artifacts, and real artifacts in the reference count as true lows. The PISA model's time constant is an assumption, pending the full text of @Facchinetti2016, and is swept in robustness arms. The realistic PISA frequency comes from the abstract of @Lobo2026. Confidence intervals describe the simulated cohort, not a population. The software is a research tool, not a medical device, and must not be used to decide whether to treat a low.
