@@ -44,12 +44,9 @@ Both analyses were defined after the v0.1.0 results had been seen.
   - Matched filter: 0.99 (0.98–1.00), for 8 more missed.
 
   The H2 reading is unchanged when 1% or 5% of the trend alarm's training sensitivity is given up.
-- **No published gate beats simply retuning the trend alarm (A13).** At matched held-out severe-low sensitivity, no gate gives fewer false alarms per day than the trend alarm with its own threshold lowered. This holds at every one of the 18 stable comparison points in the default and high mixes.
-  - The isolation-forest gate gives more false alarms in total: at 82% sensitivity, 1.29 against 0.99 per day, ratio 1.30 (1.05–1.51). It lowers compression false alarms at 4 of its 8 stable points (0.80–0.86 times retuned trend's), but its total is still higher.
-  - CGM-only gradient boosting shows no detectable difference in the total (ratios 0.81–1.08, every CI includes 1), but it raises fewer compression false alarms (0.50–0.66 times retuned trend's).
-  - The matched-filter gate could not be compared, because its curve never reaches far enough below trend's sensitivity.
+- **Gates versus a retuned trend alarm (A13).** No published gate gave fewer total false alarms than the retuned trend alarm at any estimable point; the isolation-forest and Baysal gates gave more at most (6 of 8 and 2 of 3). Comparisons are at matched held-out sensitivity (an oracle, not a deployable operating point), cover 18 of 60 planned points, are uncorrected for multiplicity and say nothing about the standard mix. CGM-only gradient boosting shifted false alarms between causes: fewer from compression (0.50–0.66 times the retuned trend alarm's, at 7 of its 7 points) with no detectable change in the total (ratios 0.81–1.08, every CI including 1).
 
-  *Limits:* post hoc and exploratory, with 60 comparisons and no multiplicity correction. 42 of the 60 points were not estimable or unstable, including the whole standard mix (32 severe lows). Other limits: 30 virtual patients and one smooth noise model; thresholds chosen on in-sample training scores (P6); virtual patients treat lows at the alarms' own cut-offs, which shapes sensitivity; the matched filter shares its PISA model with the injected artifacts.
+  *Limits:* 30 virtual patients and one smooth noise model; thresholds chosen on in-sample training scores (P6); virtual patients treat lows at the alarms' own cut-offs, which shapes sensitivity.
 
 ### Descriptive
 

@@ -79,6 +79,7 @@ Each entry gives the date, whether any full-benchmark result existed at the time
   - *Scope.* 4 comparators × 5 grid points × 3 mixes, with no multiplicity correction: exploratory.
   - *Limits.* 30 virtual patients and one smooth noise model; thresholds chosen on in-sample training scores (P6).
   - *Expected to change.* No existing number. The curves tables gain `gbm` rows, whose r = 1 point must reproduce v0.1.0. New: `results/tables/curves__a13.csv` and `results/figures/curves__a13.png`.
+  - *Result (2026-10-19; `results/tables/curves__a13.csv`).* No published gate gave fewer total false alarms than the retuned trend alarm at any estimable point; the isolation-forest and Baysal gates gave more at most (6 of 8 and 2 of 3). Comparisons are at matched held-out sensitivity (an oracle, not a deployable operating point), cover 18 of 60 planned points, are uncorrected for multiplicity and say nothing about the standard mix. CGM-only gradient boosting shifted false alarms between causes: fewer from compression (0.50–0.66 times the retuned trend alarm's, at 7 of its 7 points) with no detectable change in the total (ratios 0.81–1.08, every CI including 1).
 
 ## Proposed amendments (not adopted)
 

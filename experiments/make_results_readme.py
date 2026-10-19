@@ -477,61 +477,58 @@ def span(x: pd.Series) -> str:
 
 
 def a13_verdict(a: pd.DataFrame) -> str:
-    """The A13 finding in plain words, generated from the table whichever way it falls. Only
-    estimable, stable grid points are read; each comparator is summarised on its own."""
+    """The A13 finding, generated from the table whichever way it falls. Only estimable, stable
+    grid points are read."""
     ok = a[np.isfinite(a["total_ratio"]) & ~a["unstable"].astype(bool)]
-    adds = ok[ok["reading"] == "adds value"]
-    scope = (
-        "In this benchmark (30 virtual patients, one smooth sensor-noise model, thresholds chosen "
-        "on in-sample training scores; secondary and post hoc)"
-    )
+    gates = ok[ok["comparator"].str.endswith("_gate")]
+    adds = gates[gates["reading"] == "adds value"]
+    names = {"iforest_causal_gate": "isolation-forest", "baysal_gate": "Baysal"}
+    counts = {
+        n: (int((g["reading"] == "worse than retuned trend").sum()), len(g))
+        for n, g in gates.groupby("comparator")
+        if n in names
+    }
     if adds.empty:
-        head = (
-            f"**Finding.** {scope}, the published compression gates add no value over retuning the "
-            "trend alarm's threshold: at matched level 2 sensitivity, no gate gives fewer false "
-            "alarms per day with a CI below 1 at any stable grid point"
-            + (
-                ", and neither does CGM-only gradient boosting."
-                if (ok["comparator"] == "gbm").any()
-                else "."
-            )
-        )
-        untested = sorted(set(a["comparator"]) - set(ok["comparator"]))
-        if untested:
-            head += (
-                " Not compared: "
-                + ", ".join(f"`{n}`" for n in untested)
-                + " (no stable grid point: its curve does not reach far enough below trend's"
-                " sensitivity)."
-            )
+        head = "No published gate gave fewer total false alarms than the retuned trend alarm at any estimable point"
     else:
-        where = "; ".join(
-            f"`{r['comparator']}` ({r['mix']}, {r['sens_l2']:.0%}): ×{fmt_ci(r['total_ratio'], r['total_ratio_lo'], r['total_ratio_hi'])}"
-            for _, r in adds.iterrows()
-        )
-        head = f"**Finding.** {scope}, some comparators give fewer false alarms per day than retuned trend at matched sensitivity: {where}."
-    parts = []
-    for name, g in ok.groupby("comparator"):
-        worse = int((g["reading"] == "worse than retuned trend").sum())
-        comp = g[g["compression_ratio_hi"] < 1]
-        text = (
-            f"`{name}`: {len(g)} stable points ({', '.join(sorted(set(g['mix'])))} mix); total ratio "
-            f"{span(g['total_ratio'])}, worse than retuned trend at {worse}"
-        )
-        if len(comp):
-            text += (
-                f"; fewer compression false alarms (CI below 1) at {len(comp)}, ratio "
-                f"{span(comp['compression_ratio'])}"
+        head = (
+            "Published gates gave fewer total false alarms than the retuned trend alarm at "
+            + ", ".join(
+                f"`{r['comparator']}` ({r['mix']}, {r['sens_l2']:.0%})" for _, r in adds.iterrows()
             )
-        parts.append(text)
-    skipped = len(a) - len(ok)
-    return (
+        )
+    order = [n for n in ("iforest_causal_gate", "baysal_gate") if n in counts]
+    if order and all(counts[n][0] > counts[n][1] / 2 for n in order):
+        head += (
+            "; the "
+            + " and ".join(names[n] for n in order)
+            + " gates gave more at most ("
+            + " and ".join(f"{counts[n][0]} of {counts[n][1]}" for n in order)
+            + ")"
+        )
+    no_standard = "standard" in set(a["mix"]) and "standard" not in set(ok["mix"])
+    text = (
         head
-        + " By comparator (all mixes): "
-        + "; ".join(parts)
-        + f". {skipped} of {len(a)} grid points were not estimable or unstable and are not read"
-        + " (the standard mix has 32 level 2 lows, and the Baysal and matched-filter curves there are single points)."
+        + ". Comparisons are at matched held-out sensitivity (an oracle, not a deployable operating "
+        + f"point), cover {len(ok)} of {len(a)} planned points, are uncorrected for multiplicity"
+        + (" and say nothing about the standard mix." if no_standard else ".")
     )
+    g = ok[ok["comparator"] == "gbm"]
+    if len(g):
+        comp = g[g["compression_ratio_hi"] < 1]
+        same = bool(((g["total_ratio_lo"] <= 1) & (g["total_ratio_hi"] >= 1)).all())
+        text += (
+            " CGM-only gradient boosting shifted false alarms between causes: fewer from compression "
+            f"({span(comp['compression_ratio'])} times the retuned trend alarm's, at {len(comp)} of "
+            f"its {len(g)} points)"
+            + (
+                f" with no detectable change in the total (ratios {span(g['total_ratio'])}, every CI "
+                "including 1)."
+                if same
+                else f"; total ratio {span(g['total_ratio'])}."
+            )
+        )
+    return "**Finding.** " + text
 
 
 def section_age_groups() -> list[str]:
