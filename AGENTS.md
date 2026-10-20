@@ -8,8 +8,9 @@ For an AI assistant helping a researcher with Ghost Lows. Full rules: [docs/refe
 - `experiments/`: configs and scripts behind every table and figure.
 - `scripts/`: download, app build, reproducibility check, sample export, packaging.
 - `results/`: tables and figures; [results/README.md](results/README.md) is the full record.
-- `app/`: the browser-only upload report.
-- `tests/`: pytest, including checks of the rules below.
+- `app/`: the upload report.
+- `tests/`: pytest, including rule checks.
+- [docs/SUMMARY.md](docs/SUMMARY.md): one-page results for clinicians.
 - [docs/CLINICAL_REVIEW.md](docs/CLINICAL_REVIEW.md): clinical claims awaiting sign-off.
 - [docs/PRIVACY_AND_SAFETY.md](docs/PRIVACY_AND_SAFETY.md): upload-report rules.
 - [docs/CITATIONS.md](docs/CITATIONS.md): every source key.
@@ -19,7 +20,7 @@ For an AI assistant helping a researcher with Ghost Lows. Full rules: [docs/refe
 - [DATA.md](docs/reference/DATA.md): datasets, schema, export formats.
 - [DECISIONS.md](docs/reference/DECISIONS.md): decisions and dated amendments.
 - [UPLOAD_REPORT.md](docs/reference/UPLOAD_REPORT.md): the upload report as built.
-- `docs/development/`: build history, not specification.
+- `docs/development/`: build history.
 
 ## How to walk someone through this repo
 
