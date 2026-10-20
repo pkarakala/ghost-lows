@@ -12,3 +12,5 @@ The complete specifications, for reproducing and auditing the benchmark. They de
 - [UPLOAD_REPORT.md](UPLOAD_REPORT.md): how the upload report applies the privacy and safety rules, and its regulatory context.
 
 Results: [`results/README.md`](../../results/README.md). Sources: [`CITATIONS.md`](../CITATIONS.md).
+
+**Citing.** Cite the software with [`CITATION.cff`](../../CITATION.cff). Results should name the benchmark version (`ghostlows-bench v1`); every run records it in `benchmark_version.txt`. Datasets keep their own licences ([DATA.md](DATA.md)); none is redistributed here.

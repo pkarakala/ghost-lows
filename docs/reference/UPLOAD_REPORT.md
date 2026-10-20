@@ -2,6 +2,8 @@
 
 How the upload report meets the rules in [PRIVACY_AND_SAFETY.md](../PRIVACY_AND_SAFETY.md), for anyone changing `app/` or `ghostlows.retro` and for clinical reviewers. Items marked **[clinical review CR12]** are in [CLINICAL_REVIEW.md](../CLINICAL_REVIEW.md).
 
+The [upload report](https://pkarakala.github.io/ghost-lows/) reads a Dexcom Clarity or LibreView CSV inside your browser tab. It shows the consensus metrics [Battelino 2019], the ambulatory glucose profile, daily traces, and nights with a *possible compression artifact*, with the reasons for each flag. *Try it with sample data* uses a synthetic 14-day export.
+
 ## As implemented
 
 - **Flag rule.** A detection becomes a "possible compression artifact" flag only if two published CGM-only methods agree (the Baysal 2014 rules and a matched filter for the Facchinetti 2016 PISA shape after Idi 2023) and it starts at night (23:00–07:00), when compression is most common. On the synthetic test export, either method alone also fired on a genuine-looking daytime fall to 54 mg/dL, and a flag must not hide a real low from time below range. Detections that are not flags are listed under "Detections that are not flags" and change no number. **[clinical review CR12]**
