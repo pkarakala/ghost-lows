@@ -1,4 +1,4 @@
-"""Repository rules from CLAUDE.md that can be checked mechanically."""
+"""Repository rules from AGENTS.md that can be checked mechanically."""
 
 import ast
 import re
@@ -8,7 +8,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 SRC = ROOT / "src" / "ghostlows"
 
-# CLAUDE.md (Stack): the upload app runs these subpackages in Pyodide.
+# AGENTS.md (Stack): the upload app runs these subpackages in Pyodide.
 PYODIDE_SUBPACKAGES = ["io", "metrics", "retro"]
 PYODIDE_ALLOWED = {"numpy", "pandas"}
 
@@ -190,3 +190,47 @@ def test_every_clinical_review_marker_names_a_listed_item():
     assert listed and not unknown, "CR items missing from docs/CLINICAL_REVIEW.md:\n" + "\n".join(
         unknown
     )
+
+
+DOCS = [
+    *ROOT.glob("*.md"),
+    *(ROOT / "docs").rglob("*.md"),
+    *(ROOT / ".github").rglob("*.md"),
+    ROOT / "results" / "README.md",
+    ROOT / "data" / "README.md",
+]
+LINK_RE = re.compile(r"!?\[[^\]]*\]\(([^)\s]+)\)")
+
+
+def heading_anchors(path: Path) -> set[str]:
+    """GitHub's anchors for a Markdown file's headings (a repeated heading gets -1, -2, ...)."""
+    seen: dict[str, int] = {}
+    text = re.sub(r"```.*?```", "", path.read_text(), flags=re.S)
+    for line in text.splitlines():
+        m = re.match(r"#{1,6}\s+(.+?)\s*#*\s*$", line)
+        if not m:
+            continue
+        title = re.sub(r"\[([^\]]*)\]\([^)]*\)", r"\1", m.group(1))
+        slug = re.sub(r"[^\w\- ]", "", title.lower()).replace(" ", "-")
+        seen[slug] = seen.get(slug, -1) + 1
+        if seen[slug]:
+            seen[f"{slug}-{seen[slug]}"] = 0
+    return set(seen)
+
+
+def test_markdown_links_resolve():
+    """Every relative link and image in the docs points at an existing file and heading."""
+    broken = []
+    for doc in DOCS:
+        text = re.sub(r"```.*?```", "", doc.read_text(), flags=re.S)
+        text = re.sub(r"`[^`\n]*`", "", text)
+        for target in LINK_RE.findall(text):
+            if re.match(r"[a-z][a-z0-9+.-]*:", target):
+                continue  # http(s):, mailto: and the like
+            path_part, _, anchor = target.partition("#")
+            dest = (doc.parent / path_part).resolve() if path_part else doc
+            if not dest.exists():
+                broken.append(f"{doc.relative_to(ROOT)}: {target}")
+            elif anchor and dest.suffix == ".md" and anchor not in heading_anchors(dest):
+                broken.append(f"{doc.relative_to(ROOT)}: {target} (no such heading)")
+    assert not broken, "broken links:\n" + "\n".join(broken)

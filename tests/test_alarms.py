@@ -1,5 +1,7 @@
 """Alarm tests (BENCHMARK.md §1-2): causality for every alarm, and known answers per alarm."""
 
+from pathlib import Path
+
 import numpy as np
 import pandas as pd
 import pytest
@@ -18,8 +20,10 @@ from ghostlows.alarms import (
 from ghostlows.alarms.detectors import baysal_flags, matched_filter_score
 from ghostlows.alarms.learned import Detector, MatchedFilterDetector
 from ghostlows.bench.events import detect_events, low_labels
+from ghostlows.cli import load_alarm
 from ghostlows.faults.pisa import from_size
 
+EXAMPLE = Path(__file__).resolve().parents[1] / "examples" / "custom_alarm.py"
 TIMES = pd.date_range("2026-01-05", periods=2 * 288, freq="5min")
 
 
@@ -68,28 +72,50 @@ def test_labels_mark_ongoing_and_upcoming_lows(train):
     assert run.loc[below, "time"] - run.loc[first, "time"] >= pd.Timedelta("25min")
 
 
-@pytest.mark.parametrize("name", [a.name for a in benchmark_alarms() + stretch_alarms()])
-def test_every_alarm_is_causal(name, fitted):
-    """Changing samples after a cutoff never changes scores (or alarms) up to the cutoff."""
-    alarm = fitted[name]
+def assert_causal(alarm):
+    """Changing samples after a cutoff never changes scores (or alarms) up to the cutoff.
+
+    Random futures can leave a thresholded score unchanged by chance, so the future is also set
+    to a deep low and to a high: an alarm that reads even one sample ahead changes under one of
+    them.
+    """
     test = synthetic_run(99, "test:0").drop(columns=["truth", "label"])
     cut = 300
+    later = test.index > cut
     rng = np.random.default_rng(1)
-    future = test.copy()
-    later = future.index > cut
-    future.loc[later, "cgm"] = rng.uniform(30, 350, later.sum())
-    future.loc[later & (rng.random(len(future)) < 0.2), "cgm"] = np.nan
-    future.loc[later, "iob"] = rng.uniform(0, 10, later.sum())
-    future.loc[later, "cob"] = rng.uniform(0, 80, later.sum())
-    a, b = alarm.score(test), alarm.score(future)
-    np.testing.assert_allclose(a.loc[:cut], b.loc[:cut], equal_nan=True)
+    noisy = test.copy()
+    noisy.loc[later, "cgm"] = rng.uniform(30, 350, later.sum())
+    noisy.loc[later & (rng.random(len(noisy)) < 0.2), "cgm"] = np.nan
+    noisy.loc[later, "iob"] = rng.uniform(0, 10, later.sum())
+    noisy.loc[later, "cob"] = rng.uniform(0, 80, later.sum())
+    futures = [noisy]
+    for cgm, iob, cob in ((40.0, 10.0, 80.0), (350.0, 0.0, 0.0)):
+        fixed = test.copy()
+        fixed.loc[later, ["cgm", "iob", "cob"]] = cgm, iob, cob
+        futures.append(fixed)
     cutoff = test.loc[cut, "time"]
-    ea = alarm.alarms(test)
-    eb = alarm.alarms(future)
-    pd.testing.assert_frame_equal(
-        ea[ea["time"] <= cutoff].reset_index(drop=True),
-        eb[eb["time"] <= cutoff].reset_index(drop=True),
-    )
+    a, ea = alarm.score(test), alarm.alarms(test)
+    for future in futures:
+        b, eb = alarm.score(future), alarm.alarms(future)
+        np.testing.assert_allclose(a.loc[:cut], b.loc[:cut], equal_nan=True)
+        # check_dtype=False: a frame with no alarms at all has an object-typed time column
+        pd.testing.assert_frame_equal(
+            ea[ea["time"] <= cutoff].reset_index(drop=True),
+            eb[eb["time"] <= cutoff].reset_index(drop=True),
+            check_dtype=False,
+        )
+
+
+@pytest.mark.parametrize("name", [a.name for a in benchmark_alarms() + stretch_alarms()])
+def test_every_alarm_is_causal(name, fitted):
+    assert_causal(fitted[name])
+
+
+def test_example_alarm_is_causal(train):
+    """The plug-in example (examples/custom_alarm.py) obeys hard rule 4 like the built-in alarms."""
+    alarm = load_alarm(str(EXAMPLE) + ":FallingBelow70")
+    alarm.fit(train.drop(columns="truth"))
+    assert_causal(alarm)
 
 
 def run_of(values, start="2026-01-05 00:00"):

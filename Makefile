@@ -1,4 +1,4 @@
-# Common tasks. Everything runs through uv; see CLAUDE.md (Commands).
+# Common tasks. Everything runs through uv; see AGENTS.md (Commands).
 
 .PHONY: install test lint format data data-diadata data-azt1d smoke sample results reproduce all fault-figure sim-report package
 
