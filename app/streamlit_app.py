@@ -186,7 +186,6 @@ if sample:
             "artifacts and also fall on other dips."
         )
 
-# ---------------------------------------------------------------- consensus metrics
 st.header("Consensus metrics")
 st.caption(
     "Definitions and targets: international consensus on time in range (Battelino 2019); GMI from Bergenstal 2018."
@@ -211,7 +210,6 @@ st.write(
     + FLAG_PERFORMANCE
 )
 
-# ---------------------------------------------------------------- AGP
 st.header("Ambulatory glucose profile")
 agp = metrics.agp(data).reset_index()
 agp["hour"] = [int(t[:2]) + int(t[3:]) / 60 for t in agp["time_of_day"]]
@@ -231,7 +229,6 @@ st.caption(
     "Median (line), 25th-75th and 5th-95th percentiles (bands) by time of day; dashed lines at 70 and 180 mg/dL."
 )
 
-# ---------------------------------------------------------------- daily traces
 st.header("Daily traces")
 daily = readings.assign(
     day=readings["time"].dt.strftime("%a %d %b"),
@@ -275,7 +272,6 @@ st.caption(
     "they are counted in every number above."
 )
 
-# ---------------------------------------------------------------- nights with flags
 st.header("Nights with possible compression artifacts")
 st.info(FINGERSTICK)
 if flags.empty:

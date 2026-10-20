@@ -240,7 +240,7 @@ def curve_summary(pp: pd.DataFrame, n_boot: int = 2000) -> pd.DataFrame:
             "mix": mix,
             "point": point,
             "retention": g["retention"].iloc[0],
-            "train_sens": folds["train_sens"].mean(),  # mean over folds
+            "train_sens": folds["train_sens"].mean(),
             "train_sens_loss": (folds["reference_sens"] - folds["train_sens"]).mean(),
             "patients": g["patient_id"].nunique(),
             "events_l2": g["events_l2"].sum(),

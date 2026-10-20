@@ -474,7 +474,7 @@ def collect_assumptions() -> str:
             if not m:
                 continue
             note, code = m.group(1).strip(), line[: m.start()].strip()
-            if not code:  # comment block: join continuation lines, then the next code line
+            if not code:
                 j = i + 1
                 while j < len(text) and text[j].strip().startswith("#") and ":" not in text[j][:20]:
                     note += " " + text[j].strip().lstrip("#").strip()

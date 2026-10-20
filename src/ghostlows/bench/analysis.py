@@ -120,7 +120,7 @@ def h1_contrast(
                 "median_slope_diff": est,
                 "lo": lo,
                 "hi": hi,
-                "supported": bool(lo > 1e-9),  # strictly above 0, not a rounding epsilon
+                "supported": bool(lo > 1e-9),  # strictly above 0; 1e-9 absorbs rounding error
             }
         )
     return pd.DataFrame(rows)

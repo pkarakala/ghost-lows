@@ -70,7 +70,7 @@ def main() -> None:
             inst = inst.sort_values("start")[in_range]
             inst = inst.loc[inst["size"].idxmax()]
         else:
-            inst = inst.loc[(inst["end"] - inst["start"]).idxmax()]  # the longest instance
+            inst = inst.loc[(inst["end"] - inst["start"]).idxmax()]
         lo, hi = inst["start"] - pd.Timedelta("150min"), inst["end"] + pd.Timedelta("150min")
         w = samples[(samples["time"] >= lo) & (samples["time"] <= hi)]
         ax.axvspan(inst["start"], inst["end"], color=SHADE, lw=0)
@@ -87,7 +87,7 @@ def main() -> None:
     samples, faults = only("drift")
     raw = samples["isf_glucose"] + samples["cgm_noise"]
     in_range = raw.between(40, 400) & samples["cgm_observed"].between(40, 400, inclusive="neither")
-    ratio = (samples["cgm_observed"] / raw).where(in_range)  # clipped readings omitted
+    ratio = (samples["cgm_observed"] / raw).where(in_range)
     days = (samples["time"] - samples["time"].iloc[0]) / pd.Timedelta("1D")
     drift = faults[faults["fault_type"] == "drift"]
     for _, d in drift.iterrows():
