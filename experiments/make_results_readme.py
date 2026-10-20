@@ -122,7 +122,7 @@ def cause_share(s: pd.DataFrame, top: float, alarm: str = "trend") -> list[str]:
 
 
 def section_h1(h1: pd.DataFrame | None) -> list[str]:
-    lines = ["### H1: do trend alarms degrade faster than threshold alarms?", ""]
+    lines = ["### H1: trend versus threshold alarms as compression nights increase", ""]
     if h1 is None or h1.empty:
         return lines + ["Not computed.", ""]
     lines += [
@@ -133,7 +133,7 @@ def section_h1(h1: pd.DataFrame | None) -> list[str]:
         lines.append(
             f"| {r['mix']} | {r['median_slope_diff']:.2f} ({r['lo']:.2f}–{r['hi']:.2f}) | {'yes' if r['supported'] else 'no'} |"
         )
-    return lines + ["", h1_magnitude(h1), ""]
+    return lines + [""]
 
 
 def h1_magnitude(h1: pd.DataFrame, mix: str = "default") -> str:
@@ -278,19 +278,21 @@ def gates_note(s: pd.DataFrame, curves: bool = True) -> list[str]:
         text += "Identical to `trend` here: " + ", ".join(f"`{g}`" for g in off) + ". "
     if near:
         text += "; ".join(near) + ". "
-    text += (
-        "At the pre-registered operating point (D5, δ = 0), which allows no loss of training "
-        "sensitivity against `trend`, the thresholds chosen for these gates suppress no or almost "
-        "no trend alarms (`thresholds.csv`). This describes the operating point, not what the "
-        "detectors can do. "
-    )
-    text += (
-        "The trade-off curves below (secondary, post hoc; amendment A11) show what each gate removes "
-        "as training sensitivity is given up, and at what cost in lows."
-        if curves
-        else "Trade-off curves were produced for the simulation only (amendment A11), not for the "
-        "real-data tracks."
-    )
+    if curves:
+        text += (
+            "At the pre-registered operating point (D5, δ = 0), which allows no loss of training "
+            "sensitivity against `trend`, the thresholds chosen for these gates suppress no or "
+            "almost no trend alarms (`thresholds.csv`). This describes the operating point, not "
+            "what the detectors can do. The trade-off curves below (secondary, post hoc; amendment "
+            "A11) show what each gate removes as training sensitivity is given up, and at what "
+            "cost in lows."
+        )
+    else:
+        text += (
+            "As in the simulation (RQ1 above), the gates' thresholds at the pre-registered operating "
+            "point suppress no or almost no trend alarms. Trade-off curves were produced for the "
+            "simulation only (amendment A11), not for the real-data tracks."
+        )
     return ["", text]
 
 
@@ -340,7 +342,7 @@ def section_curves() -> list[str]:
             )
     lines += [
         "",
-        "**When do the gates start removing compression false alarms?** For each gate and mix: the largest r below 1 at which held-out compression false alarms per day are lower than at r = 1 with a paired-bootstrap CI of the ratio below 1, and what that costs in level 2 lows (definition fixed in A11 before computing).",
+        "**Where the gates start removing compression false alarms.** For each gate and mix: the largest r below 1 at which held-out compression false alarms per day are lower than at r = 1 with a paired-bootstrap CI of the ratio below 1, and what that costs in level 2 lows (definition fixed in A11 before computing).",
         "",
         "| Gate | Mix | r | Compression false alarms, ratio to r = 1 | Level 2 sensitivity, difference (percentage points) | Extra missed level 2 lows |",
         "|---|---|---|---|---|---|",
@@ -372,8 +374,10 @@ def section_curves() -> list[str]:
         ]
         reads = " / ".join(x.at[r, "reading"] for r in (0.99, 0.95) if r in x.index)
         lines.append(f"| `{det}` | {mix} | {' | '.join(cells)} | {reads} |")
-    lines += ["", h2_curves_note(h), ""]
+    lines.append("")
     for fig in sorted((REPO / "results" / "figures").glob("curves__*.png")):
+        if fig.stem == "curves__a13":
+            continue
         lines.append(f"![{fig.stem}](figures/{fig.name})")
     return lines + [""]
 
@@ -437,7 +441,7 @@ def section_a13() -> list[str]:
             f"{fmt_ci(r['compression_ratio'], r['compression_ratio_lo'], r['compression_ratio_hi'])} | "
             f"{flags or '—'} | {r['reading']} |"
         )
-    lines += ["", a13_verdict(a), ""]
+    lines += ["", "The reading is in the [Summary](#summary).", ""]
     fig = REPO / "results" / "figures" / "curves__a13.png"
     if fig.exists():
         lines.append(f"![curves__a13](figures/{fig.name})")
@@ -514,7 +518,7 @@ def a13_verdict(a: pd.DataFrame) -> str:
                 else f"; total ratio {span(g['total_ratio'])}."
             )
         )
-    return "**Finding.** " + text
+    return text
 
 
 def section_age_groups() -> list[str]:
@@ -635,6 +639,12 @@ def section_robustness() -> list[str]:
     ]
 
 
+def comparator(b: str) -> tuple[str, str]:
+    """Split "best ... alarm (`x` in 4 of 5 folds; ...)" into the comparator and its fold counts."""
+    name, _, pool = b.partition(" (")
+    return name, pool.removesuffix(")")
+
+
 def section_rq3(
     rq3: pd.DataFrame | None, kalman: pd.DataFrame | None, mix: str = "default"
 ) -> list[str]:
@@ -645,7 +655,14 @@ def section_rq3(
     levels = sorted(r["level"].unique())
     show = [levels[0], levels[-1]]
     lines += [
-        f"{mix.capitalize()} mix, which the filter's development did not use (amendment A3). Ratios below 1 and positive sensitivity differences favour the first alarm; 95% paired patient-bootstrap CIs. The comparator is chosen in each fold on training patients only; the pool and how often each was chosen are in brackets, and the choice uses in-sample training false alarms. Exploratory: no decision rule. The filter's pressure mode, like the matched filter, uses the same PISA model that generates the injected artifacts, and the τ-mismatch arms do not include the Kalman alarms, so this comparison favours them (docs/development/REVIEW.md M6).",
+        f"{mix.capitalize()} mix, which the filter's development did not use (amendment A3). Ratios below 1 and positive sensitivity differences favour the first alarm; 95% paired patient-bootstrap CIs. The comparator is chosen in each fold on training patients only, from in-sample training false alarms (how often each was chosen is listed below). Exploratory: no decision rule. The filter's pressure mode, like the matched filter, uses the same PISA model that generates the injected artifacts, and the τ-mismatch arms do not include the Kalman alarms, so this comparison favours them (docs/development/REVIEW.md M6).",
+        "",
+        *(
+            f"- {name}: {pool}"
+            for name, pool in dict.fromkeys(
+                comparator(b) for b in r.loc[r["contrast"] == "versus best discriminative", "b"]
+            )
+        ),
         "",
         "| Contrast | First vs second | Measure | "
         + " | ".join(f"PISA nights {lv:.0%}" for lv in show)
@@ -660,7 +677,8 @@ def section_rq3(
             else "–"
             for lv in show
         ]
-        lines.append(f"| {contrast} | `{a}` vs {b} | {measure} | " + " | ".join(cells) + " |")
+        second = comparator(b)[0] if contrast == "versus best discriminative" else f"`{b}`"
+        lines.append(f"| {contrast} | `{a}` vs {second} | {measure} | " + " | ".join(cells) + " |")
     if kalman is not None:
         k = kalman[(kalman["mix"] == mix) & (kalman["level"] == kalman["level"].max())]
         lines += [
@@ -692,7 +710,7 @@ def section_summary(meta: dict) -> list[str]:
     lines = [
         "## Summary",
         "",
-        "Read mechanically from the tables below; nothing in this section is typed by hand.",
+        "Read mechanically from the tables below, with the rules of docs/RESEARCH.md §3 (H1, H2) and amendment A4 (H3); nothing in this section is typed by hand.",
         "",
     ]
     h1 = table(TABLES / f"{MAIN}__contrast_h1.csv")
@@ -767,14 +785,22 @@ def section_summary(meta: dict) -> list[str]:
     if a13 is not None and len(a13):
         lines.append(
             "- **A13** (secondary, post hoc; gates and CGM-only gradient boosting vs. the trend alarm with its threshold retuned, at matched held-out level 2 sensitivity): "
-            + a13_verdict(a13).replace("**Finding.** ", "")
+            + a13_verdict(a13)
         )
     rq3 = table(TABLES / "rq3_kalman__contrasts_rq3.csv")
     if rq3 is not None and len(rq3):
         r = rq3[(rq3["mix"] == "default") & (rq3["level"] == rq3["level"].max())]
-        for _, row in r[r["a"] == "kalman_pisa"].iterrows():
+        r = r[(r["a"] == "kalman_pisa") & (r["measure"] == "false alarms, ratio")]
+        parts = [
+            f"vs. {comparator(row['b'])[0] if row['contrast'] == 'versus best discriminative' else '`' + row['b'] + '`'} "
+            f"{fmt_ci(row['estimate'], row['lo'], row['hi'])}"
+            for _, row in r.iterrows()
+        ]
+        if parts:
             lines.append(
-                f"- **RQ3** (exploratory; default mix, PISA on {row['level']:.0%} of nights): `kalman_pisa` vs. {row['b'] if row['contrast'] == 'versus best discriminative' else '`' + row['b'] + '`'}, {row['measure']}: {fmt_ci(row['estimate'], row['lo'], row['hi'])}."
+                f"- **RQ3** (exploratory; default mix, PISA on {r['level'].iloc[0]:.0%} of nights; `kalman_pisa`, false alarms, ratio): "
+                + "; ".join(parts)
+                + ". Compression false alarms and level 2 sensitivity: [RQ3 table](#rq3-exploratory-a-kalman-filter-with-an-explicit-compressed-state)."
             )
     return lines + [""]
 
@@ -827,7 +853,7 @@ def section_real() -> list[str]:
 
 
 def section_h3() -> list[str]:
-    lines = ["### H3: does the context benefit shrink on real data? (AZT1D)", ""]
+    lines = ["### H3: the context benefit on real data (AZT1D)", ""]
     az = table(TABLES / "real__azt1d_contrasts_h2.csv")
     az_meta = read_json(TABLES / "real__azt1d_meta.json")
     sim = table(TABLES / f"{MAIN}__contrasts_h2.csv")
@@ -952,7 +978,7 @@ def main() -> None:
     lines = [
         "# Results",
         "",
-        "Generated by `experiments/make_results_readme.py` from the tables in `results/tables/`; regenerate everything with `make results`.",
+        "Every benchmark result, for anyone checking a claim. Generated by `experiments/make_results_readme.py` from the tables in `results/tables/`; do not edit by hand. Regenerate everything with `make results`.",
         "Benchmark version: `ghostlows-bench v1`. Simulated cohort: 30 virtual patients (UVA/Padova 2008 via simglucose), 14 days, 5 seeds, three scenario mixes. Confidence intervals are 95% patient-bootstrap intervals over this cohort, not a population (BENCHMARK.md §6).",
         "",
     ]
@@ -995,10 +1021,6 @@ def main() -> None:
     lines += section_real()
     lines += section_reproducibility()
     lines += [
-        "## Reading of the hypotheses",
-        "",
-        "H1 and H2 are read mechanically from the tables above with the rules in docs/RESEARCH.md §3; H3 with the rule of amendment A4 in the real-data section.",
-        "",
         *limitations(),
         "## Assumptions",
         "",
