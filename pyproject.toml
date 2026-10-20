@@ -30,7 +30,7 @@ bench = [
     "plotly>=5.20",
 ]
 # simglucose and gym import pkg_resources at runtime, so setuptools must be installed;
-# the <70 pin is from AGENTS.md (Stack).
+# the <70 pin is from docs/reference/ENGINEERING.md (Stack).
 sim = [
     "simglucose==0.2.11",
     "setuptools<70",

@@ -5,7 +5,7 @@ How the virtual cohort and the sensor faults are generated, for anyone running, 
 ## 1. Simulator
 
 - **simglucose 0.2.11** (Python implementation of the UVA/Padova T1D simulator, 2008 version) [simglucose; Kovatchev 2009]. 30 virtual patients: 10 children, 10 adolescents, 10 adults. The 2008 model has no glucagon counter-regulation and no hypoglycaemia-dependent insulin action [Dalla Man 2014]; see RESEARCH.md §6–7.
-- **Install:** `uv sync` installs simglucose through the `sim` extra; Python and `setuptools` pins are in AGENTS.md (Stack), and the pandas 3 workaround in SIMULATION_NOTES.md.
+- **Install:** `uv sync` installs simglucose through the `sim` extra; Python and `setuptools` pins are in ENGINEERING.md (Stack), and the pandas 3 workaround in SIMULATION_NOTES.md.
 - **Truth signal (D1, verified in the source).** simglucose's `BG` output is `observation.Gsub`, the subcutaneous state x[12]/Vg, which is the same signal its CGM adds noise to. The model already lags it behind plasma: `dx12/dt = ksc·(x3 − x12)`, τ = 1/ksc = 6.6–19.9 min across the 30 patients (median about 11). The benchmark therefore uses:
   - `truth_glucose` = plasma glucose x[3]/Vg, recorded every minute;
   - `isf_glucose` = Gsub (model-native interstitial glucose);

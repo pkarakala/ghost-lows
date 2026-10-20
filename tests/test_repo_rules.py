@@ -8,7 +8,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 SRC = ROOT / "src" / "ghostlows"
 
-# AGENTS.md (Stack): the upload app runs these subpackages in Pyodide.
+# docs/reference/ENGINEERING.md (Stack): the upload app runs these subpackages in Pyodide.
 PYODIDE_SUBPACKAGES = ["io", "metrics", "retro"]
 PYODIDE_ALLOWED = {"numpy", "pandas"}
 
