@@ -1,5 +1,15 @@
 # Changelog
 
+## Unreleased
+
+Documentation in two layers. No code behaviour, result or benchmark definition changes.
+
+- **For people.** [`README.md`](README.md) is 299 words. [`docs/SUMMARY.md`](docs/SUMMARY.md) gives the results on one page for clinicians. [`CONTRIBUTING.md`](CONTRIBUTING.md) and [`docs/PRIVACY_AND_SAFETY.md`](docs/PRIVACY_AND_SAFETY.md) are under 500 words. [`docs/CLINICAL_REVIEW.md`](docs/CLINICAL_REVIEW.md) keeps every CR item word for word.
+- **Reference.** The six specifications move to [`docs/reference/`](docs/reference/), unchanged. New there: `ENGINEERING.md` (the full rules and engineering detail from AGENTS.md and CONTRIBUTING.md) and `UPLOAD_REPORT.md` (the upload report as implemented, from PRIVACY_AND_SAFETY.md).
+- **AGENTS.md** is a map for a researcher's AI assistant: folders, reading order, which table answers which question, the 11 hard rules (same numbers) and the commands.
+- **AI usage disclosure**, the same text in the README, `paper.md` and `docs/development/README.md`. New commits carry no `Co-Authored-By` trailer (`.claude/settings.json`); history is not rewritten.
+- `scripts/check_docs_preserved.py` checks that no number, citation key, CR item, limitation or safety sentence was lost against a git ref.
+
 ## v0.2.0 (2026-10-19)
 
 Amendments A9–A13, an upload report that never lowers a number with a flag, and documentation for contributors. The benchmark is still `ghostlows-bench v1`. The H1–H3 and RQ3 results are unchanged: A10 changed the warning-time estimates and CIs, and A11 and A13 add secondary results. The v0.1.0 numbers stay in the tag `v0.1.0`.
