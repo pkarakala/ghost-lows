@@ -8,6 +8,6 @@ The complete specifications, for reproducing and auditing the benchmark. They de
 - [SIMULATION_NOTES.md](SIMULATION_NOTES.md): what the simulator does in practice, and the cohort as built.
 - [DATA.md](DATA.md): datasets, download script, common schema, export formats.
 - [DECISIONS.md](DECISIONS.md): design decisions, dated amendments, proposals.
-- [ENGINEERING.md](ENGINEERING.md): hard rules in full, code markers, stack, layout, working style.
+- [ENGINEERING.md](ENGINEERING.md): hard rules in full, code markers, stack, layout, test suites, how to add an alarm or a fault.
 
 Results: [`results/README.md`](../../results/README.md). Sources: [`CITATIONS.md`](../CITATIONS.md).
