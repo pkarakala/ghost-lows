@@ -355,8 +355,8 @@ def section_curves() -> list[str]:
             f"{pp(r['sens_l2_diff'])} ({pp(r['sens_l2_diff_lo'])} to {pp(r['sens_l2_diff_hi'])}) | "
             f"{r['extra_missed_l2']:.0f} of {r['events_l2']:.0f} |"
         )
-    lines += ["", gates_vs_trend(d), ""]
     lines += [
+        "",
         "**H2 on the curves.** Context over CGM-arm rate ratio of held-out compression false alarms at the marked retentions, read with the pre-registered H2 rule (SESOI 0.75). "
         "Secondary: the pre-registered H2 test is the r = 1.00 column, which reproduces the H2 table above. "
         "The two arms are compared at the same training retention, not at the same held-out sensitivity. The Kalman pair is exploratory (A3).",
@@ -380,33 +380,6 @@ def section_curves() -> list[str]:
 
 def pp(x: float) -> str:
     return f"{100 * x:+.1f}".replace("-", "−")
-
-
-def gates_vs_trend(d: pd.DataFrame, point: str = CURVE_ROWS[-1]) -> str:
-    """Each gate at the deepest suppression in the table against the `trend` sweep point with the
-    nearest held-out sensitivity at or above it (point estimates; default mix)."""
-    trend = d[(d["alarm_name"] == "trend") & d["retention"].notna()]
-    parts = []
-    for gate in CURVE_GATES:
-        for _, r in d[(d["alarm_name"] == gate) & (d["point"] == point)].iterrows():
-            t = trend[trend["sens_l2"] >= r["sens_l2"] - 1e-12].sort_values("sens_l2").head(1)
-            if t.empty:
-                continue
-            t = t.iloc[0]
-            parts.append(
-                f"`{gate}` at r = {r['retention']:.2f} (level 2 caught {r['sens_l2']:.0%}): "
-                f"{r['false_per_day']:.2f} false alarms/day, {r['false_compression_per_day']:.2f} from compression; "
-                f"`trend` with its own threshold lowered to catch {t['sens_l2']:.0%}: {t['false_per_day']:.2f}, "
-                f"{t['false_compression_per_day']:.2f} from compression"
-            )
-    if not parts:
-        return ""
-    return (
-        f"**Gate or simpler threshold?** Each gate at r = {point[2:]}, compared with the `trend` alarm made less eager "
-        "(its own prediction threshold lowered) to the nearest held-out level 2 sensitivity at or above the gate's (default mix; point estimates, no CI on the differences): "
-        + "; ".join(parts)
-        + "."
-    )
 
 
 def h2_curves_note(h: pd.DataFrame) -> str:
@@ -482,7 +455,11 @@ def a13_verdict(a: pd.DataFrame) -> str:
     ok = a[np.isfinite(a["total_ratio"]) & ~a["unstable"].astype(bool)]
     gates = ok[ok["comparator"].str.endswith("_gate")]
     adds = gates[gates["reading"] == "adds value"]
-    names = {"iforest_causal_gate": "isolation-forest", "baysal_gate": "Baysal"}
+    names = {
+        "iforest_causal_gate": "isolation-forest",
+        "baysal_gate": "Baysal",
+        "matched_filter_causal_gate": "matched-filter",
+    }
     counts = {
         n: (int((g["reading"] == "worse than retuned trend").sum()), len(g))
         for n, g in gates.groupby("comparator")
@@ -513,6 +490,15 @@ def a13_verdict(a: pd.DataFrame) -> str:
         + f"point), cover {len(ok)} of {len(a)} planned points, are uncorrected for multiplicity"
         + (" and say nothing about the standard mix." if no_standard else ".")
     )
+    for n, rows in a.groupby("comparator"):
+        if n not in names or n in set(ok["comparator"]):
+            continue
+        reached = int(np.isfinite(rows["total_ratio"]).sum())
+        text += f" The {names[n]} gate could not be compared " + (
+            f"(its curve reaches only {reached} of its {len(rows)} planned points, all unstable)."
+            if reached
+            else "(its curve never reaches the comparison range)."
+        )
     g = ok[ok["comparator"] == "gbm"]
     if len(g):
         comp = g[g["compression_ratio_hi"] < 1]
