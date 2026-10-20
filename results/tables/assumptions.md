@@ -40,7 +40,7 @@
 - `src/ghostlows/faults/suite.py:251` `r = (`: injection sites are 2 h of complete, steady night data (SD <= 15, no reading < 70)
 - `src/ghostlows/faults/suite.py:252` `r = (`: stability rule for semi-synthetic injection (SIMULATION.md §5)
 - `src/ghostlows/io/azt1d.py:32` `USER = re.compile(r"^(Standard|BLE Standard Bolus|Quick|Extended)")`: the extended remainder, in about 60 of 300,000 rows, is ignored
-- `src/ghostlows/io/glucobench.py:22` `SENTINELS = {`: inferred from pile-ups at the extremes (docs/DATA.md §1): weinstock has 11,924 readings of 39 vs 605 of 40 and 11,978 of 401 vs 187 of 400; dubosson piles up at 39.6 and 399.6 (2.2 and 22.2 mmol/L x 18); colas has 75 readings of 40 vs 12 of 41.
+- `src/ghostlows/io/glucobench.py:22` `SENTINELS = {`: inferred from pile-ups at the extremes (docs/reference/DATA.md §1): weinstock has 11,924 readings of 39 vs 605 of 40 and 11,978 of 401 vs 187 of 400; dubosson piles up at 39.6 and 399.6 (2.2 and 22.2 mmol/L x 18); colas has 75 readings of 40 vs 12 of 41.
 - `src/ghostlows/io/schema.py:25` `DEVICE_LIMITS_MG_DL = (40.0, 400.0)`: reportable range of current Dexcom and Libre sensors; censored "Low"/"High" readings are stored at these limits (with a flag). Configurable per loader call.
 - `src/ghostlows/io/schema.py:29` `MG_DL_PER_MMOL_L = 18.0`: devices convert with 1 mmol/L = 18 mg/dL (the molar-mass factor is 18.016).
 - `src/ghostlows/metrics/consensus.py:22` `NOMINAL_INTERVALS_MIN = (1, 5, 15)`: the sampling interval of an export is the nearest of these to its median spacing (G6/G7/Libre 3 report every 5 min, Libre 1/2 history every 15 min).

@@ -111,7 +111,7 @@ def test_detect_and_load_export():
 
 
 def write_glucobench(folder: Path) -> None:
-    """Tiny files with the real files' quirks (see docs/DATA.md §1)."""
+    """Tiny files with the real files' quirks (see docs/reference/DATA.md §1)."""
     folder.mkdir()
     (folder / "weinstock.csv").write_text(
         "id,gl,time,Gender\n199,39,1900-01-01 00:00:00,F\n199,120,1900-01-01 00:05:00,F\n"
@@ -145,7 +145,7 @@ def test_load_glucobench_quirks(tmp_path):
         gio.load_glucobench("hall", folder)
 
 
-EXPECTED = {  # rows, patients; measured on the pinned archive (docs/DATA.md §1)
+EXPECTED = {  # rows, patients; measured on the pinned archive (docs/reference/DATA.md §1)
     "weinstock": (647_858, 200),
     "dubosson": (8_055, 9),
     "hall": (105_426, 57),

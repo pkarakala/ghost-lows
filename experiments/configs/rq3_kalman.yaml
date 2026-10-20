@@ -1,4 +1,4 @@
-# RQ3 (exploratory; amendment A3 in docs/DECISIONS.md): the multiple-model Kalman filter with a
+# RQ3 (exploratory; amendment A3 in docs/reference/DECISIONS.md): the multiple-model Kalman filter with a
 # compressed state, and its two ablations (no insulin/carb inputs; no compressed state). Same
 # cohort, folds, faults, training level and operating-point rule as rq1_pisa_sweep, so
 # experiments/run_all.py pairs these alarms with that run's discriminative alarms: each fold's

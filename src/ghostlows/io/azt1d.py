@@ -1,4 +1,4 @@
-"""Loader for AZT1D [AZT1D 2025] (docs/DATA.md §1), read from the archive saved by
+"""Loader for AZT1D [AZT1D 2025] (docs/reference/DATA.md §1), read from the archive saved by
 `scripts/download_data.py --azt1d`: 25 adults with type 1 diabetes on automated insulin delivery,
 Dexcom CGM every 5 min, local Arizona time (no daylight saving time).
 

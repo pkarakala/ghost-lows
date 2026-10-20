@@ -1,4 +1,4 @@
-"""Loader for LibreView CSV exports (docs/DATA.md §4)."""
+"""Loader for LibreView CSV exports (docs/reference/DATA.md §4)."""
 
 from __future__ import annotations
 

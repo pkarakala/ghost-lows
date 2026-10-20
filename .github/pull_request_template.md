@@ -4,7 +4,7 @@
 
 ## Does it change any number in results/?
 
-No / Yes: amendment A__ in `docs/DECISIONS.md`, dated before anything was computed (AGENTS.md rule 11).
+No / Yes: amendment A__ in `docs/reference/DECISIONS.md`, dated before anything was computed (AGENTS.md rule 11).
 
 ## Tests run
 

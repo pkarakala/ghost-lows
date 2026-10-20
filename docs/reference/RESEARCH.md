@@ -1,6 +1,6 @@
 # Research plan
 
-The research questions, hypotheses, novelty claim and limitations; for researchers and reviewers judging the claims. Citations in [brackets] resolve to entries in [`CITATIONS.md`](CITATIONS.md). Items marked **[clinical review]** are listed in [`CLINICAL_REVIEW.md`](CLINICAL_REVIEW.md). Design decisions D1–D19, amendments A1–A13 and proposed amendments P4–P9 (P1–P3 adopted as A10–A12), with their evidence, are in [`DECISIONS.md`](DECISIONS.md).
+The research questions, hypotheses, novelty claim and limitations; for researchers and reviewers judging the claims. Citations in [brackets] resolve to entries in [`CITATIONS.md`](../CITATIONS.md). Items marked **[clinical review]** are listed in [`CLINICAL_REVIEW.md`](../CLINICAL_REVIEW.md). Design decisions D1–D19, amendments A1–A13 and proposed amendments P4–P9 (P1–P3 adopted as A10–A12), with their evidence, are in [`DECISIONS.md`](DECISIONS.md).
 
 ## 1. Definitions
 

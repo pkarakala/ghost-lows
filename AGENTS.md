@@ -4,7 +4,7 @@ The rules for anyone changing this repository, human or coding agent. Read them 
 
 ## What this project is
 
-An open benchmark that scores real-time CGM low-glucose alarms on **lows caught, false alarms per day and minutes of warning**, under a mixed sensor-fault suite (compression/PISA, dropout, stale, drift, spikes), plus a controlled ablation of what **insulin and carb context** adds. On top: an in-browser upload report for Dexcom Clarity / LibreView exports. **The benchmark is the contribution, not a new detector.** See [`docs/RESEARCH.md`](docs/RESEARCH.md).
+An open benchmark that scores real-time CGM low-glucose alarms on **lows caught, false alarms per day and minutes of warning**, under a mixed sensor-fault suite (compression/PISA, dropout, stale, drift, spikes), plus a controlled ablation of what **insulin and carb context** adds. On top: an in-browser upload report for Dexcom Clarity / LibreView exports. **The benchmark is the contribution, not a new detector.** See [`docs/reference/RESEARCH.md`](docs/reference/RESEARCH.md).
 
 ## Hard rules
 
@@ -19,8 +19,8 @@ Other files cite these by number ("hard rule 5"); keep the numbering.
 7. **Safety wording.** In the app and any user-facing text: "possible compression artifact". Never "not real", "fake", "ignore". Follow `docs/PRIVACY_AND_SAFETY.md`.
 8. **No user data leaves the browser.** The app has no backend. No analytics.
 9. **No data in git.** `data/` and `results/*/` are gitignored. Never commit real patient data, even de-identified.
-10. **Do not overclaim.** Results text reports effect sizes with CIs and states limitations from `docs/RESEARCH.md` §6.
-11. **Amend before computing.** Any change to a result, metric or operating point needs a dated amendment in `docs/DECISIONS.md` (Amendments) before anything is computed. The tag `protocol-v1` is never moved.
+10. **Do not overclaim.** Results text reports effect sizes with CIs and states limitations from `docs/reference/RESEARCH.md` §6.
+11. **Amend before computing.** Any change to a result, metric or operating point needs a dated amendment in `docs/reference/DECISIONS.md` (Amendments) before anything is computed. The tag `protocol-v1` is never moved.
 
 ## Markers
 

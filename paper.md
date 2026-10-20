@@ -60,10 +60,10 @@ The 2008 simulator lacks the 2013 model's hypoglycaemia nonlinearity and glucago
 
 # AI usage disclosure
 
-Research question: Pranav Karakala Reddy. Study design: the design decisions and amendments in docs/DECISIONS.md were drafted and recorded by AI agents (Claude, Anthropic) acting in a reviewer role under authority the author delegated, and were accepted by the author. Software, documentation and results text were written with AI coding agents under the author's direction: every commit carries a Co-Authored-By: Claude trailer, and three early commits are authored by Claude. The author reviewed the code and results, but not every line. Clinical review: Cohen Ferrari, in progress; no item in docs/CLINICAL_REVIEW.md has been signed off yet.
+Research question: Pranav Karakala Reddy. Study design: the design decisions and amendments in docs/reference/DECISIONS.md were drafted and recorded by AI agents (Claude, Anthropic) acting in a reviewer role under authority the author delegated, and were accepted by the author. Software, documentation and results text were written with AI coding agents under the author's direction: every commit carries a Co-Authored-By: Claude trailer, and three early commits are authored by Claude. The author reviewed the code and results, but not every line. Clinical review: Cohen Ferrari, in progress; no item in docs/CLINICAL_REVIEW.md has been signed off yet.
 
 # Acknowledgements
 
-We thank the teams who made their data and software public: the Jaeb Center for Health Research and the authors of the study of severe hypoglycaemia in older adults [@Weinstock2016]; the GlucoBench curators [@GlucoBench2024]; the AZT1D authors [@AZT1Ddata]; and the author of simglucose [@simglucose]. The code and documentation were written with an AI coding assistant (Claude, Anthropic), as recorded in the commit history; design decisions and amendments are logged in `docs/DECISIONS.md`.
+We thank the teams who made their data and software public: the Jaeb Center for Health Research and the authors of the study of severe hypoglycaemia in older adults [@Weinstock2016]; the GlucoBench curators [@GlucoBench2024]; the AZT1D authors [@AZT1Ddata]; and the author of simglucose [@simglucose]. The code and documentation were written with an AI coding assistant (Claude, Anthropic), as recorded in the commit history; design decisions and amendments are logged in `docs/reference/DECISIONS.md`.
 
 # References

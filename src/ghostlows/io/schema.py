@@ -1,4 +1,4 @@
-"""The common long-table schema every loader returns (docs/DATA.md §3)."""
+"""The common long-table schema every loader returns (docs/reference/DATA.md §3)."""
 
 from __future__ import annotations
 

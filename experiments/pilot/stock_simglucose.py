@@ -1,4 +1,5 @@
-"""Pilot: true lows, IOB leak and lag in stock simglucose (evidence for docs/DECISIONS.md).
+"""Pilot: true lows, IOB leak and lag in stock simglucose (evidence for
+docs/reference/DECISIONS.md).
 
 Stock BBController, RandomScenario and a 5-min sensor (GuardianRT parameters, identical noise to
 the bundled Dexcom row), seed 1. Records plasma glucose (state x[3]/Vg), simglucose's `BG`

@@ -1,4 +1,5 @@
-"""The data card of scripts/package_cohort.py states the limitations of docs/RESEARCH.md §6."""
+"""The data card of scripts/package_cohort.py states the limitations of
+docs/reference/RESEARCH.md §6."""
 
 import importlib.util
 from collections import defaultdict
@@ -16,7 +17,7 @@ def bullets(section: str) -> list[str]:
 
 def test_datacard_limitations_match_research_section_6():
     # parsed here without the script's regex, so a change to either side fails the test
-    research = (ROOT / "docs" / "RESEARCH.md").read_text()
+    research = (ROOT / "docs" / "reference" / "RESEARCH.md").read_text()
     expected = bullets(research.split("\n## 6. ")[1].split("\n## ")[0])
     card = pc.DATACARD.format_map(defaultdict(str, limitations=pc.limitations()))
     stated = bullets(card.split("\n## Limitations\n")[1].split("\n## ")[0])

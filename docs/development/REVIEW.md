@@ -268,7 +268,7 @@ P1–P3 were adopted as post-hoc amendments, each logged in `DECISIONS.md` befor
 
 ### Left for the project lead
 
-**Decisions.** Proposed amendments P1–P9 in [`../DECISIONS.md`](../DECISIONS.md):
+**Decisions.** Proposed amendments P1–P9 in [`../DECISIONS.md`](../reference/DECISIONS.md):
 
 | Proposal | Changes results? |
 |---|---|

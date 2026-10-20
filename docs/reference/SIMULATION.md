@@ -1,6 +1,6 @@
 # Simulation and fault-suite specification
 
-How the virtual cohort and the sensor faults are generated, for anyone running, changing or reviewing the simulation. Every number here comes from a cited source or is marked **[assumption]**. Assumptions are configurable and must be listed in the results. Decisions D1–D19 and amendments are explained in [`DECISIONS.md`](DECISIONS.md). What the simulator and the cohort turned out to be, as built, is in [`SIMULATION_NOTES.md`](SIMULATION_NOTES.md); example faults are drawn in [`figures/faults_examples.png`](figures/faults_examples.png) (`make fault-figure`).
+How the virtual cohort and the sensor faults are generated, for anyone running, changing or reviewing the simulation. Every number here comes from a cited source or is marked **[assumption]**. Assumptions are configurable and must be listed in the results. Decisions D1–D19 and amendments are explained in [`DECISIONS.md`](DECISIONS.md). What the simulator and the cohort turned out to be, as built, is in [`SIMULATION_NOTES.md`](SIMULATION_NOTES.md); example faults are drawn in [`figures/faults_examples.png`](../figures/faults_examples.png) (`make fault-figure`).
 
 ## 1. Simulator
 

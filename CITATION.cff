@@ -2,7 +2,7 @@ cff-version: 1.2.0
 message: >-
   If you use Ghost Lows, please cite the software (this file). Benchmark results should
   also name the benchmark version they were computed on. Cite the datasets and
-  simulator you use as listed in docs/DATA.md and docs/CITATIONS.md.
+  simulator you use as listed in docs/reference/DATA.md and docs/CITATIONS.md.
 title: "Ghost Lows: an open benchmark for real-time CGM low-glucose alarms under sensor faults"
 type: software
 authors:

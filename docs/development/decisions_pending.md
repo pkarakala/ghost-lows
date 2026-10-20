@@ -4,7 +4,7 @@ Choices made during the Phase 2 fixes of [`REVIEW.md`](REVIEW.md) while the proj
 
 `docs/model_card.md`, named in the instruction as a second reference, does not exist in this repository. `CLAUDE.md` and the specs in `docs/` were used instead.
 
-Scientific decisions are not made here. They are listed as proposals P4–P9 (P1–P3 were adopted as A10–A12) in [`DECISIONS.md`](../DECISIONS.md) and wait for the project lead.
+Scientific decisions are not made here. They are listed as proposals P4–P9 (P1–P3 were adopted as A10–A12) in [`DECISIONS.md`](../reference/DECISIONS.md) and wait for the project lead.
 
 | # | Question | Chosen | Why |
 |---|---|---|---|

@@ -43,7 +43,7 @@ To make it a **benchmark** alarm:
 | Rule alarm | `src/ghostlows/alarms/rules.py` |
 | Published detector, used as a gate and in the four context arms | a `Detector` subclass in `src/ghostlows/alarms/learned.py`, its scoring function in `detectors.py`, an entry in `DETECTORS` |
 | Registration | `stretch_alarms()` in `src/ghostlows/alarms/__init__.py`. Adding to `benchmark_alarms()` or `DETECTORS` changes the pre-registered set, so it needs an amendment first ([below](#change-a-result-a-metric-or-the-operating-point)). |
-| Specification | `docs/BENCHMARK.md` §2 |
+| Specification | `docs/reference/BENCHMARK.md` §2 |
 | Runs | select it by name under `alarms:` in `experiments/configs/*.yaml` |
 
 Tests required:
@@ -60,7 +60,7 @@ Tests required:
 | Knobs | a field per rate or size in `FaultConfig` (`src/ghostlows/faults/suite.py`), each with a `SOURCE` or `ASSUMPTION` marker |
 | Injection | a block in `apply_run` that changes only the observed CGM, draws from its own `stream(seed, "<kind>")` so existing faults stay identical, and labels its samples with `mark()` |
 | Label priority | `LABEL_PRIORITY` in `suite.py`. Cause attribution (`src/ghostlows/bench/scoring.py`) then counts its false alarms as "other fault". |
-| Specification | `docs/SIMULATION.md` §4.2 |
+| Specification | `docs/reference/SIMULATION.md` §4.2 |
 
 Leave the new kind out of the default `FaultConfig.enabled` unless an amendment adds it: enabling it changes every number.
 
@@ -75,7 +75,7 @@ Tests required, in `tests/test_faults.py`:
 
 Hard rule 11: amend before computing.
 
-1. Add a dated entry under Amendments in `docs/DECISIONS.md`. Give the date, whether any result existed yet, the change, the reason and what is expected to change. Commit it on its own.
+1. Add a dated entry under Amendments in `docs/reference/DECISIONS.md`. Give the date, whether any result existed yet, the change, the reason and what is expected to change. Commit it on its own.
 2. Implement the change and its tests.
 3. Recompute, then regenerate `results/README.md` with `uv run python experiments/make_results_readme.py`. Never edit it by hand.
 4. Name the amendment in the pull request.

@@ -1,6 +1,6 @@
 """Consensus CGM metrics and the ambulatory glucose profile (AGP).
 
-All functions take a table in the common schema (docs/DATA.md §3) and use only rows with a
+All functions take a table in the common schema (docs/reference/DATA.md §3) and use only rows with a
 glucose value. Censored readings (`below_range` / `above_range`) count at their device limit,
 so a "Low" reading counts as below 54 mg/dL and a "High" reading as above 250 mg/dL.
 """

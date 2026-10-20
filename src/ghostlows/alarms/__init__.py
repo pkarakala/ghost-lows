@@ -1,4 +1,5 @@
-"""Real-time low-glucose alarms behind a common causal interface (docs/BENCHMARK.md §1-2)."""
+"""Real-time low-glucose alarms behind a common causal interface
+(docs/reference/BENCHMARK.md §1-2)."""
 
 from .base import FLOOR_MG_DL, Alarm, BaseAlarm, fire_events, view
 from .kalman_pisa import KalmanParams, KalmanPisaAlarm

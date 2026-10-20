@@ -1,4 +1,4 @@
-"""Loader for the GlucoBench raw CSVs (docs/DATA.md §1), as written by scripts/download_data.py."""
+"""Loader for the GlucoBench raw CSVs (docs/reference/DATA.md §1), from scripts/download_data.py."""
 
 from __future__ import annotations
 
@@ -19,9 +19,9 @@ _DATA = os.environ.get("GHOSTLOWS_DATA_DIR") or Path(__file__).resolve().parents
 DEFAULT_DIR = Path(_DATA) / "raw" / "glucobench"
 
 # Values that stand for readings outside the sensor's range, as (value, flag, stored value).
-# ASSUMPTION: inferred from pile-ups at the extremes (docs/DATA.md §1): weinstock has 11,924
-# readings of 39 vs 605 of 40 and 11,978 of 401 vs 187 of 400; dubosson piles up at 39.6 and
-# 399.6 (2.2 and 22.2 mmol/L x 18); colas has 75 readings of 40 vs 12 of 41.
+# ASSUMPTION: inferred from pile-ups at the extremes (docs/reference/DATA.md §1): weinstock has
+# 11,924 readings of 39 vs 605 of 40 and 11,978 of 401 vs 187 of 400; dubosson piles up at 39.6
+# and 399.6 (2.2 and 22.2 mmol/L x 18); colas has 75 readings of 40 vs 12 of 41.
 SENTINELS = {
     "weinstock": [(39.0, "below_range", 40.0), (401.0, "above_range", 400.0)],
     "dubosson": [(39.6, "below_range", 39.6), (399.6, "above_range", 399.6)],

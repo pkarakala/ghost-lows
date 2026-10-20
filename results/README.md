@@ -7,7 +7,7 @@ Training fault level (D19): PISA on 86% of nights (realistic default from Lobo 2
 
 ## Summary
 
-Read mechanically from the tables below, with the rules of docs/RESEARCH.md §3 (H1, H2) and amendment A4 (H3); nothing in this section is typed by hand.
+Read mechanically from the tables below, with the rules of docs/reference/RESEARCH.md §3 (H1, H2) and amendment A4 (H3); nothing in this section is typed by hand.
 
 - **H1** (trend alarms degrade faster than threshold alarms as compression nights increase; median per-patient slope difference, false alarms/day per unit PISA fraction): default: 0.09 (0.07–0.10), supported; high: 0.11 (0.08–0.14), supported; standard: 0.08 (0.06–0.11), supported. Size of the effect (default mix): going from no compressed nights to a PISA on every night adds 0.09 more false alarms per day to `trend` than to `threshold`, about one extra false alarm every 11 days. Supported, but small.
 - **H2** (default mix, PISA on 100% of nights; compression false alarms with IOB/COB ÷ without, SESOI 0.75): no meaningful reduction: `baysal`, `gbm`, `iforest_causal`, `matched_filter_causal`, `threshold`, `trend`.
@@ -445,7 +445,7 @@ Each benchmark run records the commit it ran at (`results/tables/<run>__git_comm
 
 This is weaker than re-running everything. It needs the cached cohort under `data/sim/` (from `make results`, about 2.3 h). The cohort's cache key includes the package version, and the cohort was simulated at version 0.0.1, so at a later version `make results` simulates it afresh under a new key. The full pipeline was run once to produce these results and has not been repeated from a clean clone.
 
-## Limitations (from docs/RESEARCH.md §6)
+## Limitations (from docs/reference/RESEARCH.md §6)
 
 - **Simulated hypoglycaemia is the weakest part of the simulator.** simglucose implements the 2008 UVA/Padova model [simglucose; Kovatchev 2009]. It lacks the 2013 model's nonlinear rise of insulin action in hypoglycaemia and its glucagon counter-regulation [Dalla Man 2014]. Those equations are published, but the parameter values needed to add them are not. Hence the real-data validation in §7 (D16).
 - Virtual patients treat lows with a fixed rule (15 g when the fault-free CGM is below 70 mg/dL by day or at or below 55 at night, never logged; amendment A6). Real people treat less regularly. Without any treatment the 2008 model gives impossible hypoglycaemia, so the rule is needed, but it shapes how long and how deep simulated lows are **[clinical review CR17]**. Its night trigger (≤55 mg/dL) is the urgent-low floor and the trend alarm's target, and its day trigger (<70) is the threshold alarm's, so true lows tend to end where the alarms fire; a decoupled arm is proposed (P5).

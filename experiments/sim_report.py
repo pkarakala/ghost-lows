@@ -2,7 +2,7 @@
 
     uv run python experiments/sim_report.py --config experiments/configs/sim_full.yaml
 
-Prints Markdown tables (used in docs/SIMULATION_NOTES.md).
+Prints Markdown tables (used in docs/reference/SIMULATION_NOTES.md).
 """
 
 from __future__ import annotations

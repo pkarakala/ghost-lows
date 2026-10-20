@@ -1,4 +1,4 @@
-"""Loader for Dexcom Clarity CSV exports (docs/DATA.md §4)."""
+"""Loader for Dexcom Clarity CSV exports (docs/reference/DATA.md §4)."""
 
 from __future__ import annotations
 
@@ -17,7 +17,7 @@ from .schema import (
 )
 
 SOURCE_NAME = "dexcom_clarity"
-# The 14 columns of a US (mg/dL) export (docs/DATA.md §4); used to write synthetic files
+# The 14 columns of a US (mg/dL) export (docs/reference/DATA.md §4); used to write synthetic files
 EXPORT_COLUMNS = [
     "Index",
     "Timestamp (YYYY-MM-DDThh:mm:ss)",

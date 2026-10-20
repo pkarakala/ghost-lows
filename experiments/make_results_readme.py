@@ -710,7 +710,7 @@ def section_summary(meta: dict) -> list[str]:
     lines = [
         "## Summary",
         "",
-        "Read mechanically from the tables below, with the rules of docs/RESEARCH.md §3 (H1, H2) and amendment A4 (H3); nothing in this section is typed by hand.",
+        "Read mechanically from the tables below, with the rules of docs/reference/RESEARCH.md §3 (H1, H2) and amendment A4 (H3); nothing in this section is typed by hand.",
         "",
     ]
     h1 = table(TABLES / f"{MAIN}__contrast_h1.csv")
@@ -961,12 +961,12 @@ def section_reproducibility() -> list[str]:
 
 
 def limitations() -> list[str]:
-    text = (REPO / "docs" / "RESEARCH.md").read_text()
+    text = (REPO / "docs" / "reference" / "RESEARCH.md").read_text()
     m = re.search(r"## 6\. Known limitations to state up front\n(.*?)\n## 7", text, flags=re.S)
     return [
-        "## Limitations (from docs/RESEARCH.md §6)",
+        "## Limitations (from docs/reference/RESEARCH.md §6)",
         "",
-        m.group(1).strip() if m else "See docs/RESEARCH.md §6.",
+        m.group(1).strip() if m else "See docs/reference/RESEARCH.md §6.",
         "",
     ]
 

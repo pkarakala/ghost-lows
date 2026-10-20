@@ -56,7 +56,7 @@ all: lint test results
 fault-figure:
 	uv run python experiments/make_fault_figure.py
 
-# The cohort report in docs/SIMULATION_NOTES.md (needs the simulated cohort).
+# The cohort report in docs/reference/SIMULATION_NOTES.md (needs the simulated cohort).
 sim-report:
 	uv run python experiments/sim_report.py --config experiments/configs/sim_full.yaml
 

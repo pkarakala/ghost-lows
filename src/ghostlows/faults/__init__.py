@@ -1,4 +1,4 @@
-"""Sensor-fault suite: PISA, dropout, stale, drift, spikes (docs/SIMULATION.md §4)."""
+"""Sensor-fault suite: PISA, dropout, stale, drift, spikes (docs/reference/SIMULATION.md §4)."""
 
 from .calibrate import realistic_fraction
 from .pisa import DEPTH, DURATION, Pisa, from_size, sample_sizes

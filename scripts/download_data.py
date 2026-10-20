@@ -1,4 +1,5 @@
-"""Download the public datasets listed in docs/DATA.md into data/raw/ and record them in a manifest.
+"""Download the public datasets listed in docs/reference/DATA.md into data/raw/ and record them
+in a manifest.
 
 By default this fetches GlucoBench's raw_data.zip (5.6 MB) and extracts its CSVs. --diadata adds
 the DiaData 5-minute archive (2.3 GB) and --azt1d the AZT1D archive (776 MB), neither extracted.
@@ -46,14 +47,14 @@ class Remote:
     path: str  # destination, relative to data/raw/
     url: str
     ref: str  # upstream version the URL points at
-    licence: str  # as stated by the source; see docs/DATA.md
+    licence: str  # as stated by the source; see docs/reference/DATA.md
     size: int | None = None
     sha256: str | None = None
     md5: str | None = None
 
 
-# GlucoBench at the commit checked on 2026-10-18 (docs/DATA.md §1). The URL names the commit,
-# not a branch, so the bytes cannot change under us; the SHA-256 is of that file.
+# GlucoBench at the commit checked on 2026-10-18 (docs/reference/DATA.md §1). The URL names the
+# commit, not a branch, so the bytes cannot change under us; the SHA-256 is of that file.
 GLUCOBENCH_COMMIT = "661d840a98b316df51faa13a7100430afcbbb5b7"
 GLUCOBENCH = Remote(
     dataset="GlucoBench 2024",

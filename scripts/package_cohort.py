@@ -63,7 +63,7 @@ The faulted CGM at a sweep level is rebuilt exactly with
 
 ## Limitations
 
-Copied from `docs/RESEARCH.md` §6 of the repository on {date}. Its section (§), decision (D),
+Copied from `docs/reference/RESEARCH.md` §6 of the repository on {date}. Its section (§), decision (D),
 amendment (A), proposal (P) and clinical-review (CR) references point into that repository.
 
 {limitations}
@@ -76,11 +76,13 @@ the project lead before release. Cite the Ghost Lows software (CITATION.cff) and
 
 
 def limitations() -> str:
-    """docs/RESEARCH.md §6 verbatim, so the data card cannot drift from the repository's list."""
-    text = (REPO / "docs" / "RESEARCH.md").read_text()
+    """docs/reference/RESEARCH.md §6 verbatim, so the data card cannot drift from the repository's list."""
+    text = (REPO / "docs" / "reference" / "RESEARCH.md").read_text()
     m = re.search(r"## 6\. Known limitations to state up front\n(.*?)\n## 7", text, flags=re.S)
     if not m:
-        raise ValueError("docs/RESEARCH.md has no §6 'Known limitations to state up front'")
+        raise ValueError(
+            "docs/reference/RESEARCH.md has no §6 'Known limitations to state up front'"
+        )
     return m.group(1).strip()
 
 
