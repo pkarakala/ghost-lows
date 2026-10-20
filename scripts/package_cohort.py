@@ -14,6 +14,7 @@ from __future__ import annotations
 import argparse
 import hashlib
 import json
+import re
 import shutil
 import sys
 import tempfile
@@ -60,17 +61,27 @@ calibrated bolus settings (`calibration_v1.yaml`). The virtual patients treat lo
 The faulted CGM at a sweep level is rebuilt exactly with
 `ghostlows.faults.apply_faults(samples, FaultConfig(pisa_fraction=level, severity={severity}), seed={fault_seed})`.
 
-## Limits (see docs/RESEARCH.md §6 in the repository)
+## Limitations
 
-- The 2008 model lacks counter-regulation; simulated lows are its least trustworthy part.
-- The simulated sensor error is smooth (AR(1) on a 15-min grid, cubic interpolation).
-- The treatment rule, the scenario perturbations and the calibration band are assumptions.
+Copied from `docs/RESEARCH.md` §6 of the repository on {date}. Its section (§), decision (D),
+amendment (A), proposal (P) and clinical-review (CR) references point into that repository.
+
+{limitations}
 
 ## Licence and citation
 
 Proposed licence: CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/), to be confirmed by
 the project lead before release. Cite the Ghost Lows software (CITATION.cff) and simglucose.
 """
+
+
+def limitations() -> str:
+    """docs/RESEARCH.md §6 verbatim, so the data card cannot drift from the repository's list."""
+    text = (REPO / "docs" / "RESEARCH.md").read_text()
+    m = re.search(r"## 6\. Known limitations to state up front\n(.*?)\n## 7", text, flags=re.S)
+    if not m:
+        raise ValueError("docs/RESEARCH.md has no §6 'Known limitations to state up front'")
+    return m.group(1).strip()
 
 
 def sha256(path: Path) -> str:
@@ -119,6 +130,7 @@ def main() -> int:
                 runs=meta.get("tasks"),
                 severity=bench.severity,
                 fault_seed=bench.fault_seed,
+                limitations=limitations(),
             )
         )
         (root / "provenance.yaml").write_text(yaml.safe_dump({"cohort_meta": meta}))
