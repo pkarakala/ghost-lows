@@ -192,6 +192,29 @@ def test_every_clinical_review_marker_names_a_listed_item():
     )
 
 
+SIGNOFF_RE = re.compile(r"Signed off: [^,\n]+, \d{4}-\d{2}-\d{2}\.\s*$")
+
+
+def badly_signed(text: str) -> list[str]:
+    """CR items ticked without a closing `Signed off: <reviewer>, <YYYY-MM-DD>.`, or signed
+    off without a tick."""
+    bad = []
+    for line in text.splitlines():
+        m = re.match(r"- \[([ xX])\] \*\*(CR\d+)\.", line)
+        if m and (m.group(1) != " ") != bool(SIGNOFF_RE.search(line)):
+            bad.append(m.group(2))
+    return bad
+
+
+def test_ticked_clinical_items_are_signed_off():
+    """CONTRIBUTING.md: a maintainer ticks a CR item with the reviewer's name and the date."""
+    assert badly_signed("- [x] **CR1. A.** Claim. Signed off: A. Reviewer, 2026-11-02.") == []
+    unsigned_tick = "- [x] **CR1. A.** Claim."
+    unticked_signoff = "- [ ] **CR2. B.** Claim. Signed off: B, 2026-11-02."
+    assert badly_signed(f"{unsigned_tick}\n{unticked_signoff}") == ["CR1", "CR2"]
+    assert badly_signed((ROOT / "docs" / "CLINICAL_REVIEW.md").read_text()) == []
+
+
 DOCS = [
     *ROOT.glob("*.md"),
     *(ROOT / "docs").rglob("*.md"),
