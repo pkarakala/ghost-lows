@@ -1,6 +1,6 @@
 # Research plan
 
-Citations in [brackets] resolve to entries in [`CITATIONS.md`](CITATIONS.md). Items marked **[clinical review]** are listed in [`CLINICAL_REVIEW.md`](CLINICAL_REVIEW.md). Design decisions D1–D19, amendments A1–A12 and proposed amendments P4–P9 (P1–P3 adopted as A10–A12), with their evidence, are in [`DECISIONS.md`](DECISIONS.md).
+The research questions, hypotheses, novelty claim and limitations; for researchers and reviewers judging the claims. Citations in [brackets] resolve to entries in [`CITATIONS.md`](CITATIONS.md). Items marked **[clinical review]** are listed in [`CLINICAL_REVIEW.md`](CLINICAL_REVIEW.md). Design decisions D1–D19, amendments A1–A13 and proposed amendments P4–P9 (P1–P3 adopted as A10–A12), with their evidence, are in [`DECISIONS.md`](DECISIONS.md).
 
 ## 1. Definitions
 
@@ -41,11 +41,11 @@ Does a filter with an explicit "compressed" hidden state plus insulin and meal i
 - **H2 (value of context).** Primary contrast: the rate ratio RR = compression false alarms per night of [CGM + time + IOB/COB] over [CGM + time], at the pre-registered operating point, per detector, on the default scenario mix, with a paired patient-bootstrap CI. Smallest effect size of interest: RR = 0.75, a 25% reduction **[assumption, clinical review CR9]**. It is relative because absolute rates scale with the assumed PISA frequency. Reading: *meaningful reduction* if the CI's upper bound is below 1 and the point estimate is ≤0.75; *no meaningful reduction* if the CI's lower bound is above 0.75; otherwise *inconclusive*. Secondary: RR is closer to 1 on the high-perturbation mix than on the standard mix.
 - **H3 (real data).** The context benefit shrinks on real data: RR on semi-synthetic AZT1D nights (real CGM, recorded user-entered boluses and carbs, injected compression) is closer to 1 than in simulation at a matched unexplained-low fraction (D3). Real compression artifacts already present in AZT1D are unlabelled and contaminate the reference; this is stated as a limitation of H3. *Operationalised before any AZT1D result (amendment A4):* the matched mix is the simulated mix with the closest leak AUC; per detector at PISA on every night, H3 holds when |log RR| is smaller on AZT1D; descriptive, with both CIs reported.
 
-Null results are results. The benchmark is the contribution whichever way H2 comes out.
+The benchmark is the contribution whichever way H2 comes out.
 
 ## 4. What is new, and why
 
-**Prior work** (moved here from the README):
+**Prior work.**
 - **Mechanism and size.** Compression lows are typically shallow (median depth 24 mg/dL) and short (median 45 min) [Facchinetti 2016]. They occur mostly overnight. They are long enough to meet the consensus definition of a CGM hypoglycaemic event [Battelino 2023]. They cause false overnight alarms, which contribute to alarm fatigue [Shivers 2013]. Inside automated insulin delivery they can trigger needless insulin suspensions followed by high morning glucose [Baysal 2014] **[clinical review CR5]**.
 - **Rule-based detection.** Real-time, rule-based PISA detection on real data [Baysal 2014].
 - **Machine learning.** Machine-learning detectors include gradient boosting [Navarathna 2023]. A prospective detector of PISA onset is scored by PR-AUC [Lobo 2026].
@@ -59,16 +59,14 @@ Null results are results. The benchmark is the contribution whichever way H2 com
   - On gating low alarms with insulin and carb context [US 11,406,331; US 9,119,528; US 10,231,659].
 - **Commercial.** A commercial multi-sensor approach with no published metrics [Trinity Biotech 2026].
 
-Novelty was assessed on 2026-10-18 from abstracts, full texts where available, and a patent scan; see `CITATIONS.md` for what was and was not read.
+Novelty was assessed on 2026-10-18 from abstracts, full texts where available, and a patent scan that read summaries, not claims. Confidence: medium. `CITATIONS.md` says what was and was not read.
 
-**Summary.** Compression-low detection itself is established [Baysal 2014; Navarathna 2023; Idi 2023; Idi 2024; Manzoni 2025; Lobo 2026], and detecting it from CGM values alone is well covered. What does not exist is:
+Compression-low detection itself is established (above), and detecting it from CGM values alone is well covered. What does not exist is:
 
 1. **An open benchmark that scores low alarms, not detectors.** Prior work reports detector metrics such as sensitivity, false positives per day or PR-AUC [Idi 2024; Manzoni 2025; Lobo 2026]. [Lobo 2026] detects PISA onset prospectively, to inform "canceling of hypoglycemia alarms", but scores the detector by PR-AUC. None scores each real-time *alarm* on lows caught, false alarms per day and minutes of warning together, under a *mixed* fault suite with adjustable severity. Fault-injection testbeds exist for controllers and generic faults but have no PISA model [Zhou 2021; APS_TestBed 2022]. CGM benchmarks are about forecasting and have no sensor faults [GlucoBench 2024; GlucoFM-Bench 2026; MetaboNet-Bench 2026]. *To check before claiming:* whether the commercial UVA/Padova simulator's sensor models include PISA (Facchinetti 2016 aims to add these artifacts to simulators; see also US 10,546,659), and the full text of [Lobo 2026] (PMC13486385).
-2. **A controlled ablation of insulin and carb context at alarm time.** Context-based alarm gating is claimed in product patents [US 11,406,331; US 9,119,528; US 10,231,659; US 2024/0139415], but no open study measures, detector by detector and at a fixed safety level, how much context adds over CGM-only methods.
+2. **A controlled ablation of insulin and carb context at alarm time.** Context-based alarm gating is claimed in product patents (above), but no open study measures, detector by detector and at a fixed safety level, how much context adds over CGM-only methods.
 3. **A simulation that varies how much insulin explains.** In simglucose every low is caused by the insulin model the context features read. Yet in a pilot, bolus IOB barely separated nocturnal low onsets from other night-time moments (AUC 0.54, DECISIONS.md). How much context can help is therefore an empirical question. The scenario mixes vary it on purpose (unannounced exercise, sensitivity changes, meal errors) and report the result as an axis (D3).
-4. **Fault realism from the literature.** Compression is injected from the published PISA model [Facchinetti 2016] (median depth 24 mg/dL, median duration 45 min), as used by [Idi 2024], instead of hand-made shapes.
-
-Confidence: medium. The patent scan read summaries, not claims. See `CITATIONS.md`.
+4. **Fault realism from the literature.** Compression is injected from the published PISA model [Facchinetti 2016], as used by [Idi 2024], instead of hand-made shapes.
 
 **Patent note.** Publishing a benchmark and comparing methods carries little patent risk. Risk grows only if the upload tool becomes a product that suppresses or gates real alarms. Hence: the tool stays retrospective, uses the label "possible compression artifact", ships under an open licence with a no-medical-use disclaimer, and the university tech-transfer office is consulted before any commercial or clinical use. This is not a legal opinion.
 
@@ -100,6 +98,6 @@ Confidence: medium. The patent scan read summaries, not claims. See `CITATIONS.m
 
 ## 7. Validation strategy
 
-1. **Real lows with injected artifacts (co-primary for RQ1).** Inject PISAs from the same model into real overnight CGM (Weinstock 2016; DiaData raw, deduplicated) and score every alarm. Truth is the un-injected CGM, so false alarms caused by the injected artifacts can be attributed exactly. Real, unlabelled PISAs in the reference bias sensitivity, and this is stated. Because the reference lows come from the same CGM the alarms read, lows caught on this track is near-circular; only the false alarms caused by injected PISAs are informative (results/README.md). DiaData is not used yet (optional, 2.3 GB, and overlaps Weinstock).
+1. **Real lows with injected artifacts (co-primary for RQ1).** Inject PISAs from the same model into real overnight CGM (Weinstock 2016; DiaData raw, deduplicated) and score every alarm. Truth is the un-injected CGM, so false alarms caused by the injected artifacts can be attributed exactly. Real, unlabelled PISAs in the reference bias sensitivity, and lows caught on this track is near-circular (§6). DiaData is not used yet (optional, 2.3 GB, and overlaps Weinstock).
 2. **Face validity of simulated lows.** Compare simulated nocturnal true lows (fall rate in the 30 min before onset, nadir, duration) and the overnight glucose distribution (the share of the night in 70–95 mg/dL, where a median-depth artifact creates a false low) with real CGM (Weinstock 2016, DiaData). Report the comparison whatever it shows.
 3. **Labelled real data.** Request access to the dual-sensor set with PISA labels [Idi 2024] from the Padova group. Until then, real-data results report rates and agreement between detectors, not accuracy.

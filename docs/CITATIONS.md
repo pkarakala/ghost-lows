@@ -1,6 +1,6 @@
 # Citations
 
-Every claim in this repository's docs, code comments and results cites a key from this file. Add new sources here first (and to `references.bib`), then cite them.
+Every source the repository cites, for anyone adding or checking a claim. Every claim in the docs, code comments and results cites a key from this file. Add new sources here first (and to `references.bib`), then cite them.
 
 In code, write `# SOURCE: <key>`. Separate several keys with `;`; a key may be followed by a locator, as in `# SOURCE: Baysal 2014 (Table 1)`. `tests/test_repo_rules.py` fails if a key is not in this file.
 
@@ -8,8 +8,6 @@ In code, write `# SOURCE: <key>`. Separate several keys with `;`; a key may be f
 - **opened**: abstract or full text was opened during the 2026-10-18 review; link checked then.
 - **ref-only**: seen in reference lists or summaries only; not opened.
 - **verify**: added from general knowledge; details and DOI must be checked before use in a paper.
-
-Literature preparation for the paper is a separate, later step. This list exists so that the code and docs never make an uncited claim.
 
 **Note:** the Reference column gives first author, a *descriptive* title and venue. Titles are not exact. Before a source goes into a paper, fill its exact bibliographic record from the DOI (for example with `doi2bib`) into `references.bib`.
 

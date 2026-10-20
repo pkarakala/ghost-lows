@@ -1,6 +1,6 @@
 # Claims for the clinical co-lead to verify
 
-Tick each item once it has been checked against the full text or with a clinician. Code that depends on an item cites it with `# CLINICAL-REVIEW: <id>`.
+The clinical claims the code depends on, for the clinical co-lead and any clinician reviewing them ([how to review one](../CONTRIBUTING.md#review-a-clinical-claim)). Tick each item once it has been checked against the full text or with a clinician. Code that depends on an item cites it with `# CLINICAL-REVIEW: <id>`.
 
 - [ ] **CR1. Mechanism.** Reduced local blood flow from compression causes PISAs. [Mensh 2013] says "presumably"; is there direct physiological evidence? [Helton 2011]
 - [ ] **CR2. Size and duration.** Median depth 24 mg/dL, duration 45 min [Facchinetti 2016, Dexcom G4]. Do these hold for G6/G7, children, arm vs. abdomen?

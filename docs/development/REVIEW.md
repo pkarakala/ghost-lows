@@ -229,7 +229,7 @@ Phase 2 ran on 2026-10-18 (commits `cfd80b8`..HEAD).
 - The browser tests pass locally (`pytest -m browser`, 2 passed).
 - ruff is clean.
 
-The project lead was away for part of Phase 2. Choices made in that time are logged in [`../decisions_pending.md`](../decisions_pending.md).
+The project lead was away for part of Phase 2. Choices made in that time are logged in [`decisions_pending.md`](decisions_pending.md).
 
 ### Fixed
 

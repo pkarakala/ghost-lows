@@ -1,6 +1,6 @@
 # Benchmark specification
 
-Benchmark version **`ghostlows-bench v1`** (D18): the alarms, truth, metrics, operating point and statistics below, together with the frozen simulation and fault configs. Any change to them that alters results makes a new benchmark version. Decisions D1–D19 and amendments are explained in [`DECISIONS.md`](DECISIONS.md).
+The definition of benchmark version **`ghostlows-bench v1`** (D18), for anyone implementing, scoring or reviewing an alarm: the alarms, truth, metrics, operating point and statistics below, together with the frozen simulation and fault configs. Any change to them that alters results makes a new benchmark version. Decisions D1–D19 and amendments are explained in [`DECISIONS.md`](DECISIONS.md).
 
 ## 1. Alarm interface
 
@@ -15,7 +15,7 @@ class Alarm(Protocol):
     def alarms(self, df: pd.DataFrame, threshold: float) -> pd.DataFrame: ...  # alarm events
 ```
 
-- `score` is **one scalar per sample**, and `threshold` is the only operating-point parameter (D5). A gated alarm keeps its trend component at the fixed definition in §2 and scores as `1[trend fires] × (1 − gate score)`, so the threshold tunes only the gate.
+- `score` is **one scalar per sample**, and `threshold` is the only operating-point parameter (D5). For gated alarms it tunes only the gate (§5).
 - **Urgent-low floor (D4):** every alarm also fires, ungated, on any CGM reading ≤55 mg/dL **[assumption, clinical review CR14]**, mirroring the device alarm that cannot be silenced. No gate or context can suppress it. Floor alarms are labelled and reported separately.
 - `fit` sees training patients only. Feature normalisation uses training-fold statistics or trailing windows, never a test patient's whole trace (D14).
 - Alarm events have `patient_id`, `time`, `alarm_name`, `is_floor`. A refractory period (default 30 min **[assumption]**) stops one episode from firing many alarms; re-fires inside 15 min are counted as **flicker**.
@@ -33,13 +33,13 @@ class Alarm(Protocol):
 | Context arms (D2) | For every detector, four arms that differ only in their inputs: CGM-only, `_time` (+time of day), `_ctx` (+IOB/COB), `_time_ctx` (+both). Each arm passes the detector's output and its extra inputs through the same learned combiner (L2-regularised logistic regression) fitted on training patients; the published rule without a combiner is also reported as the *as published* reference. For `gbm` the arms are its feature sets | Ablation, this project |
 | `kalman_pisa` (stretch, RQ3) | Multiple-model Kalman filter with an explicit compressed state, an autocorrelated sensor-error state, and insulin and carbohydrate inputs. Ablations: `kalman_pisa_cgm` (no inputs) and `kalman_nopisa` (no compressed state). Selected by name, not part of `all` (amendment A3) | after [Facchinetti 2013; Turksoy 2017; Mahmoudi 2017; Facchinetti 2016; Breton 2008] |
 
-**Implementation notes (Phase 4).**
+**Implementation notes.**
 - `baysal_gate` uses the paper's rules a–f with its clinically used "trial" parameter set (g′_in −2.0, g′_out −3.1, ratio 1.5, 1 ± 0.3) [Baysal 2014]; the other three sets are a sensitivity analysis. Its Kalman estimate follows the structure in [Cameron 2012]: glucose and rate every minute, updated at readings, reset towards 140 mg/dL after 20 min of dropout. Tuning values are assumptions, because the paper's appendix equations were not available. Readings flagged as PISA do not update the filter. t_PISA,max = 120 min and t_dropout,max = 20 min are assumptions.
 - `matched_filter_causal_gate` correlates the last four 5-min CGM changes with the drop phase of the median Facchinetti PISA and scales by relative drop size. It needs about 20 min of the drop, so it is late by construction.
 - `iforest_causal_gate` scores five trailing-window features (10-min rate, its 30-min minimum, its change, drop from the 60-min median, CGM) with an isolation forest fitted on training patients; the gate is the training ECDF of the anomaly score.
 - Learned alarms are trained on `label` = a true level 1 low ongoing or starting within 30 min, computed by the benchmark from truth (`ghostlows.bench.events.low_labels`). They never see truth columns (`ghostlows.alarms.view`).
 
-**Implementation notes (Phase 9, `kalman_pisa`).**
+**`kalman_pisa` implementation notes.**
 - *States and modes.* An interacting multiple model filter tracks artifact-free glucose, its unexplained rate (a damped random walk), the compression artifact and its amplitude, and an autocorrelated sensor error [Breton 2008]. The CGM reads glucose + artifact + sensor error + white noise. There are three modes: steady; manoeuvre, where the rate may change 30 times faster, as after a meal, an insulin peak or exercise; and pressure. Pressure is the PISA model of [Facchinetti 2016]: a first-order response to a rectangle, using the generator's time constant, its median PISA's amplitude as the prior mean, and its mean pressure time. Pressure starts at Lobo 2026's rate. Without the manoeuvre mode, a sustained real fall could only be explained as ever-deepening compression; in development this locked the CGM-only filter into "pressure" until the CGM read about 20 mg/dL.
 - *Inputs.* Insulin and carbohydrate absorbed per minute (the fall of recorded IOB and COB) times gains from non-negative least squares on training patients. The pooled gains come out at about a third of the simulator's median correction factor: patients differ in sensitivity, and boluses are confounded with meals. This limits what the inputs can add.
 - *Score.* The probability, under the mixture of modes, that artifact-free glucose is below 55 mg/dL 20 min ahead. D5 chooses the threshold.
@@ -73,9 +73,9 @@ Also produce: sensitivity vs. false-alarms-per-day curves for each alarm across 
 
 ## 5. Operating point (pre-registered, D5)
 
-Choose each alarm's threshold on the **training** patients only: θ\* minimises false alarms per day subject to level 2 sensitivity (floor alarms included) being at least that of the CGM-only `trend` alarm on the same training patients **[clinical review CR9: the cost of one missed level 2 low vs. extra false alarms]**. δ = 0 is primary; a 5-percentage-point non-inferiority margin (δ = 0.05) is a sensitivity analysis. Ties go to the more sensitive threshold. A training fold with fewer than 10 level 2 events is flagged as not estimable **[assumption]**; its thresholds match level 1 sensitivity instead (amendment A7). Report test-fold metrics at θ\*, including the achieved test sensitivity, alongside the threshold-free curves. Commit the operating-point rule to `experiments/configs/` before running the final benchmark. Fitting and threshold choice happen once per fold and scenario mix, on training patients at the training fault level (the realistic default PISA fraction, other faults moderate); the frozen alarms are then evaluated at every sweep level (D19).
+Choose each alarm's threshold on the **training** patients only: θ\* minimises false alarms per day subject to level 2 sensitivity (floor alarms included) being at least that of the CGM-only `trend` alarm on the same training patients **[clinical review CR9: the cost of one missed level 2 low vs. extra false alarms]**. δ = 0 is primary; a 5-percentage-point non-inferiority margin (δ = 0.05) is a sensitivity analysis. Ties go to the more sensitive threshold. A training fold with fewer than 10 level 2 events is flagged as not estimable **[assumption]**; its thresholds match level 1 sensitivity instead (amendment A7). Report test-fold metrics at θ\*, including the achieved test sensitivity, alongside the threshold-free curves. Fitting and threshold choice happen once per fold and scenario mix, on training patients at the training fault level (the realistic default PISA fraction, other faults moderate); the frozen alarms are then evaluated at every sweep level (D19).
 
-*Gated alarms* (`*_gate`) keep the trend alarm's own rule fixed and tune only the gate: the score is 1 − gate where the trend alarm fires (and −∞ where it does not), and the candidate thresholds span every suppression fraction of the training firings, from none to almost all. For the binary Baysal gate this is a choice between the published rule and no suppression. No suppression is the trend alarm itself, so a feasible threshold always exists (amendment A1 in `DECISIONS.md`).
+*Gated alarms* (`*_gate`) keep the trend alarm's own rule (§2) fixed and tune only the gate: the score is 1 − gate where the trend alarm fires (and −∞ where it does not), and the candidate thresholds span every suppression fraction of the training firings, from none to almost all. For the binary Baysal gate this is a choice between the published rule and no suppression. No suppression is the trend alarm itself, so a feasible threshold always exists (amendment A1 in `DECISIONS.md`).
 
 θ\* is searched over training-score quantiles: 30 spaced evenly from the median upwards (from the minimum for gated alarms), plus 15 at log-spaced firing fractions from 5% to 0.01% of training samples, where low alarms operate (amendment A2).
 
@@ -83,7 +83,7 @@ Choose each alarm's threshold on the **training** patients only: θ\* minimises 
 
 - **Leave-patients-out cross-validation** over all 30 virtual patients (5 folds, stratified by age group). No patient's data in both training and test.
 - **Confidence intervals across patients**, not across seeds or runs: patient-level bootstrap stratified by age group, 2,000 resamples, 95% percentile intervals. They describe variability across this simulator's cohort, not a population.
-- Repeated seeds change scenarios and faults; they do not add independent patients. Report effective sample size honestly.
+- Repeated seeds change scenarios and faults; they do not add independent patients. Report the effective sample size.
 - Paired comparisons (with vs. without context) use the same patients, scenarios and faults.
 - Report results by age group and pooled; children dominate low counts.
 - Pre-registered decision rules apply only to H1–H3 (RESEARCH.md §3). Everything else is estimation, reported with CIs and no significance claims.

@@ -1,5 +1,7 @@
 # Design decisions
 
+The dated log of design decisions (D1–D19), amendments (A1–A13) and proposals (P1–P9); for reviewers checking what was fixed before which result was seen, and for anyone proposing a change (AGENTS.md rule 11).
+
 Decisions on the open items in [`SPEC_REVIEW.md`](development/SPEC_REVIEW.md), drafted and recorded on 2026-10-18 by an AI agent acting in the PI-reviewer role defined in `CLAUDE.md`, under authority delegated by the project lead, and accepted by the project lead. Each one gives the evidence, the decision and the spec it changes. The specs (`RESEARCH.md`, `SIMULATION.md`, `BENCHMARK.md`) are the source of truth; this file records why. Decisions on the research question (D2, D3, D5, D6) are frozen with the protocol tag `protocol-v1` before the full benchmark runs (Phase 6). Changes after that are logged here as amendments, with the reason.
 
 ## Evidence: pilot of stock simglucose

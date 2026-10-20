@@ -1,10 +1,10 @@
 # Decisions pending the project lead
 
-Choices made during the Phase 2 fixes of [`development/REVIEW.md`](development/REVIEW.md) while the project lead was away (2026-10-18). Each choice was the one most consistent with `CLAUDE.md`. Any of them can be reversed.
+Choices made during the Phase 2 fixes of [`REVIEW.md`](REVIEW.md) while the project lead was away (2026-10-18). Each choice was the one most consistent with `CLAUDE.md`. Any of them can be reversed.
 
 `docs/model_card.md`, named in the instruction as a second reference, does not exist in this repository. `CLAUDE.md` and the specs in `docs/` were used instead.
 
-Scientific decisions are not made here. They are listed as proposals P4–P9 (P1–P3 were adopted as A10–A12) in [`DECISIONS.md`](DECISIONS.md) and wait for the project lead.
+Scientific decisions are not made here. They are listed as proposals P4–P9 (P1–P3 were adopted as A10–A12) in [`DECISIONS.md`](../DECISIONS.md) and wait for the project lead.
 
 | # | Question | Chosen | Why |
 |---|---|---|---|
