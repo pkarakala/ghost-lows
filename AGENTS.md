@@ -15,9 +15,10 @@ For an AI assistant helping a researcher with Ghost Lows. Full rules: [docs/refe
 - [docs/CITATIONS.md](docs/CITATIONS.md): every source key.
 - [RESEARCH.md](docs/reference/RESEARCH.md): questions, hypotheses, limitations.
 - [BENCHMARK.md](docs/reference/BENCHMARK.md): alarms, metrics, operating point, statistics.
-- [SIMULATION.md](docs/reference/SIMULATION.md), [SIMULATION_NOTES.md](docs/reference/SIMULATION_NOTES.md): cohort and faults, specified and built.
+- [SIMULATION.md](docs/reference/SIMULATION.md), [SIMULATION_NOTES.md](docs/reference/SIMULATION_NOTES.md): cohort and faults.
 - [DATA.md](docs/reference/DATA.md): datasets, schema, export formats.
 - [DECISIONS.md](docs/reference/DECISIONS.md): decisions and dated amendments.
+- [UPLOAD_REPORT.md](docs/reference/UPLOAD_REPORT.md): the upload report as built.
 - `docs/development/`: build history, not specification.
 
 ## How to walk someone through this repo

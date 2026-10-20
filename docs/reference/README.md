@@ -9,5 +9,6 @@ The complete specifications, for reproducing and auditing the benchmark. They de
 - [DATA.md](DATA.md): datasets, download script, common schema, export formats.
 - [DECISIONS.md](DECISIONS.md): design decisions, dated amendments, proposals.
 - [ENGINEERING.md](ENGINEERING.md): hard rules in full, code markers, stack, layout, test suites, how to add an alarm or a fault.
+- [UPLOAD_REPORT.md](UPLOAD_REPORT.md): how the upload report applies the privacy and safety rules, and its regulatory context.
 
 Results: [`results/README.md`](../../results/README.md). Sources: [`CITATIONS.md`](../CITATIONS.md).
