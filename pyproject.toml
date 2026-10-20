@@ -1,6 +1,6 @@
 [project]
 name = "ghostlows"
-version = "0.1.0"
+version = "0.2.0"
 description = "Open benchmark for real-time CGM low-glucose alarms under sensor faults, with an insulin/carb context ablation."
 readme = "README.md"
 license = "MIT"
