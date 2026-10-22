@@ -32,7 +32,7 @@ night_hours = (23.0, 7.0)  # ASSUMPTION: PISA onset window
 # CLINICAL-REVIEW: CR17
 ```
 
-- `tests/test_repo_rules.py` fails if a `SOURCE` key is not in the first column of `docs/CITATIONS.md`, if a `CLINICAL-REVIEW` id is not a `**CRn.` item in `docs/CLINICAL_REVIEW.md`, or if a ticked CR item does not end with `Signed off: <reviewer>, <YYYY-MM-DD>.`
+- `tests/test_repo_rules.py` fails if a `SOURCE` key is not in the first column of `docs/CITATIONS.md`, if a `CLINICAL-REVIEW` id is not a `**CRn.` item in `docs/CLINICAL_REVIEW.md`, or if a CR item's two sign-offs (`Literature checked: <name>, <YYYY-MM-DD>.` and `Clinician reviewed: <name>, <role>, <YYYY-MM-DD>.`) are filled in without a tick, ticked without being filled in, or the item is ticked before both are.
 - `collect_assumptions()` (`src/ghostlows/bench/pipeline.py`) gathers every `ASSUMPTION` in `src/ghostlows/` into each run's `assumptions.md` and into `results/tables/assumptions.md`.
 
 ## Stack

@@ -192,26 +192,60 @@ def test_every_clinical_review_marker_names_a_listed_item():
     )
 
 
-SIGNOFF_RE = re.compile(r"Signed off: [^,\n]+, \d{4}-\d{2}-\d{2}\.\s*$")
+# Each CR item has two sign-offs (docs/CLINICAL_REVIEW.md): (blank, filled in).
+SIGNOFFS = {
+    "Literature checked": (
+        "Literature checked (name, date)",
+        re.compile(r"Literature checked: [^,\n]+, \d{4}-\d{2}-\d{2}\.$"),
+    ),
+    "Clinician reviewed": (
+        "Clinician reviewed (name, role, date)",
+        re.compile(r"Clinician reviewed: [^,\n]+, [^,\n]+, \d{4}-\d{2}-\d{2}\.$"),
+    ),
+}
 
 
 def badly_signed(text: str) -> list[str]:
-    """CR items ticked without a closing `Signed off: <reviewer>, <YYYY-MM-DD>.`, or signed
-    off without a tick."""
-    bad = []
+    """CR items missing a sign-off line, with a sign-off ticked but not filled in (or filled in
+    but not ticked), or ticked before both sign-offs are in."""
+    items: dict[str, tuple[bool, dict[str, bool | None]]] = {}
+    current = None
     for line in text.splitlines():
-        m = re.match(r"- \[([ xX])\] \*\*(CR\d+)\.", line)
-        if m and (m.group(1) != " ") != bool(SIGNOFF_RE.search(line)):
-            bad.append(m.group(2))
+        if m := re.match(r"- \[([ xX])\] \*\*(CR\d+)\.", line):
+            current = m.group(2)
+            items[current] = (m.group(1) != " ", {})
+        elif current and (m := re.match(r"\s+- \[([ xX])\] (.*?)\s*$", line)):
+            ticked, body = m.group(1) != " ", m.group(2)
+            for kind, (blank, filled) in SIGNOFFS.items():
+                if body.startswith(kind):
+                    ok = bool(filled.match(body)) if ticked else body == blank
+                    items[current][1][kind] = ticked if ok else None
+    bad = []
+    for cr, (ticked, signs) in items.items():
+        states = [signs.get(kind) for kind in SIGNOFFS]
+        if None in states or ticked != all(states):
+            bad.append(cr)
     return bad
 
 
-def test_ticked_clinical_items_are_signed_off():
-    """CONTRIBUTING.md: a maintainer ticks a CR item with the reviewer's name and the date."""
-    assert badly_signed("- [x] **CR1. A.** Claim. Signed off: A. Reviewer, 2026-11-02.") == []
-    unsigned_tick = "- [x] **CR1. A.** Claim."
-    unticked_signoff = "- [ ] **CR2. B.** Claim. Signed off: B, 2026-11-02."
-    assert badly_signed(f"{unsigned_tick}\n{unticked_signoff}") == ["CR1", "CR2"]
+def test_clinical_items_carry_both_sign_offs():
+    """CONTRIBUTING.md: a maintainer fills in each sign-off; an item is ticked once both are in."""
+    lit = "  - [x] Literature checked: A. Reviewer, 2026-11-02."
+    clin = "  - [ ] Clinician reviewed (name, role, date)"
+    done = "  - [x] Clinician reviewed: B. Doctor, endocrinologist, 2026-11-03."
+    good = [
+        f"- [x] **CR1. A.** Claim.\n{lit}\n{done}",
+        f"- [ ] **CR2. B.** Claim.\n  - **Needs a clinician:** a judgment.\n{lit}\n{clin}",
+    ]
+    assert badly_signed("\n".join(good)) == []
+    bad = [
+        f"- [x] **CR1. A.** Claim.\n{lit}\n{clin}",  # ticked before both
+        f"- [ ] **CR2. B.** Claim.\n  - [x] Literature checked (name, date)\n{clin}",  # blank
+        f"- [ ] **CR3. C.** Claim.\n  - [ ] Literature checked: A, 2026-11-02.\n{clin}",  # unticked
+        f"- [ ] **CR4. D.** Claim.\n{lit}\n  - [x] Clinician reviewed: B, 2026-11-03.",  # no role
+        f"- [ ] **CR5. E.** Claim.\n{lit}",  # no clinician line
+    ]
+    assert badly_signed("\n".join(bad)) == ["CR1", "CR2", "CR3", "CR4", "CR5"]
     assert badly_signed((ROOT / "docs" / "CLINICAL_REVIEW.md").read_text()) == []
 
 

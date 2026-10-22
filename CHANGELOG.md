@@ -1,5 +1,10 @@
 # Changelog
 
+## Unreleased
+
+- **Reviewer role corrected.** Cohen Ferrari is a pre-med student, not a clinician. The disclosure in the README, `paper.md` and `docs/development/README.md` now reads "Literature fact-check: Cohen Ferrari (in progress)."
+- **Two sign-offs per clinical claim.** Each item in [`docs/CLINICAL_REVIEW.md`](docs/CLINICAL_REVIEW.md) has "Literature checked (name, date)" and "Clinician reviewed (name, role, date)", and is ticked only when both are in. CR9, CR12, CR16 and CR17 are marked as needing a clinician. `tests/test_repo_rules.py` checks the format; [`CONTRIBUTING.md`](CONTRIBUTING.md) and the Clinical correction issue template ask which kind of review it is.
+
 ## v0.2.1 (2026-10-22)
 
 Documentation in two layers, a corrected H2 line and rewritten contributor files. No result changed: no code behaviour, number in `results/` or benchmark definition changes, and the benchmark is still `ghostlows-bench v1`.
