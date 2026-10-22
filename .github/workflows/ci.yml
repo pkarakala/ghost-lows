@@ -24,6 +24,7 @@ jobs:
       - run: uv run ruff check .
       - run: uv run ruff format --check .
       - run: uv run pytest -q
+      - run: uv run python examples/quickstart.py
 
   # Downloads GlucoBench from its pinned URL and checks the hash; catches link rot.
   # Manual runs only, so ordinary CI never depends on the network.

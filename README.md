@@ -31,6 +31,16 @@ make data data-azt1d
 make results
 ```
 
+## Use as a library
+`pip install git+https://github.com/pkarakala/ghost-lows`, then ([full example](examples/quickstart.py)):
+
+```python
+import ghostlows as gl
+trace = gl.load_clarity(gl.sample_export()).dropna(subset=["glucose"])
+observed, faults = gl.apply_faults(trace, gl.FaultConfig(pisa_fraction=1.0), seed=1)
+print(gl.score_alarm(gl.TrendAlarm(), observed, gl.low_events(trace), faults))
+```
+
 ## Next
 Engineers: [CONTRIBUTING.md](CONTRIBUTING.md). Researchers: [results](results/README.md), [reference](docs/reference/). Clinicians: [summary](docs/SUMMARY.md), [claims to check](docs/CLINICAL_REVIEW.md). AI-assisted readers: [AGENTS.md](AGENTS.md).
 
