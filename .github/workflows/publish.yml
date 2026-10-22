@@ -1,0 +1,34 @@
+name: Publish to PyPI
+
+# Uploads the sdist and wheel of a published GitHub Release to PyPI with trusted publishing
+# (OpenID Connect; no API token is stored). Disabled until the repository variable PYPI_PUBLISH
+# is set to "true"; the steps to enable it are in docs/reference/ENGINEERING.md (Releases).
+on:
+  release:
+    types: [published]
+
+permissions:
+  contents: read
+
+jobs:
+  publish:
+    if: vars.PYPI_PUBLISH == 'true'
+    runs-on: ubuntu-latest
+    environment:
+      name: pypi
+      url: https://pypi.org/project/ghostlows/
+    permissions:
+      id-token: write
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: astral-sh/setup-uv@1c37ad07a6a961277cf70c0d37d6f313000f5884 # v10.3.0
+        with:
+          version: "0.13.1"
+          python-version: "3.11"
+      - run: uv build
+      - run: uvx twine check --strict dist/*
+      - name: The release tag matches the package version
+        env:
+          TAG: ${{ github.event.release.tag_name }}
+        run: test -f "dist/ghostlows-${TAG#v}-py3-none-any.whl"
+      - uses: pypa/gh-action-pypi-publish@dc37677b2e1c63e2034f94d8a5b11f265b73ba33 # v1.14.2
