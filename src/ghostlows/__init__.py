@@ -1,3 +1,3 @@
 """Ghost Lows: an open benchmark for real-time CGM low-glucose alarms under sensor faults."""
 
-__version__ = "0.2.2"
+__version__ = "0.2.3"

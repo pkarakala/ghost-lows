@@ -1,5 +1,11 @@
 # Changelog
 
+## v0.2.3 (2026-10-22)
+
+v0.2.3: first Zenodo-archived release; includes any changes since v0.2.2. There are none besides the version: no code behaviour, documentation, number in `results/` or benchmark definition changes. Earlier releases were not archived on Zenodo.
+
+- **New cohort cache key.** The key includes the package version, so at 0.2.3 `make results` simulates the cohort afresh (about 2.3 h).
+
 ## v0.2.2 (2026-10-22)
 
 Who reviews the clinical claims, stated correctly. No code behaviour, number in `results/` or benchmark definition changes.
