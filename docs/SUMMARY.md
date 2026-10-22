@@ -31,8 +31,8 @@ A severe low is glucose below 54 mg/dL for 15 minutes. A negative warning means 
 
 - **Compression is a minor cause.** Even with a compression low every night, it caused about 21% of the trend alarm's false alarms.
 - **Trend alarms suffer a little more.** Going from no compressed nights to all, trend alarms gained 0.09 (0.07–0.10) more false alarms per day than threshold alarms. That is about one extra every 11 days.
-- **Insulin and carb records did not help enough.** We set the bar in advance: a 25% cut in compression false alarms. No detector came close; the best ratio was 0.94 (0.90–0.96).
-- **Fewer compression alarms cost severe lows.** In a later analysis, decided after the main results, detectors removed compression alarms only by missing severe lows. The first clear cut, by the Baysal 2014 detector, to 0.89 (0.81–0.96) times as many, missed 11 more of 249.
+- **Insulin and carb records did not help enough.** We set the bar in advance: a 25% cut in compression false alarms. None met the 25% bar; the best was gradient boosting on the standard mix, 0.82 (0.74–0.89), inconclusive.
+- **Fewer compression alarms cost severe lows.** In a later analysis, decided after the main results, detectors removed compression alarms only by missing severe lows. The first clear cut, by the Baysal 2014 detector, to 0.89 (0.81–0.96) times as many, missed 11 more of 249. None beat simply making the trend alarm less sensitive (also post hoc).
 - **A model-based filter was mixed (exploratory).** A Kalman filter (a sensor-tracking model) with a "compressed" state raised fewer false alarms than the best learned alarm, 0.88 (0.80–0.98). It did no better than itself without that state, 1.05 (0.93–1.18).
 - **Real data could not settle it.** On real overnight records with injected compression, every confidence interval included no effect.
 
