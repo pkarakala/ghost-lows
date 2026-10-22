@@ -1,6 +1,8 @@
 [project]
 name = "ghostlows"
-version = "0.2.3"
+# The version lives only in src/ghostlows/__init__.py ([tool.hatch.version]); CITATION.cff
+# repeats it by hand and a test checks the two match.
+dynamic = ["version"]
 description = "Open benchmark for real-time CGM low-glucose alarms under sensor faults, with an insulin/carb context ablation."
 readme = "README.md"
 license = "MIT"
@@ -48,6 +50,9 @@ dev = [
 [build-system]
 requires = ["hatchling>=1.27"]
 build-backend = "hatchling.build"
+
+[tool.hatch.version]
+path = "src/ghostlows/__init__.py"
 
 [tool.hatch.build.targets.wheel]
 packages = ["src/ghostlows"]

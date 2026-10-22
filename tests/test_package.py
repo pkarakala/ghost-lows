@@ -79,3 +79,17 @@ def test_sample_export_loads():
 
     trace = gl.load_clarity(gl.sample_export())
     assert trace["glucose"].notna().sum() > 14 * 288 * 0.9
+
+
+def test_one_version():
+    """The version lives in ghostlows/__init__.py (hatch dynamic version); CITATION.cff and the
+    installed metadata must agree with it."""
+    from importlib.metadata import version
+    from pathlib import Path
+
+    import yaml
+
+    import ghostlows
+
+    citation = yaml.safe_load((Path(__file__).parents[1] / "CITATION.cff").read_text())
+    assert str(citation["version"]) == ghostlows.__version__ == version("ghostlows")
