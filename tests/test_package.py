@@ -93,3 +93,29 @@ def test_one_version():
 
     citation = yaml.safe_load((Path(__file__).parents[1] / "CITATION.cff").read_text())
     assert str(citation["version"]) == ghostlows.__version__ == version("ghostlows")
+
+
+def test_cli_help_lists_each_command_on_one_line():
+    out = subprocess.run(
+        [sys.executable, "-m", "ghostlows.cli", "--help"],
+        capture_output=True,
+        text=True,
+        check=True,
+    ).stdout
+    for command in ("simulate", "benchmark", "score"):
+        assert any(line.strip().startswith(command + " ") for line in out.splitlines()), command
+
+
+def test_cli_names_a_missing_extra(monkeypatch):
+    import importlib.util
+
+    import pytest
+
+    from ghostlows import cli
+
+    real = importlib.util.find_spec
+    monkeypatch.setattr(
+        importlib.util, "find_spec", lambda name: None if name == "simglucose" else real(name)
+    )
+    with pytest.raises(SystemExit, match=r"missing: simglucose.*ghostlows\[bench,sim\]"):
+        cli.main(["simulate", "--config", "x.yaml"])

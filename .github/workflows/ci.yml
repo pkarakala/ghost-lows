@@ -26,6 +26,31 @@ jobs:
       - run: uv run pytest -q
       - run: uv run python examples/quickstart.py
 
+  # Builds the sdist and wheel and runs the quick start from each install a user would make:
+  # the core wheel (numpy and pandas only, as in the browser app) and the wheel with [bench,sim].
+  package:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: astral-sh/setup-uv@1c37ad07a6a961277cf70c0d37d6f313000f5884 # v10.3.0
+        with:
+          version: "0.13.1"
+          python-version: "3.11"
+      - run: uv build
+      - run: uvx twine check --strict dist/*
+      - name: Core wheel
+        run: |
+          uv venv --python 3.11 /tmp/core
+          uv pip install --python /tmp/core dist/*.whl
+          cd /tmp && /tmp/core/bin/python $GITHUB_WORKSPACE/examples/quickstart.py
+          /tmp/core/bin/ghostlows --help
+      - name: Wheel with [bench,sim]
+        run: |
+          uv venv --python 3.11 /tmp/full
+          uv pip install --python /tmp/full "$(ls dist/*.whl)[bench,sim]"
+          cd /tmp && /tmp/full/bin/python $GITHUB_WORKSPACE/examples/quickstart.py
+          /tmp/full/bin/python -c "import ghostlows, simglucose; print(len(ghostlows.benchmark_alarms()))"
+
   # Downloads GlucoBench from its pinned URL and checks the hash; catches link rot.
   # Manual runs only, so ordinary CI never depends on the network.
   download:

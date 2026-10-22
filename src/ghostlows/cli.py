@@ -33,8 +33,31 @@ def load_alarm(spec: str):
     return getattr(module, cls_name)()
 
 
+# Modules each command needs beyond the core install (numpy, pandas)
+NEEDS = {
+    "simulate": ("yaml", "scipy", "pyarrow", "simglucose"),
+    "benchmark": ("yaml", "scipy", "sklearn", "pyarrow"),
+    "score": ("yaml", "scipy", "sklearn", "pyarrow"),
+}
+
+
+def require_extras(command: str) -> None:
+    """Stop with one line, not a traceback, when an optional extra is missing."""
+    missing = [m for m in NEEDS[command] if importlib.util.find_spec(m) is None]
+    if missing:
+        raise SystemExit(
+            f"ghostlows {command} needs the bench and sim extras "
+            f"(missing: {', '.join(missing)}): pip install 'ghostlows[bench,sim]'"
+        )
+
+
 def main(argv=None) -> None:
-    parser = argparse.ArgumentParser(prog="ghostlows", description=__doc__.split("\n\n")[0])
+    parser = argparse.ArgumentParser(
+        prog="ghostlows",
+        description="Benchmark real-time CGM low-glucose alarms under sensor faults. The commands "
+        "need the bench and sim extras and a clone of the repository (configs, data/).",
+        epilog="As a library: import ghostlows (see examples/quickstart.py).",
+    )
     sub = parser.add_subparsers(dest="command", required=True)
     p_sim = sub.add_parser("simulate", help="simulate a cohort (cached under data/sim/)")
     p_sim.add_argument("--config", required=True)
@@ -48,6 +71,7 @@ def main(argv=None) -> None:
     p_score.add_argument("--config", required=True)
     p_score.add_argument("--out")
     args = parser.parse_args(argv)
+    require_extras(args.command)
 
     if args.command == "simulate":
         from .sim.__main__ import main as sim_main
