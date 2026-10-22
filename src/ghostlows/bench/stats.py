@@ -107,16 +107,6 @@ def bootstrap_ci(
     return estimate, float(lo), float(hi)
 
 
-def ratio_of_sums(numerator: str, denominator: str) -> Callable[[pd.DataFrame], float]:
-    """Statistic for rates pooled over patients (e.g. caught / events, or arm A / arm B counts)."""
-
-    def stat(df: pd.DataFrame) -> float:
-        d = df[denominator].sum()
-        return float(df[numerator].sum() / d) if d > 0 else float("nan")
-
-    return stat
-
-
 def bootstrap_ratios(
     numerators: np.ndarray,
     denominators: np.ndarray,

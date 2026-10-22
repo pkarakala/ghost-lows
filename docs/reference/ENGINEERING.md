@@ -38,7 +38,7 @@ night_hours = (23.0, 7.0)  # ASSUMPTION: PISA onset window
 ## Stack
 
 - Python **3.11** with **uv**. simglucose needs `setuptools<70` (it imports `gym` → `pkg_resources`). Python 3.13 cannot build `gym`.
-- numpy, pandas, scipy, scikit-learn, pyarrow, pyyaml, matplotlib, plotly; pytest, ruff.
+- numpy, pandas, scipy, scikit-learn, pyarrow, pyyaml, matplotlib; pytest, ruff.
 - App: **stlite** (Streamlit on Pyodide) as a static site on GitHub Pages. The app imports `ghostlows` as a pure-Python wheel, so keep `ghostlows.io`, `ghostlows.metrics` and `ghostlows.retro` free of simglucose and other non-Pyodide dependencies (a test checks this).
 
 ## Layout

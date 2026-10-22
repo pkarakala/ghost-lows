@@ -29,7 +29,6 @@ bench = [
     "pyarrow>=15",
     "pyyaml>=6",
     "matplotlib>=3.8",
-    "plotly>=5.20",
 ]
 # simglucose and gym import pkg_resources at runtime, so setuptools must be installed;
 # the <70 pin is from docs/reference/ENGINEERING.md (Stack).
@@ -92,6 +91,21 @@ select = ["E", "F", "W", "I", "UP", "B"]
 [tool.ruff.format]
 # Ruff also formats Python blocks inside Markdown; the specs in docs/ keep their own layout.
 exclude = ["*.md"]
+
+# `uvx deptry .` checks declared against imported dependencies. pyarrow is pandas' Parquet engine
+# (ghostlows.sim.run) and setuptools provides pkg_resources to simglucose and gym; neither is
+# imported by name. The app's streamlit and altair come from stlite in the browser.
+[tool.deptry]
+known_first_party = ["ghostlows"]
+extend_exclude = ["app"]
+
+[tool.deptry.package_module_name_map]
+scikit-learn = "sklearn"
+pyyaml = "yaml"
+
+[tool.deptry.per_rule_ignores]
+DEP002 = ["pyarrow", "setuptools"]
+DEP004 = ["ghostlows"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]

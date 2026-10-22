@@ -11,7 +11,6 @@ from ghostlows.bench.stats import (
     candidate_thresholds,
     choose_threshold,
     patient_folds,
-    ratio_of_sums,
 )
 from ghostlows.sim.engine import PATIENTS
 
@@ -60,13 +59,17 @@ def test_candidates_resolve_sparse_operating_points():
     assert fractions[fractions > 0].min() < 3e-4
 
 
+def x_per_n(df: pd.DataFrame) -> float:
+    return float(df["x"].sum() / df["n"].sum())
+
+
 def test_bootstrap_ci_contains_estimate_and_is_degenerate_for_constant_data():
     df = pd.DataFrame({"patient_id": IDS, "x": 2.0, "n": 1.0})
-    est, lo, hi = bootstrap_ci(df, ratio_of_sums("x", "n"), n_boot=200)
+    est, lo, hi = bootstrap_ci(df, x_per_n, n_boot=200)
     assert est == lo == hi == 2.0
     rng = np.random.default_rng(0)
     df = pd.DataFrame({"patient_id": IDS, "x": rng.poisson(3, len(IDS)).astype(float), "n": 1.0})
-    est, lo, hi = bootstrap_ci(df, ratio_of_sums("x", "n"), n_boot=500)
+    est, lo, hi = bootstrap_ci(df, x_per_n, n_boot=500)
     assert lo < est < hi and hi - lo < 2.0
 
 
@@ -79,7 +82,7 @@ def test_vectorised_bootstrap_agrees_with_the_reference():
             "n": rng.uniform(5, 15, len(IDS)),
         }
     )
-    ref = bootstrap_ci(df, ratio_of_sums("x", "n"), n_boot=4000, seed=2)
+    ref = bootstrap_ci(df, x_per_n, n_boot=4000, seed=2)
     est, lo, hi = bootstrap_ratios(
         df[["x"]].to_numpy(), df[["n"]].to_numpy(), df["patient_id"], n_boot=4000, seed=5
     )
