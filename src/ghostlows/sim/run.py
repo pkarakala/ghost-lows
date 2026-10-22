@@ -24,6 +24,9 @@ from .scenario import get_mix, make_scenario
 
 REPO = Path(__file__).resolve().parents[3]
 DATA = Path(os.environ.get("GHOSTLOWS_DATA_DIR") or REPO / "data")
+# Bump by hand whenever a change to ghostlows.sim changes what a simulation outputs; the cache
+# key hashes it instead of the package version (docs/reference/ENGINEERING.md, Simulation cache).
+SIM_CODE = 1
 
 
 @dataclass
@@ -56,16 +59,16 @@ class SimConfig:
         return {p: Therapy(bolus_scale=float(table[p]["bolus_scale"])) for p in self.patients}
 
     def key(self) -> str:
-        """Hash of everything that changes the output."""
+        """Hash of the simulation inputs: the config (seeds included), the calibration file, the
+        simglucose version and SIM_CODE. Not the ghostlows version, so a release that leaves the
+        simulation alone reuses the cached cohort."""
         payload = dict(self.__dict__)
         if self.calibration:
             payload["calibration_sha256"] = hashlib.sha256(
                 (REPO / self.calibration).read_bytes()
             ).hexdigest()
-        payload["versions"] = {
-            "ghostlows": version("ghostlows"),
-            "simglucose": version("simglucose"),
-        }
+        payload["versions"] = {"simglucose": version("simglucose")}
+        payload["sim_code"] = SIM_CODE
         payload["layout"] = 2  # one Parquet part per patient-run
         blob = json.dumps(payload, sort_keys=True, default=str).encode()
         return hashlib.sha256(blob).hexdigest()[:12]

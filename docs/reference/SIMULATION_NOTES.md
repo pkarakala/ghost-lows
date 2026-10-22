@@ -22,7 +22,7 @@ What the simglucose source actually does, how `ghostlows.sim` uses it, and what 
 - **Controller:** basal = the patient's steady-state rate. One bolus per announced meal, from announced carbs ÷ (carb ratio × k). At most one correction per meal when the displayed CGM is above 150 mg/dL, towards 140 mg/dL, scaled by the same k. k comes from the per-patient calibration (`experiments/configs/calibration_v1.yaml`).
 - **Context:** IOB (exponential action curve, 5 h) and COB (linear, 3 h) are computed from the event log at each sample time, using only events at or before it. A test recomputes them from the logged events.
 - **Seeds:** each (seed, patient) pair gives a meal seed, a perturbation seed and a noise seed. Meals and noise do not depend on the scenario mix, so the mixes are paired.
-- **Cache:** `data/sim/<name>-<hash>/`, holding `samples.parquet` (5-min), `truth.parquet` (1-min plasma), `events.parquet`, `runs.csv`, `config.yaml` and `meta.json`. The hash covers the config, the calibration file and the package versions.
+- **Cache:** `data/sim/<name>-<hash>/`, holding `samples.parquet` (5-min), `truth.parquet` (1-min plasma), `events.parquet`, `runs.csv`, `config.yaml` and `meta.json`. The hash covers the config (seeds included), the calibration file, the simglucose version and `SIM_CODE` in `ghostlows/sim/run.py`, which is bumped by hand when a change to the simulation code changes its output. It does not cover the ghostlows version, so a release that leaves the simulation alone reuses the cache. Until v0.2.3 it did.
 
 ## Results
 

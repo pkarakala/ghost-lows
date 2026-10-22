@@ -105,7 +105,7 @@ def main() -> int:
 def resimulate(clone: Path, env: dict, n: int) -> bool:
     """Re-simulate n cached patient-runs in the clean clone and compare them part by part.
 
-    The clone names the cohort folder itself (its cache key includes the package version at
+    The clone names the cohort folder itself (its cache key comes from the simulation inputs at
     that commit), and finding no cached parts is a failure, not a vacuous pass."""
     where = subprocess.run(
         [

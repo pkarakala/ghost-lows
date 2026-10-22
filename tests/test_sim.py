@@ -136,6 +136,29 @@ def test_run_writes_and_reuses_cache(tmp_path, monkeypatch):
     assert len(loaded["truth"]) == 1440 and set(loaded["samples"]["mix"]) == {"standard"}
 
 
+def test_cache_key_depends_on_simulation_inputs_only(monkeypatch, tmp_path):
+    from ghostlows.sim import run
+
+    versions = {"ghostlows": "0.2.3", "simglucose": "0.2.11"}
+    monkeypatch.setattr(run, "version", lambda name: versions[name])
+    calibration = tmp_path / "calibration.yaml"
+    calibration.write_text("patients: {}\n")
+    monkeypatch.setattr(run, "REPO", tmp_path)
+    config = run.SimConfig(name="t", seeds=[1, 2], calibration="calibration.yaml")
+    key = config.key()
+    versions["ghostlows"] = "9.9.9"
+    assert config.key() == key  # a release alone does not invalidate the cohort
+    assert dataclasses.replace(config, seeds=[1, 3]).key() != key
+    calibration.write_text("patients: {adult#001: {bolus_scale: 1.1}}\n")
+    assert config.key() != key
+    calibration.write_text("patients: {}\n")
+    versions["simglucose"] = "0.2.12"
+    assert config.key() != key
+    versions["simglucose"] = "0.2.11"
+    monkeypatch.setattr(run, "SIM_CODE", run.SIM_CODE + 1)
+    assert config.key() != key
+
+
 def test_first_order_lag_matches_the_recursion():
     rng = np.random.default_rng(0)
     x = 100 + np.cumsum(rng.normal(0, 1, 500))

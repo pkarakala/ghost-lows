@@ -954,7 +954,7 @@ def section_reproducibility() -> list[str]:
     lines += [
         "`make reproduce` (`scripts/check_reproducible.py`) clones the commit recorded for `rq1_pisa_sweep`, installs it with `uv sync --locked`, reruns that config on the cached cohort, compares the tables, and re-simulates three randomly chosen patient-runs. On 2026-10-18 it reproduced `summary.csv` (540 rows), `contrasts_h2.csv` (108), `contrast_h1.csv` (3) and `thresholds.csv` (450) exactly from commit `4725089`, and the three re-simulated runs matched the cached cohort exactly.",
         "",
-        "This is weaker than re-running everything. It needs the cached cohort under `data/sim/` (from `make results`, about 2.3 h). The cohort's cache key includes the package version, and the cohort was simulated at version 0.0.1, so at a later version `make results` simulates it afresh under a new key. The full pipeline was run once to produce these results and has not been repeated from a clean clone.",
+        "This is weaker than re-running everything. It needs the cached cohort under `data/sim/` (from `make results`, about 2.3 h). The cohort was simulated at version 0.0.1, under a cache key that then included the package version. The key now covers only the simulation inputs (config, seeds, calibration file, simglucose version and a simulation-code number), so `make results` simulates the cohort afresh once under the new key and reuses it after that. The full pipeline was run once to produce these results and has not been repeated from a clean clone.",
         "",
     ]
     return lines
