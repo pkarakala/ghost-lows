@@ -207,13 +207,16 @@ SIGNOFFS = {
 
 def badly_signed(text: str) -> list[str]:
     """CR items missing a sign-off line, with a sign-off ticked but not filled in (or filled in
-    but not ticked), or ticked before both sign-offs are in."""
+    but not ticked), or whose tick does not match its sign-offs: a factual item closes on the
+    literature check, one marked **Needs a clinician** also needs the clinician's."""
     items: dict[str, tuple[bool, dict[str, bool | None]]] = {}
     current = None
     for line in text.splitlines():
         if m := re.match(r"- \[([ xX])\] \*\*(CR\d+)\.", line):
             current = m.group(2)
             items[current] = (m.group(1) != " ", {})
+        elif current and re.match(r"\s+- \*\*Needs a clinician:\*\*", line):
+            items[current][1]["needs a clinician"] = True
         elif current and (m := re.match(r"\s+- \[([ xX])\] (.*?)\s*$", line)):
             ticked, body = m.group(1) != " ", m.group(2)
             for kind, (blank, filled) in SIGNOFFS.items():
@@ -222,31 +225,43 @@ def badly_signed(text: str) -> list[str]:
                     items[current][1][kind] = ticked if ok else None
     bad = []
     for cr, (ticked, signs) in items.items():
-        states = [signs.get(kind) for kind in SIGNOFFS]
-        if None in states or ticked != all(states):
+        lit, clin = (signs.get(kind) for kind in SIGNOFFS)
+        closed = bool(lit and (clin or not signs.get("needs a clinician")))
+        if lit is None or clin is None or ticked != closed:
             bad.append(cr)
     return bad
 
 
-def test_clinical_items_carry_both_sign_offs():
-    """CONTRIBUTING.md: a maintainer fills in each sign-off; an item is ticked once both are in."""
+def needs_a_clinician(text: str) -> set[str]:
+    return set(re.findall(r"\*\*(CR\d+)\..*\n\s+- \*\*Needs a clinician:\*\*", text))
+
+
+def test_clinical_items_carry_the_sign_offs_they_need():
+    """CONTRIBUTING.md: a maintainer fills in each sign-off and ticks the item once it has the
+    ones it needs."""
+    needs = "  - **Needs a clinician:** a judgment."
     lit = "  - [x] Literature checked: A. Reviewer, 2026-11-02."
     clin = "  - [ ] Clinician reviewed (name, role, date)"
     done = "  - [x] Clinician reviewed: B. Doctor, endocrinologist, 2026-11-03."
     good = [
-        f"- [x] **CR1. A.** Claim.\n{lit}\n{done}",
-        f"- [ ] **CR2. B.** Claim.\n  - **Needs a clinician:** a judgment.\n{lit}\n{clin}",
+        f"- [x] **CR1. A.** Fact.\n{lit}\n{clin}",  # factual: literature check closes it
+        f"- [x] **CR2. B.** Fact.\n{lit}\n{done}",
+        f"- [x] **CR3. C.** Judgment.\n{needs}\n{lit}\n{done}",
+        f"- [ ] **CR4. D.** Judgment.\n{needs}\n{lit}\n{clin}",
     ]
     assert badly_signed("\n".join(good)) == []
     bad = [
-        f"- [x] **CR1. A.** Claim.\n{lit}\n{clin}",  # ticked before both
-        f"- [ ] **CR2. B.** Claim.\n  - [x] Literature checked (name, date)\n{clin}",  # blank
-        f"- [ ] **CR3. C.** Claim.\n  - [ ] Literature checked: A, 2026-11-02.\n{clin}",  # unticked
-        f"- [ ] **CR4. D.** Claim.\n{lit}\n  - [x] Clinician reviewed: B, 2026-11-03.",  # no role
-        f"- [ ] **CR5. E.** Claim.\n{lit}",  # no clinician line
+        f"- [x] **CR1. A.** Judgment.\n{needs}\n{lit}\n{clin}",  # no clinician yet
+        f"- [ ] **CR2. B.** Fact.\n{lit}\n{clin}",  # closed but not ticked
+        f"- [ ] **CR3. C.** Fact.\n  - [x] Literature checked (name, date)\n{clin}",  # blank
+        f"- [ ] **CR4. D.** Fact.\n  - [ ] Literature checked: A, 2026-11-02.\n{clin}",  # unticked
+        f"- [x] **CR5. E.** Fact.\n{lit}\n  - [x] Clinician reviewed: B, 2026-11-03.",  # no role
+        f"- [x] **CR6. F.** Fact.\n{lit}",  # no clinician line
     ]
-    assert badly_signed("\n".join(bad)) == ["CR1", "CR2", "CR3", "CR4", "CR5"]
-    assert badly_signed((ROOT / "docs" / "CLINICAL_REVIEW.md").read_text()) == []
+    assert badly_signed("\n".join(bad)) == ["CR1", "CR2", "CR3", "CR4", "CR5", "CR6"]
+    text = (ROOT / "docs" / "CLINICAL_REVIEW.md").read_text()
+    assert badly_signed(text) == []
+    assert needs_a_clinician(text) == {"CR9", "CR12", "CR16", "CR17"}
 
 
 DOCS = [

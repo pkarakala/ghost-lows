@@ -59,9 +59,9 @@ Hard rule 11: amend before computing.
 
 For literature checkers and clinicians; no code needed. [`docs/CLINICAL_REVIEW.md`](docs/CLINICAL_REVIEW.md) lists each clinical claim the code depends on (CR1–CR17), with its source.
 
-1. Pick an item. Check it against the cited source or your clinical experience (items marked **Needs a clinician** need the latter).
+1. Pick an item. Check it against the cited source or your clinical experience (items marked **Needs a clinician** need both).
 2. Open a **Clinical correction** issue. Give the CR id, whether you checked the literature or reviewed as a clinician (with your role), your verdict (agree, disagree or unsure), your evidence and, if you disagree, the value or wording you would use.
-3. A maintainer fills in the matching sign-off with your name and the date, or changes the spec and the code. `grep -rn "CLINICAL-REVIEW: CR<n>" src app scripts experiments` shows the code affected. A change that moves a number goes through an amendment first.
+3. A maintainer fills in the matching sign-off with your name and the date and ticks the item once it has the sign-offs it needs, or changes the spec and the code. `grep -rn "CLINICAL-REVIEW: CR<n>" src app scripts experiments` shows the code affected. A change that moves a number goes through an amendment first.
 
 ## Pull requests
 

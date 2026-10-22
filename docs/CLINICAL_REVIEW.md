@@ -6,7 +6,7 @@ The clinical claims the code depends on, for anyone checking them against the li
 - **Literature checked (name, date):** the claim matches its cited sources. Filled in as `Literature checked: <name>, <YYYY-MM-DD>.`
 - **Clinician reviewed (name, role, date):** a clinician agrees with the claim. Filled in as `Clinician reviewed: <name>, <role>, <YYYY-MM-DD>.`
 
-An item is ticked only when both are in. **Needs a clinician** marks the clinical judgments a literature check cannot settle (CR9, CR12, CR16, CR17). A test rejects a ticked sign-off without its names and date, a filled-in one that is not ticked, and an item ticked before both sign-offs.
+A factual item is ticked once its literature check is in. Items marked **Needs a clinician** are clinical judgments a literature check cannot settle (CR9, CR12, CR16, CR17); they are ticked only when both sign-offs are in. A test rejects a ticked sign-off without its names and date, a filled-in one that is not ticked, and an item ticked without the sign-offs it needs.
 
 - [ ] **CR1. Mechanism.** Reduced local blood flow from compression causes PISAs. [Mensh 2013] says "presumably"; is there direct physiological evidence? [Helton 2011]
   - [ ] Literature checked (name, date)

@@ -4,6 +4,7 @@ RESEARCH.md §6 limitations and the safety sentences.
 Compares every Markdown file (and CITATION.cff) at a git ref with the working tree. An item is
 LOST when no copy of it is left anywhere; that fails the check. FEWER COPIES lists items that
 survive with fewer copies than before (duplicates removed on purpose), for a person to review.
+CHANGED ON PURPOSE lists LOST items that match INTENDED, a reviewed change; they do not fail it.
 
     uv run python scripts/check_docs_preserved.py --before v0.2.0
 """
@@ -25,6 +26,16 @@ SAFETY = [
     "your care plan.",
     "Not a medical device. Not for treatment decisions.",
     "If a reading looks wrong, confirm with a fingerstick and follow your care team's advice.",
+]
+
+# Reviewed changes: (start of the item, text only the old version has, why). An item that
+# matches is reported as CHANGED ON PURPOSE instead of LOST.
+INTENDED = [
+    (
+        "CR item - [ ] CR12.",
+        "Sign-off by Cohen Ferrari is still open",
+        "0075ea4: Cohen Ferrari is a literature fact-checker, not a clinician",
+    ),
 ]
 
 NUMBER = re.compile(r"(?<![\w.])\d+(?:[.,]\d+)*%?")
@@ -99,6 +110,13 @@ def inventory(docs: dict[str, str], keys: set[str], limits: list[str]) -> Counte
     return items
 
 
+def intended(item: str) -> str | None:
+    for start, old_text, why in INTENDED:
+        if item.startswith(start) and old_text in item:
+            return why
+    return None
+
+
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__.splitlines()[0])
     parser.add_argument("--before", required=True, help="git ref of the docs before the change")
@@ -109,7 +127,9 @@ def main() -> int:
     before = inventory(before_docs, keys, limits)
     after = inventory(after_docs, keys, limits)
 
-    lost = sorted(item for item in before if after[item] == 0)
+    gone = sorted(item for item in before if after[item] == 0)
+    lost = [item for item in gone if not intended(item)]
+    changed = [item for item in gone if intended(item)]
     fewer = sorted(
         (item, before[item], after[item]) for item in before if 0 < after[item] < before[item]
     )
@@ -119,6 +139,10 @@ def main() -> int:
     print(f"\nLOST ({len(lost)}): no copy left anywhere")
     for item in lost:
         print(f"  {item}")
+    if changed:
+        print(f"\nCHANGED ON PURPOSE ({len(changed)}): see INTENDED")
+        for item in changed:
+            print(f"  {intended(item)}: {item[:100]}...")
     print(f"\nFEWER COPIES ({len(fewer)}): duplicates removed")
     for item, n_before, n_after in fewer:
         print(f"  {n_before} -> {n_after}  {item}")

@@ -30,6 +30,6 @@ The one list of what is blocked or deferred (as of 2026-10-18). None blocks a ph
 | OhioT1DM | Data use agreement | Not used (optional fingerstick reference) | Project lead |
 | CGMacros | Descoped rather than blocked: its labels would be a weak proxy (Libre Pro, mostly T2D, few lows) | Not used | — |
 | Zenodo DOI for `v0.1.0` | Needs the GitHub–Zenodo integration switched on by the repository owner | Release can be tagged, but the DOI is minted only after the integration is on | Project lead |
-| Clinical review and literature fact-checking (CR1–CR17) | Needs a clinician | Thresholds, the floor, the SESOI and the flag rule stay marked as assumptions | Clinical co-lead |
+| Clinical review and literature fact-checking (CR1–CR17) | Needs a clinician | Thresholds, the floor, the SESOI and the flag rule stay marked as assumptions | a clinician (unassigned) |
 | Dexcom API sign-in | Deferred; sandbox first | The upload report reads exported files only | — |
 | Data donation or labelling study | Needs IRB approval | No data is collected (PRIVACY_AND_SAFETY.md, Privacy rule 5) | — |

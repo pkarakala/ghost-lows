@@ -1,9 +1,13 @@
 # Changelog
 
-## Unreleased
+## v0.2.2 (2026-10-22)
 
-- **Reviewer role corrected.** Cohen Ferrari is a pre-med student, not a clinician. The disclosure in the README, `paper.md` and `docs/development/README.md` now reads "Literature fact-check: Cohen Ferrari (in progress)."
-- **Two sign-offs per clinical claim.** Each item in [`docs/CLINICAL_REVIEW.md`](docs/CLINICAL_REVIEW.md) has "Literature checked (name, date)" and "Clinician reviewed (name, role, date)", and is ticked only when both are in. CR9, CR12, CR16 and CR17 are marked as needing a clinician. `tests/test_repo_rules.py` checks the format; [`CONTRIBUTING.md`](CONTRIBUTING.md) and the Clinical correction issue template ask which kind of review it is.
+Who reviews the clinical claims, stated correctly. No code behaviour, number in `results/` or benchmark definition changes.
+
+- **Reviewer role corrected.** Cohen Ferrari is a pre-med student, not a clinician. The disclosure in the README, `paper.md` and `docs/development/README.md` now reads "Literature fact-check: Cohen Ferrari (in progress). Clinical review: none yet." The roadmap's owner for clinical review is "a clinician (unassigned)". Amendment A12 in [`docs/reference/DECISIONS.md`](docs/reference/DECISIONS.md) carries a dated correction: CR12 needs a clinician's sign-off.
+- **Two sign-offs per clinical claim.** Each item in [`docs/CLINICAL_REVIEW.md`](docs/CLINICAL_REVIEW.md) has "Literature checked (name, date)" and "Clinician reviewed (name, role, date)". A factual item closes on the literature check; CR9, CR12, CR16 and CR17 are clinical judgments and need both. `tests/test_repo_rules.py` checks the format, the closing rule and which items need a clinician; [`CONTRIBUTING.md`](CONTRIBUTING.md) and the Clinical correction issue template ask which kind of review it is.
+- **Docs check.** `scripts/check_docs_preserved.py` lists reviewed changes (`INTENDED`) and reports them as changed on purpose instead of lost; the first is the CR12 text, which no longer names Cohen Ferrari as its reviewer.
+- **New cohort cache key.** The key includes the package version, so at 0.2.2 `make results` simulates the cohort afresh (about 2.3 h).
 
 ## v0.2.1 (2026-10-22)
 
