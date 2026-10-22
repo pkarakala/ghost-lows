@@ -1,5 +1,7 @@
 # Ghost Lows
 
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.23573707.svg)](https://doi.org/10.5281/zenodo.23573707)
+
 ## Problem
 CGMs (continuous glucose monitors, under-skin sensors) sometimes show false lows, often from being slept on, triggering needless alarms.
 

@@ -29,6 +29,8 @@ The package provides:
 - A plug-in interface for scoring a new alarm with the same cross-validation, operating-point rule and statistics.
 - A browser-only report that flags a *possible compression artifact* in Dexcom Clarity or LibreView exports without the file leaving the browser.
 
+Releases from v0.2.3 on are archived on Zenodo [@GhostLows].
+
 # Statement of need
 
 Compression detectors have been published, but each was evaluated on its own data with its own metrics, and mostly retrospectively. A detector that can see the whole night is not an alarm, which must decide in real time. No shared testbed measures alarm-level outcomes under a realistic mix of faults, separates compression false alarms from false alarms caused by ordinary sensor noise, or tests what insulin and carbohydrate context adds at a fixed sensitivity. Ghost Lows is that testbed. It is built to be read critically:

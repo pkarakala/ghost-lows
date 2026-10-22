@@ -11,6 +11,7 @@ authors:
     orcid: "https://orcid.org/0009-0007-5767-5438"
 version: 0.2.3
 date-released: 2026-10-22
+doi: 10.5281/zenodo.23573707
 license: MIT
 repository-code: "https://github.com/pkarakala/ghost-lows"
 abstract: >-
