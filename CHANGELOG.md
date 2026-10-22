@@ -1,14 +1,17 @@
 # Changelog
 
-## Unreleased
+## v0.2.1 (2026-10-22)
 
-Documentation in two layers. No code behaviour, result or benchmark definition changes.
+Documentation in two layers, a corrected H2 line and rewritten contributor files. No result changed: no code behaviour, number in `results/` or benchmark definition changes, and the benchmark is still `ghostlows-bench v1`.
 
-- **For people.** [`README.md`](README.md) is 299 words. [`docs/SUMMARY.md`](docs/SUMMARY.md) gives the results on one page for clinicians. [`CONTRIBUTING.md`](CONTRIBUTING.md) and [`docs/PRIVACY_AND_SAFETY.md`](docs/PRIVACY_AND_SAFETY.md) are under 500 words. [`docs/CLINICAL_REVIEW.md`](docs/CLINICAL_REVIEW.md) keeps every CR item word for word.
+- **For people.** [`README.md`](README.md) is under 330 words (299 before the H2 wording fix added a finding and a limitation). [`docs/SUMMARY.md`](docs/SUMMARY.md) gives the results on one page for clinicians. [`CONTRIBUTING.md`](CONTRIBUTING.md) and [`docs/PRIVACY_AND_SAFETY.md`](docs/PRIVACY_AND_SAFETY.md) are under 500 words. [`docs/CLINICAL_REVIEW.md`](docs/CLINICAL_REVIEW.md) keeps every CR item word for word.
+- **H2 wording fix.** The README and SUMMARY gave the best H2 ratio as 0.94 (0.90–0.96), which is the trend alarm on the default mix. They now say that none met the 25% bar; the best was gradient boosting on the standard mix, 0.82 (0.74–0.89), inconclusive, as [`results/README.md`](results/README.md) always had it. Both also state the post-hoc A11/A13 finding (published compression detectors cut compression false alarms only by missing severe lows, and none beat a less sensitive trend alarm), and the README lists the near-circular real-data checks as a limitation.
 - **Reference.** The six specifications move to [`docs/reference/`](docs/reference/), unchanged. New there: `ENGINEERING.md` (the full rules and engineering detail from AGENTS.md and CONTRIBUTING.md) and `UPLOAD_REPORT.md` (the upload report as implemented, from PRIVACY_AND_SAFETY.md).
 - **AGENTS.md** is a map for a researcher's AI assistant: folders, reading order, which table answers which question, the 11 hard rules (same numbers) and the commands.
 - **AI usage disclosure**, the same text in the README, `paper.md` and `docs/development/README.md`. New commits carry no `Co-Authored-By` trailer (`.claude/settings.json`); history is not rewritten.
 - `scripts/check_docs_preserved.py` checks that no number, citation key, CR item, limitation or safety sentence was lost against a git ref.
+- `CITATION.cff` gives the author's ORCID.
+- **New cohort cache key.** The key includes the package version, so at 0.2.1 `make results` simulates the cohort afresh (about 2.3 h).
 
 ## v0.2.0 (2026-10-19)
 

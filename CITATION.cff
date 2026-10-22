@@ -8,8 +8,9 @@ type: software
 authors:
   - given-names: Pranav
     family-names: Karakala Reddy
-version: 0.2.0
-date-released: 2026-10-19
+    orcid: "https://orcid.org/0009-0007-5767-5438"
+version: 0.2.1
+date-released: 2026-10-22
 license: MIT
 repository-code: "https://github.com/pkarakala/ghost-lows"
 abstract: >-
