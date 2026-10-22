@@ -50,7 +50,7 @@ src/ghostlows/  io (export and dataset loaders), metrics (consensus CGM metrics)
 experiments/    configs/*.yaml and the scripts behind every table and figure: run_benchmark, run_all,
                 run_curves, real_data, make_figures, make_fault_figure, make_results_readme, sim_report, pilot/
 scripts/        download_data, build_app, check_reproducible, make_sample_export, package_cohort
-examples/       custom_alarm.py, the plug-in alarm (tested in CI)
+examples/       quickstart.py (the five-minute example) and custom_alarm.py (a plug-in alarm); CI runs both
 results/        README.md (generated), tables/ and figures/ (committed); run outputs are gitignored
 app/            the upload report: stlite app and index.html, no server
 tests/          pytest; fixtures in tests/fixtures/ (synthetic only)
@@ -58,6 +58,14 @@ docs/           human docs; reference/ holds the specifications (source of truth
                 development records in docs/development/
 paper.md        Journal of Open Source Software draft
 ```
+
+## Package
+
+- **Public API.** What `ghostlows.__all__` lists; every name in it has a docstring with inputs, units and returns (a test checks). Submodules stay importable for `experiments/` and `app/` but may change. The core install (numpy, pandas; also the browser app's wheel) imports every public name: a test fails if `import ghostlows` loads an optional extra, so import scipy, scikit-learn, yaml or simglucose inside the functions that need them. The wheel ships `py.typed` and the synthetic sample export (`ghostlows.sample_export()`, copied from `app/` at build time).
+- **Version.** Only in `src/ghostlows/__init__.py`; hatch reads it (`[tool.hatch.version]`). `CITATION.cff` repeats it by hand, and a test checks they match.
+- **Simulation cache.** The cohort's cache key covers the simulation inputs only: config, calibration file, simglucose version and `SIM_CODE` in `ghostlows/sim/run.py`. Bump `SIM_CODE` in any change to `ghostlows.sim` that changes what a simulation outputs; otherwise the old cached cohort is reused.
+- **Dependencies.** `uvx deptry .` checks declared against imported dependencies (config in `pyproject.toml`).
+- **Releases.** Set the version in `__init__.py` and `CITATION.cff` (with `date-released`), move CHANGELOG's Unreleased entry under it, then tag `vX.Y.Z` and publish a GitHub Release. Zenodo archives each release under the concept DOI. `.github/workflows/publish.yml` uploads it to PyPI once enabled: (1) on pypi.org add a pending trusted publisher for project `ghostlows`, owner `pkarakala`, repository `ghost-lows`, workflow `publish.yml`, environment `pypi`; (2) in the repository settings create the environment `pypi` (a required reviewer is optional); (3) set the repository variable `PYPI_PUBLISH` to `true`. The workflow refuses a release whose tag does not match the package version.
 
 ## Commands
 

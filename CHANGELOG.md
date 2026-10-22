@@ -1,5 +1,18 @@
 # Changelog
 
+## Unreleased
+
+An installable package with a small public API. No benchmark definition or number in `results/` changes.
+
+- **Public API.** `import ghostlows` exposes what a user needs, listed in `ghostlows.__all__`: `load_clarity`, `load_libreview`, `load_export` and `sample_export`; `apply_faults` and `FaultConfig`; `Alarm`, `BaseAlarm`, `FloorOnlyAlarm`, `ThresholdAlarm`, `TrendAlarm` and `benchmark_alarms`; `low_events`, `score_alarm` and `Windows`; `summary` and `agp`. `score_alarm` is the benchmark's own scoring (`fire_and_score` moved unchanged from `bench/pipeline.py` to `bench/scoring.py`). Each public name has a docstring with inputs, units and returns; the package ships `py.typed`.
+- **Core install works on its own.** `ghostlows.alarms` imported scipy at module level, so the numpy/pandas wheel could not import `TrendAlarm`; scipy is now imported where it is used. A test fails if `import ghostlows` loads an optional extra. The wheel includes the synthetic sample export.
+- **Quick start.** [`examples/quickstart.py`](examples/quickstart.py) loads the sample, adds compression artifacts, runs the trend alarm and prints lows caught, false alarms per day and warning time. CI runs it from the repository and from fresh installs of the core wheel and of `[bench,sim]`. The README has a "Use as a library" section.
+- **One version source.** The version lives in `src/ghostlows/__init__.py` (hatch dynamic version); a test checks `CITATION.cff` matches.
+- **Cohort cache key.** It covers the simulation inputs only (config, calibration file, simglucose version, `SIM_CODE`), not the ghostlows version. The key changes once now, so the next `make results` simulates the cohort again (about 2.3 h); after that, releases reuse it.
+- **Packaging.** `ghostlows --help` says what the commands need, and they stop with one line when an extra is missing. The sdist holds only what builds the wheel; `twine check --strict` passes. A PyPI workflow with trusted publishing is in place but disabled (steps in `docs/reference/ENGINEERING.md`, Package).
+- **Hygiene.** `plotly` (declared, never imported) and `ratio_of_sums` (used only by a test) are removed; `uvx deptry .` passes.
+- **Known staleness.** `results/tables/assumptions.md` lists source line numbers, which moved by a few lines in four files. It was not regenerated, so that no number in `results/` changes. It refreshes the next time results are regenerated.
+
 ## v0.2.3 (2026-10-22)
 
 v0.2.3: first Zenodo-archived release; includes any changes since v0.2.2. There are none besides the version: no code behaviour, documentation, number in `results/` or benchmark definition changes. Earlier releases were not archived on Zenodo.
