@@ -27,7 +27,12 @@ RUN_KEYS = ("patient_id", "seed", "mix")
 
 @dataclass(frozen=True)
 class FaultConfig:
-    """Fault rates and sizes. Severity `s` scales the non-PISA faults; PISAs have their own knob."""
+    """Fault rates and sizes. Severity `s` scales the non-PISA faults; PISAs have their own knob.
+
+    `pisa_fraction` is the fraction of complete nights with one compression artifact (PISA);
+    `enabled` picks fault types from pisa, dropout, stale, spike, drift. Times are in minutes,
+    sizes in mg/dL except drift (a fraction of glucose).
+    """
 
     pisa_fraction: float = 0.0  # fraction of complete nights with one PISA (D13)
     pisa_tau: float = pisa_model.TAU_MIN
@@ -230,7 +235,14 @@ def run_seed(seed: int, key: tuple) -> int:
 def apply_faults(
     samples: pd.DataFrame, config: FaultConfig, seed: int = 0
 ) -> tuple[pd.DataFrame, pd.DataFrame]:
-    """Apply the suite to every patient-run. A run's faults depend only on (seed, run identity)."""
+    """Inject sensor faults into CGM traces (SIMULATION.md §4).
+
+    `samples` has `time` and `glucose` (mg/dL; simulated runs use `isf_glucose` + `cgm_noise`),
+    one row per reading; runs are told apart by `patient_id`, `seed`, `mix`. A run's faults
+    depend only on (`seed`, run identity). Returns (samples with `cgm_observed` in mg/dL, NaN in
+    dropouts, `fault_type` per row; fault instances with `fault_type`, `start`, `end`, `size`).
+    The input glucose is never changed.
+    """
     keys = [k for k in RUN_KEYS if k in samples]
     outs, faults = [], []
     for key, run in samples.sort_values(keys + ["time"]).groupby(keys, sort=True):

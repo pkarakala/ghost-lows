@@ -95,7 +95,8 @@ def load_libreview(
     Uses historic CGM rows (Record Type 0) as glucose readings; scans only if `include_scans`.
     Insulin and carbohydrate entries become event rows. "LO"/"HI" become the device limits with
     a flag. The metadata line above the header (export date, patient name) is skipped and never
-    read into the table.
+    read into the table. `source` is a path, bytes or an open file. Returns one row per reading
+    or event in the common schema (DATA.md §3), glucose in mg/dL.
     """
     text = read_text(source)
     lines = text.splitlines()

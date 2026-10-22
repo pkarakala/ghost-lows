@@ -54,7 +54,12 @@ def wear_percent(df: pd.DataFrame, interval_min: float | None = None) -> float:
 
 
 def summary(df: pd.DataFrame, interval_min: float | None = None) -> dict[str, float]:
-    """Consensus metrics for one trace. Percentages are % of readings."""
+    """Consensus metrics for one trace (Battelino 2019). Percentages are % of readings.
+
+    `df` has `time` and `glucose` (mg/dL); `interval_min` is the sampling interval for wear time
+    (inferred if None). Returns a dict: readings, days, wear, mean and SD (mg/dL), CV, GMI, and
+    time in, below and above range (%).
+    """
     g = _readings(df)["glucose"].to_numpy(dtype=float)
     if g.size == 0:
         raise ValueError("no glucose readings")
@@ -89,6 +94,8 @@ def agp(df: pd.DataFrame, bin_min: int = 15, smooth_bins: int = 0) -> pd.DataFra
 
     Readings from all days are pooled into `bin_min`-minute time-of-day bins. With
     `smooth_bins` > 0, each curve gets a centred circular moving average over that many bins.
+    `df` has `time` and `glucose` (mg/dL). Returns one row per bin (index `time_of_day`), with
+    columns p5 to p95 (mg/dL) and n.
     """
     # ASSUMPTION: 15-min bins and no smoothing by default; the published AGP smoothing method
     # is not specified in the consensus, so it is left configurable.

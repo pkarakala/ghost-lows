@@ -7,8 +7,11 @@ from .learned import ARMS, DETECTORS, CombinedAlarm, GatedAlarm, GBMAlarm
 from .rules import FloorOnlyAlarm, ThresholdAlarm, TrendAlarm
 
 
-def benchmark_alarms(seed: int = 0) -> list:
+def benchmark_alarms(seed: int = 0) -> list[BaseAlarm]:
     """Every alarm of BENCHMARK.md §2: references, as-published gates, four arms per detector.
+
+    Returns 30 unfitted alarms; `seed` seeds the learned ones. The rule-based alarms need only
+    the core install; fitting the learned ones needs the `bench` extra.
 
     The as-published gate and the four arms of a detector share one detector instance, so it is
     fitted once per training set and its gate is computed once per run.

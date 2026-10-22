@@ -21,6 +21,13 @@ FLICKER_MIN = 15.0  # ASSUMPTION: BENCHMARK.md §1
 
 
 class Alarm(Protocol):
+    """What the benchmark needs from an alarm (BENCHMARK.md §1); subclass `BaseAlarm` to get it.
+
+    `fit` learns from training rows (`time`, `cgm` in mg/dL, `iob`, `cob` if `uses_context`, and
+    `label`). `score` returns one causal score per row, higher meaning a low is more likely.
+    `alarms` returns the events fired above `threshold`: `time`, `is_floor` and the run keys.
+    """
+
     name: str
     uses_context: bool
 
@@ -84,7 +91,13 @@ def fire_events(
 
 
 class BaseAlarm:
-    """Shared machinery: subclasses implement `_score_run` (and `fit` if they learn)."""
+    """Base class for alarms: subclasses implement `_score_run` (and `fit` if they learn).
+
+    `_score_run(run)` gets one run sorted by time (`time`, `cgm` in mg/dL, NaN when missing) and
+    returns one score per row, using only rows at or before each time. `alarms(df, threshold)`
+    then fires where the score exceeds `threshold` (default: `default_threshold`), plus the
+    ungated floor at CGM <= 55 mg/dL, with a 30-minute refractory period.
+    """
 
     name = "base"
     uses_context = False
@@ -98,12 +111,14 @@ class BaseAlarm:
         raise NotImplementedError
 
     def score(self, df: pd.DataFrame) -> pd.Series:
+        """One score per row of `df` (columns from `view`), computed run by run."""
         out = pd.Series(np.nan, index=df.index, dtype=float)
         for _, run in runs(df):
             out.loc[run.index] = self._score_run(run)
         return out
 
     def alarms(self, df: pd.DataFrame, threshold: float | None = None) -> pd.DataFrame:
+        """Alarm events (`time`, `is_floor`, run keys, `alarm_name`) for the rows of `df`."""
         return self.alarms_from_scores(df, self.score(df), threshold)
 
     def alarms_from_scores(

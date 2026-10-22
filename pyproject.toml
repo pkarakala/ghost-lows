@@ -52,6 +52,11 @@ build-backend = "hatchling.build"
 [tool.hatch.build.targets.wheel]
 packages = ["src/ghostlows"]
 
+# The synthetic sample export ships in the wheel for ghostlows.sample_export(); app/ keeps the
+# one committed copy, which the upload report also serves.
+[tool.hatch.build.targets.wheel.force-include]
+"app/sample_clarity_export.csv" = "ghostlows/data/sample_clarity_export.csv"
+
 [tool.ruff]
 line-length = 100
 target-version = "py311"

@@ -294,3 +294,56 @@ def per_run_metrics(
     for c in CAUSES:
         m[f"false_{c}_per_day"] = m[f"false_{c}"] / days
     return m
+
+
+def fire_and_score(alarm, frame, threshold, events, faults, observed, windows, scores=None):
+    """Fire `alarm` and score it: (alarm events, classified alarms, per-event results)."""
+    if scores is None:
+        fired = alarm.alarms(frame, threshold)
+    else:
+        fired = alarm.alarms_from_scores(frame, scores, threshold)
+    if fired.empty:
+        fired = pd.DataFrame(columns=["time", "is_floor", *RUN_KEYS, "alarm_name"])
+    fired["alarm_name"] = alarm.name
+    labels = observed[[*RUN_KEYS, "time", "fault_type"]]
+    classified = classify_alarms(fired, events, faults, labels, windows)
+    scored = score_events(fired, events, windows)
+    return fired, classified, scored
+
+
+def score_alarm(
+    alarm,
+    observed: pd.DataFrame,
+    lows: pd.DataFrame,
+    faults: pd.DataFrame | None = None,
+    threshold: float | None = None,
+    windows: Windows = DEFAULT_WINDOWS,
+) -> pd.DataFrame:
+    """Score one alarm on CGM traces with the benchmark's own scoring (BENCHMARK.md §4).
+
+    `observed` has `time`, `cgm_observed` (mg/dL, NaN when missing) and, from `apply_faults`,
+    `fault_type`; `iob`, `cob` too if the alarm uses context. `lows` are the reference low
+    events (`low_events`) and `faults` the fault instances from `apply_faults`, which attribute
+    false alarms to compression. `threshold` defaults to the alarm's own default, not the
+    benchmark's training-set operating point. Runs are told apart by `patient_id`, `seed` and
+    `mix`; missing ones are filled in (seed 0, mix "none").
+
+    Returns one row per run: lows caught (`caught_l1`/`events_l1`, `caught_l2`/`events_l2`),
+    false alarms per day (`false_per_day`, by cause in `false_<cause>_per_day`) and the median
+    warning time in minutes before onset (`warning_median_min_l1`, `_l2`).
+    """
+    from ..alarms.base import view
+
+    fill = {"patient_id": "trace", "seed": 0, "mix": "none"}
+    missing = {k: v for k, v in fill.items() if k not in observed}
+    observed = observed.assign(**missing)
+    if "fault_type" not in observed:
+        observed = observed.assign(fault_type="none")
+    lows = lows.assign(**{k: v for k, v in missing.items() if k not in lows})
+    faults = pd.DataFrame() if faults is None else faults
+    if len(faults):
+        faults = faults.assign(**{k: v for k, v in missing.items() if k not in faults})
+    frame = view(observed, "cgm_observed", context=alarm.uses_context)
+    threshold = alarm.default_threshold if threshold is None else threshold
+    _, classified, scored = fire_and_score(alarm, frame, threshold, lows, faults, observed, windows)
+    return per_run_metrics(classified, scored, run_hours(observed), [alarm.name])

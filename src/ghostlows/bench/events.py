@@ -65,6 +65,39 @@ def true_events(truth: pd.DataFrame, levels=(1, 2)) -> pd.DataFrame:
     return out.astype({"onset": "datetime64[ns]", "end": "datetime64[ns]"})
 
 
+def low_events(samples: pd.DataFrame, column: str = "glucose", levels=(1, 2)) -> pd.DataFrame:
+    """Low events in a CGM or reference trace, at the trace's own sampling step (D11).
+
+    `samples` has `time` and `column` (mg/dL), one row per reading; runs are told apart by any of
+    `patient_id`, `seed`, `mix`. Level 1 is below 70 mg/dL and level 2 below 54 mg/dL, for at
+    least 15 minutes. Returns one row per event: the run keys, `level`, `onset` and `end`. On
+    1-minute simulated truth (`column="truth_glucose"`) it gives the same events as
+    `true_events`; on 5-minute CGM, those of the real-data track.
+    """
+    keys = [c for c in ("patient_id", "seed", "mix") if c in samples]
+    rows = []
+    groups = samples.groupby(keys, sort=False) if keys else [((), samples)]
+    for group_key, g in groups:
+        group_key = group_key if isinstance(group_key, tuple) else (group_key,)
+        g = g.sort_values("time")
+        times = g["time"].to_numpy()
+        gaps = np.diff(times.astype("datetime64[ns]")).astype(np.int64) / 6e10  # minutes
+        step = float(np.median(gaps)) if len(gaps) else 1.0
+        for level in levels:
+            for s, e in detect_events(g[column].to_numpy(float), LEVEL_THRESHOLDS[level], step):
+                end = times[e] if e < len(times) else times[-1] + np.timedelta64(int(step), "m")
+                rows.append(
+                    {
+                        **dict(zip(keys, group_key, strict=True)),
+                        "level": level,
+                        "onset": times[s],
+                        "end": end,
+                    }
+                )
+    out = pd.DataFrame(rows, columns=keys + ["level", "onset", "end"])
+    return out.astype({"onset": "datetime64[ns]", "end": "datetime64[ns]"})
+
+
 def is_night(times: pd.Series) -> np.ndarray:
     hours = pd.DatetimeIndex(times).hour
     start, end = NIGHT_HOURS

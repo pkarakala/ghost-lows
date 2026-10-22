@@ -58,7 +58,8 @@ def load_clarity(
     Keeps EGV rows as glucose readings and Insulin/Carbs rows as events; ignores metadata
     rows (names, devices), alerts and calibrations. "Low"/"High" become the device limits
     with a flag. mmol/L exports are converted to mg/dL. Personal details in the export are
-    never read into the table.
+    never read into the table. `source` is a path, bytes or an open file. Returns one row per
+    reading or event in the common schema (DATA.md §3), glucose in mg/dL.
     """
     df = read_csv_text(read_text(source))
     ts_col, type_col = _column(df, "timestamp"), _column(df, "event type")

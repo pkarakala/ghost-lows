@@ -29,11 +29,10 @@ from .events import leak_auc, low_labels, true_events
 from .scoring import (
     CAUSES,
     Windows,
-    classify_alarms,
     fda_rates,
+    fire_and_score,
     per_run_metrics,
     run_hours,
-    score_events,
 )
 from .stats import (
     MIN_L2_EVENTS,
@@ -124,21 +123,6 @@ def subset(df: pd.DataFrame, mix: str, patient_ids) -> pd.DataFrame:
     if df is None or df.empty:
         return df
     return df[(df["mix"] == mix) & df["patient_id"].isin(patient_ids)]
-
-
-def fire_and_score(alarm, frame, threshold, events, faults, observed, windows, scores=None):
-    """Fire `alarm` and score it: (alarm events, classified alarms, per-event results)."""
-    if scores is None:
-        fired = alarm.alarms(frame, threshold)
-    else:
-        fired = alarm.alarms_from_scores(frame, scores, threshold)
-    if fired.empty:
-        fired = pd.DataFrame(columns=["time", "is_floor", *RUN_KEYS, "alarm_name"])
-    fired["alarm_name"] = alarm.name
-    labels = observed[[*RUN_KEYS, "time", "fault_type"]]
-    classified = classify_alarms(fired, events, faults, labels, windows)
-    scored = score_events(fired, events, windows)
-    return fired, classified, scored
 
 
 def training_threshold(

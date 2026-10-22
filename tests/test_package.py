@@ -3,6 +3,9 @@
 import subprocess
 import sys
 
+import numpy as np
+import pandas as pd
+
 # The optional extras ([bench], [sim]); the core wheel and the Pyodide app have none of them.
 EXTRAS = ("scipy", "sklearn", "yaml", "simglucose", "matplotlib")
 
@@ -15,3 +18,64 @@ def test_import_needs_only_the_core_dependencies():
     )
     out = subprocess.run([sys.executable, "-c", code], capture_output=True, text=True, check=True)
     assert out.stdout.strip() == "[]"
+
+
+def test_public_api_is_documented():
+    import ghostlows
+
+    for name in ghostlows.__all__:
+        assert hasattr(ghostlows, name), name
+        if name != "__version__":
+            assert (getattr(ghostlows, name).__doc__ or "").strip(), f"{name} has no docstring"
+
+
+def test_score_alarm_is_the_benchmark_scoring():
+    """score_alarm = view -> fire_and_score -> per_run_metrics, as in the benchmark pipeline."""
+    import ghostlows as gl
+    from ghostlows.alarms import view
+    from ghostlows.bench import pipeline, scoring
+
+    assert pipeline.fire_and_score is scoring.fire_and_score
+    trace = gl.load_clarity(gl.sample_export())
+    trace = trace[trace["glucose"].notna()].assign(seed=0, mix="none")
+    config = gl.FaultConfig(pisa_fraction=1.0, enabled=frozenset({"pisa"}))
+    observed, faults = gl.apply_faults(trace, config, seed=1)
+    lows = gl.low_events(trace)
+    alarm = gl.TrendAlarm()
+    got = gl.score_alarm(alarm, observed, lows, faults)
+    frame = view(observed, "cgm_observed")
+    _, cls, scored = scoring.fire_and_score(
+        alarm, frame, alarm.default_threshold, lows, faults, observed, scoring.DEFAULT_WINDOWS
+    )
+    want = scoring.per_run_metrics(cls, scored, scoring.run_hours(observed), [alarm.name])
+    pd.testing.assert_frame_equal(got, want)
+    assert len(faults) and (faults["fault_type"] == "pisa").all()
+    assert got["false_compression_per_day"].iloc[0] > 0
+
+
+def test_low_events_matches_true_events_and_the_real_data_track():
+    from ghostlows.bench.events import LEVEL_THRESHOLDS, detect_events, low_events, true_events
+
+    t1 = pd.date_range("2026-01-05", periods=600, freq="1min")
+    g = np.full(600, 120.0)
+    g[100:140], g[300:330] = 60.0, 50.0
+    truth = pd.DataFrame({"patient_id": "p", "time": t1, "truth_glucose": g})
+    pd.testing.assert_frame_equal(low_events(truth, "truth_glucose"), true_events(truth))
+
+    five = truth.iloc[::5].reset_index(drop=True).rename(columns={"truth_glucose": "glucose"})
+    got = low_events(five)
+    times = five["time"].to_numpy()
+    want = [
+        (level, times[s])
+        for level, thr in LEVEL_THRESHOLDS.items()
+        for s, _ in detect_events(five["glucose"].to_numpy(), thr, step_min=5)
+    ]
+    assert list(zip(got["level"], got["onset"].to_numpy(), strict=True)) == want
+    assert len(want) == 3  # two level 1 lows, one level 2
+
+
+def test_sample_export_loads():
+    import ghostlows as gl
+
+    trace = gl.load_clarity(gl.sample_export())
+    assert trace["glucose"].notna().sum() > 14 * 288 * 0.9
