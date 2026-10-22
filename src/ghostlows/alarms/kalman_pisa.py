@@ -36,7 +36,6 @@ from dataclasses import dataclass, replace
 
 import numpy as np
 import pandas as pd
-from scipy.special import ndtr
 
 from ..faults import pisa as pisa_model
 from ..faults.calibrate import TARGET_PER_HOUR
@@ -168,6 +167,8 @@ def imm_filter(y, dt, u, p: KalmanParams, per_run: dict | None = None):
     first reading. Every output at step k uses only y, dt and u up to step k. `per_run` may give
     obs_var, rate_var, noise_var or noise_tau_min per run (to try many settings in one pass).
     """
+    from scipy.special import ndtr  # [bench] extra; imported here so the core wheel imports
+
     pressure, factor, rates = modes(p)
     m_count, (n, length) = len(pressure), y.shape
     per_run = per_run or {}
