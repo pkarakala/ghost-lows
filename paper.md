@@ -66,7 +66,7 @@ The 2008 simulator lacks the 2013 model's hypoglycaemia nonlinearity and glucago
 
 # AI usage disclosure
 
-Pranav Reddy and Cohen Ferrari are joint first authors. Research question, study direction and interpretation: Pranav Reddy. Software and documentation were developed with AI coding agents (Claude, Anthropic) under Pranav Reddy's direction. Design decisions and amendments proposed by the agents are logged in docs/reference/DECISIONS.md and were reviewed and accepted by Pranav Reddy, who reviewed all code and results. Literature fact-check: Cohen Ferrari (in progress). Clinical review: none yet.
+Co-authors: Pranav Reddy and Cohen Ferrari. Research question, study direction and interpretation: Pranav Reddy. Software and documentation were developed with AI coding agents (Claude, Anthropic) under Pranav Reddy's direction. Design decisions and amendments proposed by the agents are logged in docs/reference/DECISIONS.md and were reviewed and accepted by Pranav Reddy, who reviewed all code and results. Literature fact-check: Cohen Ferrari (in progress). Clinical review: none yet.
 
 # Acknowledgements
 
