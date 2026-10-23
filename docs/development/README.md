@@ -13,4 +13,4 @@ How the software was built, for readers checking its provenance. These files des
 
 ## How this was made
 
-Research question, study direction and interpretation: Pranav Karakala Reddy. Software and documentation were developed with AI coding agents (Claude, Anthropic) under the author's direction. Design decisions and amendments proposed by the agents are logged in docs/reference/DECISIONS.md and were reviewed and accepted by the author. The author reviewed all code and results. Literature fact-check: Cohen Ferrari (in progress). Clinical review: none yet.
+Pranav Reddy and Cohen Ferrari are joint first authors. Research question, study direction and interpretation: Pranav Reddy. Software and documentation were developed with AI coding agents (Claude, Anthropic) under Pranav Reddy's direction. Design decisions and amendments proposed by the agents are logged in docs/reference/DECISIONS.md and were reviewed and accepted by Pranav Reddy, who reviewed all code and results. Literature fact-check: Cohen Ferrari (in progress). Clinical review: none yet.

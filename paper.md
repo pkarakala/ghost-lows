@@ -8,7 +8,11 @@ tags:
   - benchmark
   - type 1 diabetes
 authors:
-  - name: Pranav Karakala Reddy
+  - name: Pranav Reddy
+    orcid: 0009-0007-5767-5438
+    affiliation: 1
+  - name: Cohen Ferrari
+    orcid: 0009-0003-8060-9907
     affiliation: 1
 affiliations:
   - name: Affiliation to be completed by the author before submission
@@ -62,7 +66,7 @@ The 2008 simulator lacks the 2013 model's hypoglycaemia nonlinearity and glucago
 
 # AI usage disclosure
 
-Research question, study direction and interpretation: Pranav Karakala Reddy. Software and documentation were developed with AI coding agents (Claude, Anthropic) under the author's direction. Design decisions and amendments proposed by the agents are logged in docs/reference/DECISIONS.md and were reviewed and accepted by the author. The author reviewed all code and results. Literature fact-check: Cohen Ferrari (in progress). Clinical review: none yet.
+Pranav Reddy and Cohen Ferrari are joint first authors. Research question, study direction and interpretation: Pranav Reddy. Software and documentation were developed with AI coding agents (Claude, Anthropic) under Pranav Reddy's direction. Design decisions and amendments proposed by the agents are logged in docs/reference/DECISIONS.md and were reviewed and accepted by Pranav Reddy, who reviewed all code and results. Literature fact-check: Cohen Ferrari (in progress). Clinical review: none yet.
 
 # Acknowledgements
 

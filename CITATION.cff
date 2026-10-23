@@ -3,12 +3,16 @@ message: >-
   If you use Ghost Lows, please cite the software (this file). Benchmark results should
   also name the benchmark version they were computed on. Cite the datasets and
   simulator you use as listed in docs/reference/DATA.md and docs/CITATIONS.md.
+  Pranav Reddy and Cohen Ferrari are joint first authors.
 title: "Ghost Lows: an open benchmark for real-time CGM low-glucose alarms under sensor faults"
 type: software
 authors:
   - given-names: Pranav
-    family-names: Karakala Reddy
+    family-names: Reddy
     orcid: "https://orcid.org/0009-0007-5767-5438"
+  - given-names: Cohen
+    family-names: Ferrari
+    orcid: "https://orcid.org/0009-0003-8060-9907"
 version: 0.2.3
 date-released: 2026-10-22
 doi: 10.5281/zenodo.23573707
