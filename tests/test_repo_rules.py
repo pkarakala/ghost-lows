@@ -306,3 +306,21 @@ def test_markdown_links_resolve():
             elif anchor and dest.suffix == ".md" and anchor not in heading_anchors(dest):
                 broken.append(f"{doc.relative_to(ROOT)}: {target} (no such heading)")
     assert not broken, "broken links:\n" + "\n".join(broken)
+
+
+DISCLOSURE_RE = re.compile(r"Co-authors: Pranav Reddy\b.*?Clinical review: [^.\n]+\.", re.S)
+
+
+def test_ai_usage_disclosure_is_one_text_in_its_three_places():
+    """AGENTS.md (Writing): change all three or none."""
+    places = ["README.md", "paper.md", "docs/development/README.md"]
+    texts = {p: DISCLOSURE_RE.findall((ROOT / p).read_text()) for p in places}
+    assert all(len(found) == 1 for found in texts.values()), texts
+    assert len({found[0] for found in texts.values()}) == 1, texts
+
+
+def test_agent_instruction_files_only_point_to_agents_md():
+    """One agent-neutral source of rules: each tool's own file is a one-line pointer."""
+    for name in ["CLAUDE.md", "GEMINI.md", ".github/copilot-instructions.md"]:
+        lines = (ROOT / name).read_text().strip().splitlines()
+        assert len(lines) == 1 and "AGENTS.md" in lines[0], name

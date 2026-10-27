@@ -192,7 +192,7 @@ The main scientific claims, though, rest on one operating point with no trade-of
 - **m12. Duplication:** the disclosure paragraph appears 3 times word for word; the limitations appear 3 times (one copy is auto-copied, fine); and SIMULATION.md overlaps SIMULATION_NOTES.md (spec vs as-built; keep both, but cross-link and stop restating the noise model).
 - **m13. `docs/PUBLICATION.md` does not belong in a public repo.** It sets out venue strategy (JDST, JOSS) and personal action items, and promises things that don't exist (`pip install "ghostlows[bench]"`, a results page, a "four-method Alarm protocol"). Keep the citation and reproducibility-check facts, move them, and delete the file. D18 (`DECISIONS.md:43`) references it.
 - **m14. Names and attribution:**
-  - Git author "Pranav Reddy" vs "Pranav Karakala Reddy" elsewhere.
+  - The author's name differed between the git history and the docs (resolved 2026-10-23: "Pranav Reddy" everywhere).
   - `CITATION.cff` has no clinical reviewer or ORCID.
   - Cohen Ferrari is named only in the disclosures; "clinical co-lead" is unnamed elsewhere (`README.md:116`).
 
@@ -289,7 +289,7 @@ P1–P3 were adopted as post-hoc amendments, each logged in `DECISIONS.md` befor
 - The 31 bib placeholders without a DOI: patents, CFR, CDC, web pages, arXiv-only benchmarks.
 - The full texts of Facchinetti 2016 and Lobo 2026; the code relies on their abstracts.
 
-**Names.** The git author is "Pranav Reddy"; elsewhere the name is "Pranav Karakala Reddy". `CITATION.cff` has no ORCID or co-authors (m14).
+**Names.** The author's name differed between the git history and the docs (resolved 2026-10-23: "Pranav Reddy" everywhere). `CITATION.cff` has no ORCID or co-authors (m14).
 
 **Outside the repository** (moved from the deleted PUBLICATION.md):
 1. Turn on the Zenodo–GitHub integration and publish a GitHub release from `v0.1.0`. Add the DOI to `CITATION.cff` and the README.
