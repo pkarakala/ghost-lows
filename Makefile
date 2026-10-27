@@ -46,11 +46,11 @@ results:
 	uv run python experiments/real_data.py
 	uv run python experiments/run_all.py
 
-# The publication figures in results/figures/ and the social preview in docs/figures/, then
-# results/README.md with their captions, from the committed tables only (seconds; no cohort).
+# The publication figures in results/figures/ and the social preview in docs/figures/, from
+# the committed tables only (seconds; no cohort). Their captions are generated with
+# results/README.md by `make results`; tests/test_figures.py checks they are current.
 figures:
 	uv run python experiments/make_paper_figures.py
-	uv run python experiments/make_results_readme.py
 
 # A clean checkout of the commit behind the headline tables reproduces them (phase 10).
 reproduce:
