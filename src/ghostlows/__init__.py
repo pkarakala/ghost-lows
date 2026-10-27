@@ -13,7 +13,7 @@ The public API is what `__all__` lists; everything else may change between versi
 See examples/quickstart.py. Glucose is in mg/dL and times are timestamps throughout.
 """
 
-__version__ = "0.2.3"
+__version__ = "0.3.0"
 
 from .alarms import Alarm, BaseAlarm, FloorOnlyAlarm, ThresholdAlarm, TrendAlarm, benchmark_alarms
 from .bench.events import low_events

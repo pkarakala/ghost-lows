@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## v0.3.0 (2026-10-27)
 
 An installable package with a small public API. No benchmark definition or number in `results/` changes.
 
@@ -11,6 +11,7 @@ An installable package with a small public API. No benchmark definition or numbe
 - **Cohort cache key.** It covers the simulation inputs only (config, calibration file, simglucose version, `SIM_CODE`), not the ghostlows version. The key changes once now, so the next `make results` simulates the cohort again (about 2.3 h); after that, releases reuse it.
 - **Packaging.** `ghostlows --help` says what the commands need, and they stop with one line when an extra is missing. The sdist holds only what builds the wheel; `twine check --strict` passes. A PyPI workflow with trusted publishing is in place but disabled (steps in `docs/reference/ENGINEERING.md`, Package).
 - **Hygiene.** `plotly` (declared, never imported) and `ratio_of_sums` (used only by a test) are removed; `uvx deptry .` passes.
+- **Authors, affiliation and licence notice.** Authors are Pranav Reddy and Cohen Ferrari, co-authors with equal contribution (University of California, Santa Barbara), in `CITATION.cff`, `.zenodo.json`, `pyproject.toml`, `paper.md` (`equal-contrib`), `paper.bib` and the disclosure. The README and `paper.md` add: "Independent project by UCSB students; not funded or endorsed by UCSB." The licence is still MIT. Its copyright line names both authors, and the medical-device warning moved out of `LICENSE` (it stays in the README) so GitHub detects the licence as MIT. New `.zenodo.json` sets the Zenodo record's metadata; a test keeps it in line with `CITATION.cff`.
 - **Known staleness.** `results/tables/assumptions.md` lists source line numbers, which moved by a few lines in four files. It was not regenerated, so that no number in `results/` changes. It refreshes the next time results are regenerated.
 
 ## v0.2.3 (2026-10-22)
