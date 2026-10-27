@@ -453,17 +453,25 @@ def span(x: pd.Series) -> str:
     return lo if lo == hi else f"{lo}–{hi}"
 
 
-def a13_verdict(a: pd.DataFrame) -> str:
-    """The A13 finding, generated from the table whichever way it falls. Only estimable, stable
-    grid points are read."""
-    ok = a[np.isfinite(a["total_ratio"]) & ~a["unstable"].astype(bool)]
-    gates = ok[ok["comparator"].str.endswith("_gate")]
+A13_GATE_NAMES = {
+    "iforest_causal_gate": "isolation-forest",
+    "baysal_gate": "Baysal",
+    "matched_filter_causal_gate": "matched-filter",
+}
+
+
+def a13_stable(a: pd.DataFrame) -> pd.DataFrame:
+    """The A13 grid points that are read: estimable and stable."""
+    return a[np.isfinite(a["total_ratio"]) & ~a["unstable"].astype(bool)]
+
+
+def a13_head(a: pd.DataFrame) -> str:
+    """The first clause of the A13 finding: do the published gates give fewer total false alarms
+    than the retuned trend alarm, and do some give more at most points?"""
+    gates = a13_stable(a)
+    gates = gates[gates["comparator"].str.endswith("_gate")]
     adds = gates[gates["reading"] == "adds value"]
-    names = {
-        "iforest_causal_gate": "isolation-forest",
-        "baysal_gate": "Baysal",
-        "matched_filter_causal_gate": "matched-filter",
-    }
+    names = A13_GATE_NAMES
     counts = {
         n: (int((g["reading"] == "worse than retuned trend").sum()), len(g))
         for n, g in gates.groupby("comparator")
@@ -487,6 +495,15 @@ def a13_verdict(a: pd.DataFrame) -> str:
             + " and ".join(f"{counts[n][0]} of {counts[n][1]}" for n in order)
             + ")"
         )
+    return head
+
+
+def a13_verdict(a: pd.DataFrame) -> str:
+    """The A13 finding, generated from the table whichever way it falls. Only estimable, stable
+    grid points are read."""
+    ok = a13_stable(a)
+    names = A13_GATE_NAMES
+    head = a13_head(a)
     no_standard = "standard" in set(a["mix"]) and "standard" not in set(ok["mix"])
     text = (
         head
@@ -960,6 +977,211 @@ def section_reproducibility() -> list[str]:
     return lines
 
 
+FIGURES = REPO / "results" / "figures"
+RUN_FIGURES = (  # per-run figures drawn by `make results` (experiments/make_figures.py)
+    ("rq1_pisa_sweep", "Main sweep"),
+    ("rq1_all_faults", "Every fault rising together"),
+    ("rq3_kalman", "RQ3, Kalman filter"),
+)
+
+
+def caption_causes(s: pd.DataFrame) -> str:
+    r = s[(s["alarm_name"] == "trend") & (s["mix"] == "default") & (s["level"] == s["level"].max())]
+    r = r.iloc[0]
+    c = r["false_compression_per_day"]
+    more = [
+        name
+        for col, name in (
+            ("false_noise_per_day", "noise"),
+            ("false_other_fault_per_day", "the other faults"),
+        )
+        if r[col] > c
+    ]
+    return (
+        f"With a PISA on {r['level']:.0%} of nights, compression causes "
+        f"{ci(r, 'false_compression_per_day')} of the trend alarm's {ci(r, 'false_per_day')} false "
+        f"alarms per day ({c / r['false_per_day']:.0%})"
+        + (f", and {' and '.join(more)} each cause more" if more else "")
+        + " (default mix; whiskers: 95% CI of the total)."
+    )
+
+
+def caption_h1(h1: pd.DataFrame) -> str:
+    h = h1.set_index("mix")
+    d = h.loc["default"]
+    supported = h["supported"].astype(bool)
+    rise = (
+        "rise slightly faster with compressed nights for the trend alarm than for the threshold alarm"
+        if supported["default"]
+        else "do not rise detectably faster with compressed nights for the trend alarm"
+    )
+    return (
+        f"False alarms {rise} (H1, default mix: {fmt_ci(d['median_slope_diff'], d['lo'], d['hi'])} "
+        "more per day with a PISA every night than with none, about one extra every "
+        f"{1 / d['median_slope_diff']:.0f} days; supported in {int(supported.sum())} of {len(h)} "
+        "mixes; bands: 95% CIs)."
+    )
+
+
+DETECTOR_NAMES = {  # as in the figures
+    "threshold": "the threshold alarm",
+    "trend": "the trend alarm",
+    "baysal": "Baysal",
+    "matched_filter_causal": "the matched filter",
+    "iforest_causal": "the isolation forest",
+    "gbm": "gradient boosting",
+}
+
+
+READING_VERBS = {  # H2 readings as predicates, for the captions
+    "meaningful reduction": "gave a meaningful reduction",
+    "inconclusive": "was inconclusive",
+    "not estimable": "was not estimable",
+}
+
+
+def caption_context(h2: pd.DataFrame, azt: pd.DataFrame) -> str:
+    """H2's primary contrast (default mix) and the AZT1D nights, then the other mixes."""
+    null = "no meaningful reduction"
+    sim = h2[(h2["level"] == h2["level"].max()) & (h2["cause"] == "compression")]
+    real = azt[(azt["level"] == azt["level"].max()) & (azt["cause"] == "compression")]
+
+    def count(d: pd.DataFrame) -> str:
+        k = int((d["reading"] == null).sum())
+        return f"any of the {len(d)} detectors" if k == len(d) else f"{k} of {len(d)} detectors"
+
+    main, rest = sim[sim["mix"] == "default"], sim[sim["mix"] != "default"]
+    where = (
+        f"{count(main)} on the default mix (a, H2) or on real AZT1D nights (b)"
+        if count(main) == count(real)
+        else f"{count(main)} on the default mix (a, H2) and {count(real)} on real AZT1D nights (b)"
+    )
+    mixes = " and ".join(sorted(rest["mix"].unique()))
+    other = rest[rest["reading"] != null]
+    tail = (
+        f"; on the {mixes} mixes, only "
+        + " and ".join(
+            f"{DETECTOR_NAMES.get(r['detector'], r['detector'])} on the {r['mix']} mix "
+            + READING_VERBS.get(r["reading"], r["reading"])
+            for _, r in other.iterrows()
+        )
+        if len(other)
+        else f"; the same held on the {mixes} mixes"
+    )
+    return (
+        f"Insulin and carb context gave no meaningful reduction in compression false alarms for "
+        f"{where}{tail} (PISA on every night; shaded: below the smallest effect of interest, 0.75)."
+    )
+
+
+def caption_tradeoff(a13: pd.DataFrame) -> str:
+    """The A13 finding with its caveats, in one sentence (the full reading is in the Summary)."""
+    ok = a13_stable(a13)
+    no_standard = "standard" in set(a13["mix"]) and "standard" not in set(ok["mix"])
+    head = a13_head(a13)
+    return (
+        "In a secondary, post hoc comparison at matched held-out sensitivity (b, c; amendment A13: "
+        f"an oracle, not a deployable operating point; {len(ok)} of {len(a13)} planned points"
+        + (", none in the standard mix" if no_standard else "")
+        + "; uncorrected for multiplicity), "
+        + head[0].lower()
+        + head[1:]
+        + "."
+    )
+
+
+def caption_real(s: pd.DataFrame, real: pd.DataFrame, meta: dict) -> str:
+    def at_top(d):
+        d = d[d["alarm_name"] == "trend"]
+        return d[d["level"] == d["level"].max()].iloc[0]
+
+    sim, r = at_top(s[s["mix"] == "default"]), at_top(real)
+    pace = (
+        "more slowly than"
+        if r["false_compression_per_day"] < sim["false_compression_per_day"]
+        else "as fast as"
+    )
+    return (
+        f"On real CGM with injected PISAs (Weinstock, {meta.get('patients')} people), compression "
+        f"false alarms also grow with the share of PISA nights, {pace} in simulation: "
+        f"{ci(r, 'false_compression_per_day')} against {ci(sim, 'false_compression_per_day')} per "
+        "day for the trend alarm with a PISA every night (bands: 95% CIs)."
+    )
+
+
+def section_figures() -> list[str]:
+    """The publication figures (experiments/make_paper_figures.py, `make figures`), each with a
+    one-sentence takeaway generated from the tables it is drawn from."""
+    s = table(TABLES / f"{MAIN}__summary.csv")
+    parts = {
+        "fig1_false_alarms_by_cause": lambda: caption_causes(s),
+        "fig2_h1_trend_vs_threshold": lambda: caption_h1(
+            table(TABLES / f"{MAIN}__contrast_h1.csv")
+        ),
+        "fig3_context_h2_h3": lambda: caption_context(
+            table(TABLES / f"{MAIN}__contrasts_h2.csv"),
+            table(TABLES / "real__azt1d_contrasts_h2.csv"),
+        ),
+        "fig4_tradeoff_matched_sensitivity": lambda: caption_tradeoff(
+            table(TABLES / "curves__a13.csv")
+        ),
+        "fig5_real_cgm_check": lambda: caption_real(
+            s, table(TABLES / "real__summary.csv"), read_json(TABLES / "real__meta.json")
+        ),
+    }
+    lines = [
+        "## Figures",
+        "",
+        "Drawn from the tables above by `make figures` (`experiments/make_paper_figures.py`), sized for one journal column.",
+        "",
+    ]
+    for n, (stem, caption) in enumerate(parts.items(), start=1):
+        if not (FIGURES / f"{stem}.png").exists():
+            continue
+        lines += [
+            f"**Figure {n}.** {caption()}",
+            "",
+            f"![Figure {n}](figures/{stem}.png)",
+            "",
+            f"Vector files: [SVG](figures/{stem}.svg), [PDF](figures/{stem}.pdf).",
+            "",
+        ]
+    return lines + section_appendix_figures()
+
+
+def section_appendix_figures() -> list[str]:
+    """Links to the per-run figures and, in figures/appendix/, the robustness arms' figures."""
+    lines = [
+        "### Appendix figures",
+        "",
+        "Drawn by `make results` from each run's own outputs, which are not committed.",
+        "",
+    ]
+    for run, label in RUN_FIGURES:
+        files = sorted(FIGURES.glob(f"{run}__*.png"))
+        if files:
+            lines.append(
+                f"- {label}: "
+                + ", ".join(
+                    f"[{f.stem.split('__')[1].replace('_', ' ')}](figures/{f.name})" for f in files
+                )
+                + "."
+            )
+    arms: dict[str, list[Path]] = {}
+    for f in sorted((FIGURES / "appendix").glob("robust_*.png")):
+        arms.setdefault(f.stem.split("__")[0], []).append(f)
+    for arm, files in arms.items():
+        lines.append(
+            f"- Robustness arm `{arm}`: "
+            + ", ".join(
+                f"[{f.stem.split('__')[1].replace('_', ' ')}](figures/appendix/{f.name})"
+                for f in files
+            )
+            + "."
+        )
+    return lines + [""]
+
+
 def limitations() -> list[str]:
     text = (REPO / "docs" / "reference" / "RESEARCH.md").read_text()
     m = re.search(r"## 6\. Known limitations to state up front\n(.*?)\n## 7", text, flags=re.S)
@@ -971,7 +1193,8 @@ def limitations() -> list[str]:
     ]
 
 
-def main() -> None:
+def build() -> str:
+    """The text of results/README.md, from the committed tables and figures."""
     summary = table(TABLES / f"{MAIN}__summary.csv")
     meta_path = TABLES / f"{MAIN}__meta.json"
     meta = json.loads(meta_path.read_text()) if meta_path.exists() else {}
@@ -1012,12 +1235,8 @@ def main() -> None:
                 table(TABLES / "rq3_kalman__contrasts_rq3.csv"),
                 table(TABLES / "rq3_kalman__summary.csv"),
             ),
-            "## Figures",
-            "",
+            *section_figures(),
         ]
-        for fig in sorted((REPO / "results" / "figures").glob(f"{MAIN}__*.png")):
-            lines.append(f"![{fig.stem}](figures/{fig.name})")
-        lines.append("")
     lines += section_real()
     lines += section_reproducibility()
     lines += [
@@ -1027,8 +1246,12 @@ def main() -> None:
         "Every `# ASSUMPTION:` in the code, collected from the current code when this README is generated: `results/tables/assumptions.md`.",
         "",
     ]
+    return "\n".join(lines)
+
+
+def main() -> None:
     (TABLES / "assumptions.md").write_text(collect_assumptions())
-    (REPO / "results" / "README.md").write_text("\n".join(lines))
+    (REPO / "results" / "README.md").write_text(build())
     print("wrote results/README.md")
 
 

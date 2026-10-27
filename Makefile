@@ -1,6 +1,6 @@
 # Common tasks. Everything runs through uv; see AGENTS.md (Commands).
 
-.PHONY: install test lint format data data-diadata data-azt1d smoke sample results reproduce all fault-figure sim-report package
+.PHONY: install test lint format data data-diadata data-azt1d smoke sample results figures reproduce all fault-figure sim-report package
 
 # Parallel benchmark workers each run their own models; keep native thread pools small.
 export OMP_NUM_THREADS ?= 2
@@ -45,6 +45,12 @@ results:
 	uv run python -m ghostlows.sim --config experiments/configs/sim_full.yaml
 	uv run python experiments/real_data.py
 	uv run python experiments/run_all.py
+
+# The publication figures in results/figures/ and the social preview in docs/figures/, then
+# results/README.md with their captions, from the committed tables only (seconds; no cohort).
+figures:
+	uv run python experiments/make_paper_figures.py
+	uv run python experiments/make_results_readme.py
 
 # A clean checkout of the commit behind the headline tables reproduces them (phase 10).
 reproduce:

@@ -4,8 +4,9 @@
     uv run python experiments/run_all.py --force    # recompute everything
 
 Runs the configs below into results/<name>/ (gitignored), draws their figures, copies the
-headline figures and tables into results/figures/ and results/tables/ (committed), runs the
-trade-off curves (run_curves.py, amendment A11) and writes results/README.md.
+headline figures and tables into results/figures/ (robustness arms: results/figures/appendix/)
+and results/tables/ (committed), runs the trade-off curves (run_curves.py, amendment A11), draws
+the publication figures (make_paper_figures.py) and writes results/README.md.
 """
 
 from __future__ import annotations
@@ -83,10 +84,12 @@ def main() -> None:
         out = REPO / "results" / name
         if not (out / "summary.csv").exists():
             continue
+        dest = figures / "appendix" if name.startswith("robust_") else figures
+        dest.mkdir(exist_ok=True)
         for fig in HEADLINE_FIGURES:
             src = out / "figures" / f"{fig}.png"
             if src.exists():
-                shutil.copy(src, figures / f"{name}__{fig}.png")
+                shutil.copy(src, dest / f"{name}__{fig}.png")
         for table in (
             "summary.csv",
             "contrasts_h2.csv",
@@ -112,9 +115,8 @@ def main() -> None:
             + (["--force"] if args.force else []),
             check=True,
         )
-    subprocess.run(
-        [sys.executable, str(REPO / "experiments" / "make_results_readme.py")], check=True
-    )
+    for script in ("make_paper_figures.py", "make_results_readme.py"):
+        subprocess.run([sys.executable, str(REPO / "experiments" / script)], check=True)
 
 
 def by_age_group(out: Path) -> None:
