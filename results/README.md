@@ -362,10 +362,52 @@ Kalman alarms at 100% PISA nights: false alarms/day, compression false alarms/da
 
 ## Figures
 
-![rq1_pisa_sweep__context_rate_ratios](figures/rq1_pisa_sweep__context_rate_ratios.png)
-![rq1_pisa_sweep__false_alarms_by_cause](figures/rq1_pisa_sweep__false_alarms_by_cause.png)
-![rq1_pisa_sweep__sensitivity_vs_false_alarms](figures/rq1_pisa_sweep__sensitivity_vs_false_alarms.png)
-![rq1_pisa_sweep__severity_curves](figures/rq1_pisa_sweep__severity_curves.png)
+Drawn from the tables above by `make figures` (`experiments/make_paper_figures.py`), sized for one journal column.
+
+**Figure 1.** With a PISA on 100% of nights, compression causes 0.32 (0.30–0.35) of the trend alarm's 1.53 (1.33–1.73) false alarms per day (21%), and noise and the other faults each cause more (default mix; whiskers: 95% CI of the total).
+
+![Figure 1](figures/fig1_false_alarms_by_cause.png)
+
+Vector files: [SVG](figures/fig1_false_alarms_by_cause.svg), [PDF](figures/fig1_false_alarms_by_cause.pdf).
+
+**Figure 2.** False alarms rise slightly faster with compressed nights for the trend alarm than for the threshold alarm (H1, default mix: 0.09 (0.07–0.10) more per day with a PISA every night than with none, about one extra every 11 days; supported in 3 of 3 mixes; bands: 95% CIs).
+
+![Figure 2](figures/fig2_h1_trend_vs_threshold.png)
+
+Vector files: [SVG](figures/fig2_h1_trend_vs_threshold.svg), [PDF](figures/fig2_h1_trend_vs_threshold.pdf).
+
+**Figure 3.** Insulin and carb context gave no meaningful reduction in compression false alarms for any of the 6 detectors on the default mix (a, H2) or on real AZT1D nights (b); on the high and standard mixes, only gradient boosting on the standard mix was inconclusive (PISA on every night; shaded: below the smallest effect of interest, 0.75).
+
+![Figure 3](figures/fig3_context_h2_h3.png)
+
+Vector files: [SVG](figures/fig3_context_h2_h3.svg), [PDF](figures/fig3_context_h2_h3.pdf).
+
+**Figure 4.** In a secondary, post hoc comparison at matched held-out sensitivity (b, c; amendment A13: an oracle, not a deployable operating point; 18 of 60 planned points, none in the standard mix; uncorrected for multiplicity), no published gate gave fewer total false alarms than the retuned trend alarm at any estimable point; the isolation-forest and Baysal gates gave more at most (6 of 8 and 2 of 3).
+
+![Figure 4](figures/fig4_tradeoff_matched_sensitivity.png)
+
+Vector files: [SVG](figures/fig4_tradeoff_matched_sensitivity.svg), [PDF](figures/fig4_tradeoff_matched_sensitivity.pdf).
+
+**Figure 5.** On real CGM with injected PISAs (Weinstock, 200 people), compression false alarms also grow with the share of PISA nights, more slowly than in simulation: 0.14 (0.12–0.16) against 0.32 (0.30–0.35) per day for the trend alarm with a PISA every night (bands: 95% CIs).
+
+![Figure 5](figures/fig5_real_cgm_check.png)
+
+Vector files: [SVG](figures/fig5_real_cgm_check.svg), [PDF](figures/fig5_real_cgm_check.pdf).
+
+### Appendix figures
+
+Drawn by `make results` from each run's own outputs, which are not committed.
+
+- Main sweep: [context rate ratios](figures/rq1_pisa_sweep__context_rate_ratios.png), [false alarms by cause](figures/rq1_pisa_sweep__false_alarms_by_cause.png), [sensitivity vs false alarms](figures/rq1_pisa_sweep__sensitivity_vs_false_alarms.png), [severity curves](figures/rq1_pisa_sweep__severity_curves.png).
+- Every fault rising together: [context rate ratios](figures/rq1_all_faults__context_rate_ratios.png), [false alarms by cause](figures/rq1_all_faults__false_alarms_by_cause.png), [sensitivity vs false alarms](figures/rq1_all_faults__sensitivity_vs_false_alarms.png), [severity curves](figures/rq1_all_faults__severity_curves.png).
+- RQ3, Kalman filter: [false alarms by cause](figures/rq3_kalman__false_alarms_by_cause.png), [sensitivity vs false alarms](figures/rq3_kalman__sensitivity_vs_false_alarms.png), [severity curves](figures/rq3_kalman__severity_curves.png).
+- Robustness arm `robust_delta05`: [context rate ratios](figures/appendix/robust_delta05__context_rate_ratios.png), [false alarms by cause](figures/appendix/robust_delta05__false_alarms_by_cause.png), [sensitivity vs false alarms](figures/appendix/robust_delta05__sensitivity_vs_false_alarms.png), [severity curves](figures/appendix/robust_delta05__severity_curves.png).
+- Robustness arm `robust_early20`: [context rate ratios](figures/appendix/robust_early20__context_rate_ratios.png), [false alarms by cause](figures/appendix/robust_early20__false_alarms_by_cause.png), [sensitivity vs false alarms](figures/appendix/robust_early20__sensitivity_vs_false_alarms.png), [severity curves](figures/appendix/robust_early20__severity_curves.png).
+- Robustness arm `robust_early45`: [context rate ratios](figures/appendix/robust_early45__context_rate_ratios.png), [false alarms by cause](figures/appendix/robust_early45__false_alarms_by_cause.png), [sensitivity vs false alarms](figures/appendix/robust_early45__sensitivity_vs_false_alarms.png), [severity curves](figures/appendix/robust_early45__severity_curves.png).
+- Robustness arm `robust_lag6`: [context rate ratios](figures/appendix/robust_lag6__context_rate_ratios.png), [false alarms by cause](figures/appendix/robust_lag6__false_alarms_by_cause.png), [sensitivity vs false alarms](figures/appendix/robust_lag6__sensitivity_vs_false_alarms.png), [severity curves](figures/appendix/robust_lag6__severity_curves.png).
+- Robustness arm `robust_late30`: [context rate ratios](figures/appendix/robust_late30__context_rate_ratios.png), [false alarms by cause](figures/appendix/robust_late30__false_alarms_by_cause.png), [sensitivity vs false alarms](figures/appendix/robust_late30__sensitivity_vs_false_alarms.png), [severity curves](figures/appendix/robust_late30__severity_curves.png).
+- Robustness arm `robust_tau20`: [context rate ratios](figures/appendix/robust_tau20__context_rate_ratios.png), [false alarms by cause](figures/appendix/robust_tau20__false_alarms_by_cause.png), [sensitivity vs false alarms](figures/appendix/robust_tau20__sensitivity_vs_false_alarms.png), [severity curves](figures/appendix/robust_tau20__severity_curves.png).
+- Robustness arm `robust_tau5`: [context rate ratios](figures/appendix/robust_tau5__context_rate_ratios.png), [false alarms by cause](figures/appendix/robust_tau5__false_alarms_by_cause.png), [sensitivity vs false alarms](figures/appendix/robust_tau5__sensitivity_vs_false_alarms.png), [severity curves](figures/appendix/robust_tau5__severity_curves.png).
 
 ## Real data
 
@@ -467,4 +509,4 @@ This is weaker than re-running everything. It needs the cached cohort under `dat
 
 ## Assumptions
 
-Every `# ASSUMPTION:` in the code, collected from the current code when this README is generated: `results/tables/assumptions.md`.
+Every `# ASSUMPTION:` in the code, collected from the current code when this README is generated: [`results/tables/assumptions.md`](tables/assumptions.md).
