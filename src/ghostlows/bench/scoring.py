@@ -135,16 +135,21 @@ def _select(df: pd.DataFrame, sel: dict) -> pd.DataFrame:
 
 
 def score_events(
-    alarms: pd.DataFrame, events: pd.DataFrame, windows: Windows = DEFAULT_WINDOWS
+    alarms: pd.DataFrame,
+    events: pd.DataFrame,
+    windows: Windows = DEFAULT_WINDOWS,
+    names: list[str] | None = None,
 ) -> pd.DataFrame:
     """Per true event and alarm: caught, warning time and late announcement.
 
     Caught = an alarm in [onset - early, onset + late]. Warning = onset - first catching alarm
     (minutes, positive means before onset). For events not caught by a non-floor alarm, `late_min`
-    is the time from onset to the first alarm of any kind within the event (D4).
+    is the time from onset to the first alarm of any kind within the event (D4). `names` are the
+    alarms scored (default: those in `alarms`); one that never fired misses every event.
     """
     keys = [k for k in RUN_KEYS if k in events]
-    names = list(alarms["alarm_name"].unique()) if len(alarms) else []
+    if names is None:
+        names = list(alarms["alarm_name"].unique()) if len(alarms) else []
     a_by = _by_run(alarms, keys) if len(alarms) else {}
     rows = []
     for key, ev in events.groupby(keys, sort=False):
@@ -307,7 +312,8 @@ def fire_and_score(alarm, frame, threshold, events, faults, observed, windows, s
     fired["alarm_name"] = alarm.name
     labels = observed[[*RUN_KEYS, "time", "fault_type"]]
     classified = classify_alarms(fired, events, faults, labels, windows)
-    scored = score_events(fired, events, windows)
+    # named, not read from `fired`: an alarm that never fired still misses every low
+    scored = score_events(fired, events, windows, names=[alarm.name])
     return fired, classified, scored
 
 

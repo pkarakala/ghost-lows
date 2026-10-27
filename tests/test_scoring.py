@@ -5,8 +5,10 @@ import pandas as pd
 import pytest
 
 from ghostlows.bench.scoring import (
+    DEFAULT_WINDOWS,
     classify_alarms,
     fda_rates,
+    fire_and_score,
     per_run_metrics,
     run_hours,
     score_events,
@@ -95,3 +97,21 @@ def test_per_run_metrics_fill_zeros_for_silent_alarms():
     assert m.loc["a", "caught_l1"] == 1 and m.loc["a", "events_l1"] == 1
     assert m.loc["silent", "n_alarms"] == 0 and m.loc["silent", "false_per_day"] == 0
     assert m.loc["a", "hours"] == pytest.approx(24.0)
+
+
+def test_an_alarm_that_never_fires_misses_every_low():
+    """Its lows stay in the sensitivity denominator: 0 of 1 caught, not 0 of 0 (audit 2026-10)."""
+
+    class Silent:
+        name = "silent"
+
+        def alarms(self, frame, threshold):
+            return pd.DataFrame()
+
+    samples = pd.DataFrame(
+        {**RUN, "time": [at(m) for m in range(0, 1440, 5)], "fault_type": "none"}
+    )
+    _, c, s = fire_and_score(Silent(), samples, 0.5, EVENTS, FAULTS, samples, DEFAULT_WINDOWS)
+    assert len(s) == len(EVENTS) and not s["caught"].any()
+    m = per_run_metrics(c, s, run_hours(samples), alarm_names=["silent"]).iloc[0]
+    assert (m["events_l1"], m["caught_l1"], m["events_l2"], m["caught_l2"]) == (1, 0, 1, 0)
