@@ -509,4 +509,4 @@ This is weaker than re-running everything. It needs the cached cohort under `dat
 
 ## Assumptions
 
-Every `# ASSUMPTION:` in the code, collected from the current code when this README is generated: `results/tables/assumptions.md`.
+Every `# ASSUMPTION:` in the code, collected from the current code when this README is generated: [`results/tables/assumptions.md`](tables/assumptions.md).

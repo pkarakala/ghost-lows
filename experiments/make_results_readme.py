@@ -1243,7 +1243,7 @@ def build() -> str:
         *limitations(),
         "## Assumptions",
         "",
-        "Every `# ASSUMPTION:` in the code, collected from the current code when this README is generated: `results/tables/assumptions.md`.",
+        "Every `# ASSUMPTION:` in the code, collected from the current code when this README is generated: [`results/tables/assumptions.md`](tables/assumptions.md).",
         "",
     ]
     return "\n".join(lines)
