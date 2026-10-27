@@ -14,12 +14,14 @@ uv run pytest -q
 
 ## Tests and lint
 
-CI (GitHub's automated checks) runs these on every push and pull request to `main`:
+CI runs these on every push and pull request to `main`:
 
 ```
 uv run pytest -q
 uv run ruff check . && uv run ruff format --check .
 ```
+
+After a docs edit, `uv run python scripts/check_docs_preserved.py --before origin/main` checks that no number, citation or safety sentence was lost.
 
 Run the browser tests when you change `app/`, `ghostlows.io`, `ghostlows.metrics` or `ghostlows.retro`. They load the upload report in Chromium:
 
@@ -34,7 +36,7 @@ Run `uv run pytest -q -m network` when you change `scripts/download_data.py`. It
 
 ## Add an alarm
 
-A plug-in alarm changes no published number. Subclass `ghostlows.alarms.BaseAlarm` and return one score per sample from `_score_run`, using only past values. Score it like the built-in alarms:
+A plug-in alarm changes no published number. Subclass `ghostlows.alarms.BaseAlarm` and return one score per sample from `_score_run`, using only past values. Score it like the built-in alarms ([example](examples/custom_alarm.py)):
 
 ```
 uv run ghostlows score --alarm examples/custom_alarm.py:FallingBelow70 --config experiments/configs/smoke.yaml
@@ -60,8 +62,8 @@ Hard rule 11: amend before computing.
 For literature checkers and clinicians; no code needed. [`docs/CLINICAL_REVIEW.md`](docs/CLINICAL_REVIEW.md) lists each clinical claim the code depends on (CR1–CR17), with its source.
 
 1. Pick an item. Check it against the cited source or your clinical experience (items marked **Needs a clinician** need both).
-2. Open a **Clinical correction** issue. Give the CR id, whether you checked the literature or reviewed as a clinician (with your role), your verdict (agree, disagree or unsure), your evidence and, if you disagree, the value or wording you would use.
-3. A maintainer fills in the matching sign-off with your name and the date and ticks the item once it has the sign-offs it needs, or changes the spec and the code. `grep -rn "CLINICAL-REVIEW: CR<n>" src app scripts experiments` shows the code affected. A change that moves a number goes through an amendment first.
+2. Open a [**Clinical correction** issue](https://github.com/pkarakala/ghost-lows/issues/new/choose). Give the CR id, whether you checked the literature or reviewed as a clinician (with your role), your verdict (agree, disagree or unsure), your evidence and, if you disagree, the value or wording you would use.
+3. A maintainer records your sign-off with the date, or changes the spec and the code. `grep -rn "CLINICAL-REVIEW: CR<n>" src app scripts experiments` shows the code affected. A change that moves a number goes through an amendment first.
 
 ## Pull requests
 

@@ -1,21 +1,18 @@
 # Results on one page
 
-For clinicians. All results are simulated and describe 30 virtual patients, not people with diabetes.
+For clinicians. Every result is simulated: 30 virtual patients, not people with diabetes.
 
 ## What we asked
 
-Continuous glucose monitors (CGMs, under-skin glucose sensors) can show false lows. The best-known cause is pressure on the sensor during sleep, a "compression low". We asked three questions:
-- How many false low alarms does compression cause?
-- Do some alarm designs suffer more than others?
-- Do insulin and carb records help an alarm ignore compression?
+Continuous glucose monitors (CGMs, under-skin glucose sensors) can show false lows. The best-known cause is pressure on the sensor during sleep, a "compression low". We asked how many false low alarms compression causes, whether some alarm designs suffer more, and whether insulin and carb records help an alarm ignore compression.
 
-Each virtual patient was simulated for 14 days, 5 times. We added sensor faults to the simulated sensor, but never to the true glucose. So every false alarm has a known cause. Brackets give 95% confidence intervals (CI, the plausible range).
+Each virtual patient was simulated for 14 days, 5 times. Sensor faults were added to the simulated sensor, never to the true glucose, so every false alarm has a known cause. Brackets give 95% confidence intervals (CI, the plausible range).
 
 ## Where false alarms come from
 
 ![False alarms per day by cause, with a compression low every night](../results/figures/rq1_pisa_sweep__false_alarms_by_cause.png)
 
-*Each bar is one alarm design; blue is compression. Look at `threshold` (fires below 70 mg/dL), `trend` (predicts 55 mg/dL within 20 minutes) and `floor_only` (fires at 55 mg/dL or below). For every design, sensor noise (grey) and other faults (orange) cause more false alarms than compression.*
+*Each bar is one alarm design; blue is compression. For `threshold` and `trend` (defined in the table below), sensor noise (grey) and other faults (orange) each cause more false alarms than compression. For `floor_only`, compression is the largest cause.*
 
 ## The three basic alarms, with a compression low every night
 
@@ -30,11 +27,11 @@ A severe low is glucose below 54 mg/dL for 15 minutes. A negative warning means 
 ## What we found
 
 - **Compression is a minor cause.** Even with a compression low every night, it caused about 21% of the trend alarm's false alarms.
-- **Trend alarms suffer a little more.** Going from no compressed nights to all, trend alarms gained 0.09 (0.07–0.10) more false alarms per day than threshold alarms. That is about one extra every 11 days.
-- **Insulin and carb records did not help enough.** We set the bar in advance: a 25% cut in compression false alarms. None met the 25% bar; the best was gradient boosting on the standard mix, 0.82 (0.74–0.89), inconclusive.
-- **Fewer compression alarms cost severe lows.** In a later analysis, decided after the main results, detectors removed compression alarms only by missing severe lows. The first clear cut, by the Baysal 2014 detector, to 0.89 (0.81–0.96) times as many, missed 11 more of 249. None beat simply making the trend alarm less sensitive (also post hoc).
-- **A model-based filter was mixed (exploratory).** A Kalman filter (a sensor-tracking model) with a "compressed" state raised fewer false alarms than the best learned alarm, 0.88 (0.80–0.98). It did no better than itself without that state, 1.05 (0.93–1.18).
-- **Real data could not settle it.** On real overnight records with injected compression, every confidence interval included no effect.
+- **Trend alarms suffer a little more.** From no compressed nights to all, trend alarms gained 0.09 (0.07–0.10) more false alarms per day than threshold alarms: about one extra every 11 days.
+- **Insulin and carb records did not help enough.** The bar, set in advance, was a 25% cut in compression false alarms. None met it; the best was gradient boosting on the standard mix, 0.82 (0.74–0.89), inconclusive.
+- **Fewer compression alarms cost severe lows** (post hoc: decided after the main results). Published detectors removed compression alarms only by missing severe lows. The first clear cut, by the Baysal 2014 detector, to 0.89 (0.81–0.96) times as many, missed 11 more of 249. Compared at the same sensitivity, matched after the fact, none gave fewer false alarms than simply making the trend alarm less sensitive (18 of 60 planned comparisons were possible).
+- **A model-based filter was mixed (exploratory).** A Kalman filter (a sensor-tracking model) with a "compressed" state raised fewer false alarms than the best learned alarm, 0.88 (0.80–0.98), but no fewer than itself without that state, 1.05 (0.93–1.18).
+- **Real data could not settle the insulin and carb question.** On real overnight records with injected compression, every confidence interval included no effect.
 
 ## What this does and does not mean
 
