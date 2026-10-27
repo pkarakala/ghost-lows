@@ -1,5 +1,30 @@
 # Changelog
 
+## Unreleased
+
+An audit, publication figures, shorter docs in two layers and more precise archive metadata. No number in `results/` changes, and the benchmark is still `ghostlows-bench v1`.
+
+- **Audit** (`docs/development/AUDIT_2026-10.md`). A second hostile review of the code, tests and statistics, with 17 findings ranked by severity. Six fixes, each with a regression test and none changing a result:
+  - learned alarms with no lows in training no longer fire;
+  - `low_events` no longer joins readings across a gap;
+  - an interrupted simulation is no longer reused without its event logs, nor packaged;
+  - the D5 reference alarm uses the configured refractory period;
+  - provenance records uncommitted changes;
+  - a docstring states the right redraw share.
+
+  Draft amendments P10–P13 report the findings that would change numbers, for the project lead to accept or reject.
+- **Figures.** `make figures` draws five publication figures from the committed tables into `results/figures/` (SVG, PDF and PNG, one shared style), plus a 1280 x 640 social preview in `docs/figures/`. Each figure gets a one-sentence caption in `results/README.md`, generated from the same tables. The robustness figures move to `results/figures/appendix/`. Tests check that every listed figure exists and that `results/README.md` is exactly what its generator writes.
+- **Docs in two layers.**
+  - For people: the README is 350 words and gains a Cite section. `docs/SUMMARY.md` corrects a caption, since `floor_only` gets more false alarms from compression than from any other cause, and gives the A13 caveats. CONTRIBUTING adds the docs-preservation check and stays under 500 words.
+  - For AI agents: `AGENTS.md` is the one agent-neutral source of rules, and `CLAUDE.md`, `GEMINI.md` and `.github/copilot-instructions.md` point to it.
+  - A test checks that the AI usage disclosure is one text in its three places.
+- **Archive metadata.**
+  - `.zenodo.json` and `CITATION.cff` lead with the problem and the finding.
+  - Keywords give US and UK spellings.
+  - Both link the upload report, the specifications and the results.
+  - The Zenodo record's language is English. Python is a keyword, since Zenodo's language field takes only a natural language.
+  - [`docs/development/RELEASE_CHECKLIST.md`](docs/development/RELEASE_CHECKLIST.md) lists the release steps done by hand.
+
 ## v0.3.0 (2026-10-27)
 
 An installable package with a small public API. No benchmark definition or number in `results/` changes.

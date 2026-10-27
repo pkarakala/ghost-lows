@@ -111,6 +111,11 @@ def test_zenodo_metadata_matches_citation():
     assert zenodo["license"] == citation["license"] == "MIT"
     assert zenodo["keywords"] == citation["keywords"]
     assert "version" not in zenodo and "doi" not in zenodo  # Zenodo sets both per release
+    assert zenodo["language"] == "eng"  # ISO 639: the record's language, not the code's
+    related = {r["identifier"] for r in zenodo["related_identifiers"]}
+    links = {i["value"] for i in citation["identifiers"] if i["type"] == "url"}
+    references = {r.get("doi") or r["repository-code"] for r in citation["references"]}
+    assert related == links | references
     assert zenodo["creators"] == [
         {
             "name": f"{a['family-names']}, {a['given-names']}",

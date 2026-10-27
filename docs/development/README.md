@@ -4,6 +4,7 @@ How the software was built, for readers checking its provenance. These files des
 
 - [`prompts/`](prompts/): the instructions the software was implemented from with AI coding agents, one per roadmap phase, with [`prompts/00_START_HERE.md`](prompts/00_START_HERE.md) as the entry point.
 - [`ROADMAP.md`](ROADMAP.md): the phases the software was built in, and the open items (blocked or deferred work).
+- [`RELEASE_CHECKLIST.md`](RELEASE_CHECKLIST.md): the release steps done by hand (GitHub settings, tag and release, checks on the Zenodo record).
 - [`SPEC_REVIEW.md`](SPEC_REVIEW.md): the critical review of the specifications made before any code was written; the decisions taken on it are in [`../reference/DECISIONS.md`](../reference/DECISIONS.md).
 - [`REVIEW.md`](REVIEW.md): a referee-style review of the finished repository (2026-10-18), with what was fixed after it and what is left.
 - [`decisions_pending.md`](decisions_pending.md): choices made while the project lead was away during the fixes after that review, each reversible.
