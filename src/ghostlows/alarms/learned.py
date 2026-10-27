@@ -223,8 +223,8 @@ class CombinedAlarm(BaseAlarm):
         ).fit(x, y)
 
     def _score_run(self, run):
-        if self.model is None:
-            return np.where(np.isnan(run["cgm"].to_numpy(float)), np.nan, 0.0)
+        if self.model is None:  # -inf, not 0: no candidate threshold can make it fire
+            return np.where(np.isnan(run["cgm"].to_numpy(float)), np.nan, -np.inf)
         p = self.model.predict_proba(self._x(run))[:, 1]
         return np.where(np.isnan(run["cgm"].to_numpy(float)), np.nan, p)
 
@@ -284,7 +284,7 @@ class GBMAlarm(BaseAlarm):
         self.model = HistGradientBoostingClassifier(random_state=self.seed).fit(x, y)
 
     def _score_run(self, run):
-        if self.model is None:
-            return np.where(np.isnan(run["cgm"].to_numpy(float)), np.nan, 0.0)
+        if self.model is None:  # -inf, not 0: no candidate threshold can make it fire
+            return np.where(np.isnan(run["cgm"].to_numpy(float)), np.nan, -np.inf)
         p = self.model.predict_proba(self._x(run))[:, 1]
         return np.where(np.isnan(run["cgm"].to_numpy(float)), np.nan, p)

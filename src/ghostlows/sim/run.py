@@ -83,8 +83,21 @@ def task_seeds(seed: int, patient: str) -> tuple[int, int, int]:
     return tuple(int(s) % (2**31) for s in state)
 
 
+PARTS = ("samples", "truth", "events")  # one part file per patient-run in each folder
+
+
 def part_name(patient: str, seed: int, mix: str) -> str:
     return f"{mix}_s{seed}_{patient.replace('#', '-')}.parquet"
+
+
+def pending(jobs: list[tuple], out: Path, force: bool = False) -> list[tuple]:
+    """The jobs to simulate: all with `force`, else those missing any of their three parts (a
+    run interrupted between two part writes is redone, not half reused)."""
+    return [
+        j
+        for j in jobs
+        if force or not all((out / sub / part_name(j[0], j[1], j[2])).exists() for sub in PARTS)
+    ]
 
 
 def _simulate(patient, seed, mix_name, therapy, days, start, dia_h, cob_h, treat) -> SimResult:
@@ -131,7 +144,10 @@ def _run_task(args):
         "events": result.events.assign(patient_id=f"sim:{patient}", **tag),
     }
     for folder, frame in parts.items():
-        frame.to_parquet(Path(out) / folder / name, index=False)
+        # write, then rename: a killed run leaves no truncated part (dot files are not read)
+        tmp = Path(out) / folder / f".{name}.tmp"
+        frame.to_parquet(tmp, index=False)
+        os.replace(tmp, Path(out) / folder / name)
     return {
         "patient_id": f"sim:{patient}",
         **tag,
@@ -183,13 +199,13 @@ def run(config: SimConfig, force: bool = False, workers: int | None = None) -> P
     out = config.out_dir()
     if (out / "meta.json").exists() and not force:
         return out
-    for folder in ("samples", "truth", "events"):
+    for folder in PARTS:
         (out / folder).mkdir(parents=True, exist_ok=True)
     previous = (
         pd.read_csv(out / "runs.partial.csv") if (out / "runs.partial.csv").exists() else None
     )
     jobs = tasks(config, out)
-    todo = [j for j in jobs if force or not (out / "truth" / part_name(j[0], j[1], j[2])).exists()]
+    todo = pending(jobs, out, force)
     t0 = time.time()
     rows = [] if previous is None or force else previous.to_dict("records")
     with ProcessPoolExecutor(max_workers=workers) as pool:
@@ -216,4 +232,4 @@ def run(config: SimConfig, force: bool = False, workers: int | None = None) -> P
 
 def load(out: Path) -> dict[str, pd.DataFrame]:
     """The cohort's samples, 1-min truth and event log (each folder read as one dataset)."""
-    return {name: pd.read_parquet(out / name) for name in ("samples", "truth", "events")}
+    return {name: pd.read_parquet(out / name) for name in PARTS}

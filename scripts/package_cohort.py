@@ -29,7 +29,7 @@ sys.path.insert(0, str(REPO / "src"))
 
 from ghostlows.bench.pipeline import BENCHMARK_VERSION, BenchConfig  # noqa: E402
 from ghostlows.faults import apply_faults  # noqa: E402
-from ghostlows.sim.run import SimConfig, load  # noqa: E402
+from ghostlows.sim.run import SimConfig, load, pending, tasks  # noqa: E402
 
 NAME = "ghostlows-bench-v1"
 
@@ -108,6 +108,10 @@ def main() -> int:
         print(f"cohort not simulated: {cohort}")
         return 1
     meta = json.loads((cohort / "meta.json").read_text())
+    missing = pending(tasks(sim, cohort), cohort)
+    if missing:  # an interrupted run: some patient-runs lack a part file
+        print(f"cohort incomplete: {len(missing)} patient-runs lack a part, e.g. {missing[0][:3]}")
+        return 1
     with tempfile.TemporaryDirectory() as tmp:
         root = Path(tmp) / NAME
         for sub in ("samples", "truth", "events"):

@@ -111,7 +111,8 @@ def from_size(onset: float, depth: float, duration: float, tau: float = TAU_MIN)
 def sample_sizes(
     rng: np.random.Generator, n: int, tau: float = TAU_MIN
 ) -> tuple[np.ndarray, np.ndarray]:
-    """Depths and durations; durations too short for `tau` are redrawn (about 0.3% at tau=10)."""
+    """Depths and durations; durations too short for `tau` are redrawn: about 0.6% at tau=10,
+    57% at tau=20, where the redraw raises the median duration from 45 to 55 min."""
     depth = DEPTH.sample(rng, n)
     duration = DURATION.sample(rng, n)
     floor = tau * np.log(1 / END_FRACTION) + 1.0

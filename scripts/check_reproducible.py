@@ -17,6 +17,7 @@ Prints what matched and exits non-zero on any difference.
 from __future__ import annotations
 
 import argparse
+import json
 import os
 import random
 import subprocess
@@ -65,6 +66,9 @@ def main() -> int:
         print(f"no {commit_file.relative_to(REPO)}: run experiments/run_all.py first")
         return 2
     commit = commit_file.read_text().strip()
+    meta_file = TABLES / f"{args.config}__meta.json"
+    if meta_file.exists() and json.loads(meta_file.read_text()).get("git_dirty"):
+        print(f"warning: the run had uncommitted changes; commit {commit[:12]} may differ")
     env = dict(os.environ, GHOSTLOWS_DATA_DIR=str(REPO / "data"), OMP_NUM_THREADS="2")
     ok = True
     with tempfile.TemporaryDirectory(prefix="ghostlows-clean-") as tmp:

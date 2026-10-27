@@ -200,3 +200,16 @@ def test_treatment_ends_a_skipped_meal_low_and_is_never_logged():
         minute_of_day = r["time"].hour * 60 + r["time"].minute
         assert cgm < rule.threshold(minute_of_day, r["minute"] - last) + 1e-9
         last = r["minute"]
+
+
+def test_interrupted_patient_runs_are_simulated_again(tmp_path):
+    """A patient-run counts as done only when all three parts exist (audit 2026-10): a run killed
+    after writing `truth` but before `events` is redone, not loaded without its events."""
+    jobs = [("adult#001", 1, "default"), ("adult#002", 1, "default")]
+    for sub in run.PARTS:
+        (tmp_path / sub).mkdir()
+        (tmp_path / sub / run.part_name(*jobs[0])).write_bytes(b"")
+    for sub in ("samples", "truth"):
+        (tmp_path / sub / run.part_name(*jobs[1])).write_bytes(b"")
+    assert run.pending(jobs, tmp_path) == [jobs[1]]
+    assert run.pending(jobs, tmp_path, force=True) == jobs

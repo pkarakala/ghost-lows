@@ -69,3 +69,21 @@ def test_leak_auc_uses_last_sample_before_onset():
     )
     # onset 23:42 takes IOB from 23:40 (= 5); night samples are 23:00-23:55
     assert leak_auc(samples, events) == pytest.approx((8 + 4 * 0.5) / 12)
+
+
+def test_low_events_never_join_readings_across_a_gap():
+    """Two readings below 70, two hours with no readings, one more below: no 15-minute run, so no
+    event. Rows either side of the gap are not consecutive readings (audit 2026-10)."""
+    from ghostlows.bench.events import low_events
+
+    times = pd.date_range("2026-01-05", periods=24, freq="5min").append(
+        pd.date_range("2026-01-05 04:00", periods=12, freq="5min")
+    )
+    glucose = np.r_[np.full(22, 120.0), 60.0, 60.0, 60.0, np.full(11, 120.0)]
+    lows = low_events(pd.DataFrame({"patient_id": "p", "time": times, "glucose": glucose}))
+    assert lows.empty
+    # the same three readings without the gap are an event
+    regular = pd.DataFrame(
+        {"patient_id": "p", "time": pd.date_range("2026-01-05", periods=36, freq="5min")}
+    )
+    assert len(low_events(regular.assign(glucose=glucose))) == 1

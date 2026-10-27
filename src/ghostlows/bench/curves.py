@@ -18,6 +18,7 @@ from pathlib import Path
 import numpy as np
 import pandas as pd
 
+from ..alarms.base import REFRACTORY_MIN
 from ..faults import apply_faults
 from .analysis import BASE_ARM, CONTEXT_ARM, GBM_ARMS, context_contrasts, h2_reading
 from .pipeline import (
@@ -55,13 +56,27 @@ PAIRS += [("gbm", GBM_ARMS[1], GBM_ARMS[0]), ("kalman", "kalman_pisa_cgm", "kalm
 COUNTS = ["caught_l2", "events_l2", "n_false", "false_compression", "hours"]
 
 
-def curve_fold(mix, fold, alarms, tr, tr_ev, tr_faults, te, te_ev, te_faults, windows):
+def curve_fold(
+    mix,
+    fold,
+    alarms,
+    tr,
+    tr_ev,
+    tr_faults,
+    te,
+    te_ev,
+    te_faults,
+    windows,
+    refractory_min=REFRACTORY_MIN,
+):
     """Per candidate threshold of every alarm: training sensitivity and false alarms per day, and
     per held-out patient counts at the test fault level. One row per alarm x candidate x patient.
     """
     n_l2 = int((tr_ev["level"] == 2).sum()) if len(tr_ev) else 0
     level = 2 if n_l2 >= MIN_L2_EVENTS else 1  # as fit_fold (amendment A7)
-    reference = reference_sensitivity(tr, tr_ev, tr_faults, windows, level=level)
+    reference = reference_sensitivity(
+        tr, tr_ev, tr_faults, windows, level=level, refractory_min=refractory_min
+    )
     train_days = run_hours(tr)["hours"].sum() / 24
     te_hours = run_hours(te)
     rows = []
@@ -142,7 +157,7 @@ def run_curves(config: BenchConfig, out_dir: Path, test_level: float = 1.0) -> p
             subset(faults, mix, test),
         )
 
-    kw = {"windows": prep["windows"]}
+    kw = {"windows": prep["windows"], "refractory_min": config.refractory_min}
     points = pd.concat(
         run_tasks(curve_fold, (args(*t) for t in tasks), config.workers, kw), ignore_index=True
     )
