@@ -4,10 +4,11 @@
 
 An audit, publication figures, shorter docs in two layers and more precise archive metadata. No number in `results/` changes, and the benchmark is still `ghostlows-bench v1`.
 
-- **Audit** (`docs/development/AUDIT_2026-10.md`). A second hostile review of the code, tests and statistics, with 17 findings ranked by severity. Six fixes, each with a regression test and none changing a result:
+- **Audit** (`docs/development/AUDIT_2026-10.md`). A second hostile review of the code, tests and statistics, with 18 findings ranked by severity. Seven fixes, each with a regression test and none changing a result:
   - learned alarms with no lows in training no longer fire;
   - `low_events` no longer joins readings across a gap;
   - an interrupted simulation is no longer reused without its event logs, nor packaged;
+  - an alarm that never fires keeps its lows in the sensitivity denominator;
   - the D5 reference alarm uses the configured refractory period;
   - provenance records uncommitted changes;
   - a docstring states the right redraw share.
