@@ -13,15 +13,57 @@
       "affiliation": "University of California, Santa Barbara"
     }
   ],
-  "description": "An open benchmark that scores real-time continuous glucose monitoring (CGM) low-glucose alarms on lows caught, false alarms per day and minutes of warning under a mixed sensor-fault suite (pressure-induced sensor attenuation, dropout, stale readings, drift, spikes), with a controlled ablation of what insulin and carbohydrate context adds. Research software; not a medical device.",
+  "description": "Continuous glucose monitors (CGMs) can report false lows, often when the wearer lies on the sensor (pressure-induced sensor attenuation, PISA, or compression lows), and real-time low-glucose alarms then fire without a true low. Ghost Lows is an open benchmark that scores such alarms on lows caught, false alarms per day and minutes of warning under a mixed sensor-fault suite (compression, dropout, stale readings, drift, spikes), with a controlled ablation of what insulin and carbohydrate context adds. In 30 virtual patients (UVA/Padova simulator) with a compression low every night, compression caused 0.32 (95% CI 0.30–0.35) of a trend alarm's 1.53 (1.33–1.73) false alarms per day; insulin and carbohydrate context never cut compression false alarms by the pre-registered 25%, and published compression detectors reduced them only by missing severe lows (post hoc). Includes the benchmark (ghostlows-bench v1), its results, checks on two public CGM datasets, a Python package and an upload report that runs in the browser. Research software; not a medical device.",
   "license": "MIT",
+  "language": "eng",
   "keywords": [
     "continuous glucose monitoring",
-    "hypoglycaemia alarms",
-    "compression artifacts",
+    "CGM",
+    "hypoglycemia",
+    "hypoglycaemia",
+    "low-glucose alarms",
+    "false alarms",
     "pressure-induced sensor attenuation",
+    "PISA",
+    "compression artifacts",
+    "compression artefacts",
+    "sensor faults",
+    "type 1 diabetes",
+    "UVA/Padova simulator",
     "benchmark",
-    "type 1 diabetes"
+    "Python"
+  ],
+  "related_identifiers": [
+    {
+      "identifier": "https://pkarakala.github.io/ghost-lows/",
+      "relation": "isSourceOf",
+      "resource_type": "software",
+      "scheme": "url"
+    },
+    {
+      "identifier": "https://github.com/pkarakala/ghost-lows/blob/main/docs/reference/README.md",
+      "relation": "isDocumentedBy",
+      "resource_type": "publication-softwaredocumentation",
+      "scheme": "url"
+    },
+    {
+      "identifier": "https://github.com/pkarakala/ghost-lows/blob/main/results/README.md",
+      "relation": "isDocumentedBy",
+      "resource_type": "publication-softwaredocumentation",
+      "scheme": "url"
+    },
+    {
+      "identifier": "https://github.com/jxx123/simglucose",
+      "relation": "requires",
+      "resource_type": "software",
+      "scheme": "url"
+    },
+    {
+      "identifier": "10.1089/dia.2015.0250",
+      "relation": "references",
+      "resource_type": "publication-article",
+      "scheme": "doi"
+    }
   ],
   "notes": "Co-authors with equal contribution: Pranav Reddy and Cohen Ferrari. Independent project by UCSB students; not funded or endorsed by UCSB. Benchmark results should also name the benchmark version they were computed on. Cite the datasets and simulator you use as listed in docs/reference/DATA.md and docs/CITATIONS.md."
 }
