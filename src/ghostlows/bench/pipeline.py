@@ -22,6 +22,7 @@ import pandas as pd
 import yaml
 
 from ..alarms import BaseAlarm, TrendAlarm, benchmark_alarms, stretch_alarms, view
+from ..alarms.base import REFRACTORY_MIN
 from ..faults import FaultConfig, apply_faults
 from ..faults.calibrate import realistic_fraction
 from .analysis import context_contrasts, h1_contrast, rq3_contrasts
@@ -173,10 +174,14 @@ def rebuild_cgm(samples: pd.DataFrame, truth: pd.DataFrame, tau_min: float) -> p
     return pd.concat(out, ignore_index=True)
 
 
-def reference_sensitivity(train, events, faults, windows, level: int = 2) -> float:
+def reference_sensitivity(
+    train, events, faults, windows, level: int = 2, refractory_min: float = REFRACTORY_MIN
+) -> float:
     """Sensitivity of the CGM-only trend alarm on training patients (D5 reference), on lows of
-    `level` (2; 1 on CGM-referenced real data, amendment A5)."""
+    `level` (2; 1 on CGM-referenced real data, amendment A5). The reference fires with the run's
+    refractory period, like the alarms matched to it."""
     trend = TrendAlarm()
+    trend.refractory_min = refractory_min
     _, _, ref = fire_and_score(
         trend, alarm_frame(train, trend), None, events, faults, train, windows
     )
@@ -184,7 +189,18 @@ def reference_sensitivity(train, events, faults, windows, level: int = 2) -> flo
     return float(ref_l2["caught"].mean()) if len(ref_l2) else float("nan")
 
 
-def fit_fold(mix, fold, alarms, tr, tr_ev, tr_faults, delta, windows, train_level):
+def fit_fold(
+    mix,
+    fold,
+    alarms,
+    tr,
+    tr_ev,
+    tr_faults,
+    delta,
+    windows,
+    train_level,
+    refractory_min=REFRACTORY_MIN,
+):
     """Fit and threshold every alarm for one mix and fold on its training patients (D5, D19).
     Returns ([(alarm, threshold)], threshold rows).
 
@@ -192,7 +208,9 @@ def fit_fold(mix, fold, alarms, tr, tr_ev, tr_faults, delta, windows, train_leve
     training patients matches level 1 sensitivity instead and is flagged (amendment A7)."""
     n_l2 = int((tr_ev["level"] == 2).sum()) if len(tr_ev) else 0
     level = 2 if n_l2 >= MIN_L2_EVENTS else 1
-    reference = reference_sensitivity(tr, tr_ev, tr_faults, windows, level=level)
+    reference = reference_sensitivity(
+        tr, tr_ev, tr_faults, windows, level=level, refractory_min=refractory_min
+    )
     entries, rows = [], []
     for alarm in alarms:  # a fresh copy per fold and mix: independent models
         threshold, info = alarm.default_threshold, {"feasible": True, "estimable": True}
@@ -340,7 +358,12 @@ def run_benchmark(config: BenchConfig, out_dir: Path, extra_alarms=()) -> dict[s
         train = (subset(train_obs, mix, ids), subset(events, mix, ids))
         return (mix, fold, copy.deepcopy(alarms_all), *train, subset(train_faults, mix, ids))
 
-    fit_kw = {"delta": config.delta, "windows": windows, "train_level": train_level}
+    fit_kw = {
+        "delta": config.delta,
+        "windows": windows,
+        "train_level": train_level,
+        "refractory_min": config.refractory_min,
+    }
     fitted, thresholds = {}, []
     for (mix, fold), (entries, rows) in zip(
         tasks,
@@ -471,6 +494,25 @@ def collect_assumptions() -> str:
     return "\n".join(lines) + "\n"
 
 
+def git_state(repo: Path = REPO) -> tuple[str, bool | None]:
+    """The checked-out commit, and whether tracked files outside results/ differ from it (the
+    commit alone then cannot reproduce a run). ("unknown", None) outside a git checkout."""
+    try:
+        commit = subprocess.run(
+            ["git", "rev-parse", "HEAD"], cwd=repo, capture_output=True, text=True, check=True
+        ).stdout.strip()
+        status = subprocess.run(
+            ["git", "status", "--porcelain", "--untracked-files=no", "--", ".", ":!results"],
+            cwd=repo,
+            capture_output=True,
+            text=True,
+            check=True,
+        ).stdout
+    except (OSError, subprocess.CalledProcessError):
+        return "unknown", None
+    return commit, bool(status.strip())
+
+
 def write_outputs(config, out_dir: Path, metrics, summary, extras: dict, meta: dict) -> None:
     out_dir.mkdir(parents=True, exist_ok=True)
     (out_dir / "figures").mkdir(exist_ok=True)
@@ -479,15 +521,11 @@ def write_outputs(config, out_dir: Path, metrics, summary, extras: dict, meta: d
     for name, frame in extras.items():
         frame.to_csv(out_dir / f"{name}.csv", index=False)
     (out_dir / "config.yaml").write_text(yaml.safe_dump(asdict(config), sort_keys=False))
-    try:
-        commit = subprocess.run(
-            ["git", "rev-parse", "HEAD"], cwd=REPO, capture_output=True, text=True, check=True
-        ).stdout
-    except (OSError, subprocess.CalledProcessError):
-        commit = "unknown\n"
-    (out_dir / "git_commit.txt").write_text(commit)
+    commit, dirty = git_state()
+    (out_dir / "git_commit.txt").write_text(commit + "\n")
     (out_dir / "benchmark_version.txt").write_text(BENCHMARK_VERSION + "\n")
     (out_dir / "assumptions.md").write_text(collect_assumptions())
+    meta = {**meta, "git_dirty": dirty}
     (out_dir / "meta.json").write_text(json.dumps(meta, indent=2, default=float) + "\n")
     ids = pd.Series(metrics["patient_id"].unique())
     groups = ids.map(age_group).value_counts().to_dict()

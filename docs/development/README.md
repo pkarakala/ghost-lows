@@ -6,6 +6,7 @@ How the software was built, for readers checking its provenance. These files des
 - [`ROADMAP.md`](ROADMAP.md): the phases the software was built in, and the open items (blocked or deferred work).
 - [`SPEC_REVIEW.md`](SPEC_REVIEW.md): the critical review of the specifications made before any code was written; the decisions taken on it are in [`../reference/DECISIONS.md`](../reference/DECISIONS.md).
 - [`REVIEW.md`](REVIEW.md): a referee-style review of the finished repository (2026-10-18), with what was fixed after it and what is left.
+- [`AUDIT_2026-10.md`](AUDIT_2026-10.md): a second hostile review of the code, tests and statistics (2026-10-27): the bugs fixed without changing results, and draft amendments P10–P13.
 - [`decisions_pending.md`](decisions_pending.md): choices made while the project lead was away during the fixes after that review, each reversible.
 - [`../reference/DECISIONS.md`](../reference/DECISIONS.md): the design decisions and every amendment after the pre-registration tag `protocol-v1`, with dates and reasons.
 - [`AGENTS.md`](../../AGENTS.md): the project rules given to the coding agents (citations, assumptions, causality, leakage, safety wording, privacy); their full text is in [`ENGINEERING.md`](../reference/ENGINEERING.md) since the docs restructure after v0.2.0. Until 2026-10-19 they were in `CLAUDE.md`, together with the reviewer persona the agents were given; that version is in git history. `CLAUDE.md` now imports `AGENTS.md`.

@@ -184,3 +184,47 @@ def test_config_defaults_match_the_frozen_constants():
         DEFAULT_WINDOWS.after_event,
         DEFAULT_WINDOWS.before_event,
     )
+
+
+def test_d5_reference_fires_with_the_run_refractory_period(monkeypatch):
+    """The trend alarm that sets the D5 reference uses the run's refractory period, as the alarms
+    matched to it do, and fit_fold passes it on (audit 2026-10)."""
+    seen = []
+
+    def fake_fire_and_score(alarm, frame, theta, events, faults, train, windows, **kw):
+        seen.append(alarm.refractory_min)
+        return None, None, pd.DataFrame({"level": [2, 2], "caught": [True, False]})
+
+    monkeypatch.setattr(pipeline, "fire_and_score", fake_fire_and_score)
+    monkeypatch.setattr(pipeline, "alarm_frame", lambda train, alarm, **kw: train)
+    assert pipeline.reference_sensitivity(None, None, None, None, refractory_min=90.0) == 0.5
+    assert pipeline.reference_sensitivity(None, None, None, None) == 0.5
+    assert seen == [90.0, pipeline.REFRACTORY_MIN]
+
+    events = pd.DataFrame({"level": [2] * 12})
+    pipeline.fit_fold("default", 0, [], None, events, None, 0.0, None, 0.5, refractory_min=45.0)
+    assert seen[-1] == 45.0
+
+
+def test_git_state_reports_uncommitted_changes_outside_results(tmp_path):
+    """A run records whether its commit alone can reproduce it (audit 2026-10)."""
+    import subprocess
+
+    def git(*args):
+        subprocess.run(
+            ["git", "-c", "user.name=t", "-c", "user.email=t@t", *args], cwd=tmp_path, check=True
+        )
+
+    git("init", "-q")
+    (tmp_path / "results").mkdir()
+    (tmp_path / "code.py").write_text("x = 1\n")
+    (tmp_path / "results" / "table.csv").write_text("a\n1\n")
+    git("add", ".")
+    git("commit", "-q", "-m", "init")
+    commit, dirty = pipeline.git_state(tmp_path)
+    assert len(commit) == 40 and dirty is False
+    (tmp_path / "results" / "table.csv").write_text("a\n2\n")  # outputs of earlier runs
+    assert pipeline.git_state(tmp_path)[1] is False
+    (tmp_path / "code.py").write_text("x = 2\n")
+    assert pipeline.git_state(tmp_path)[1] is True
+    assert pipeline.git_state(tmp_path / "results" / "missing") == ("unknown", None)

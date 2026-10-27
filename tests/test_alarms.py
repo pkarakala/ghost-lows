@@ -18,7 +18,7 @@ from ghostlows.alarms import (
     view,
 )
 from ghostlows.alarms.detectors import baysal_flags, matched_filter_score
-from ghostlows.alarms.learned import Detector, MatchedFilterDetector
+from ghostlows.alarms.learned import Detector, GBMAlarm, MatchedFilterDetector
 from ghostlows.bench.events import detect_events, low_labels
 from ghostlows.cli import load_alarm
 from ghostlows.faults.pisa import from_size
@@ -257,3 +257,20 @@ def test_refractory_period_is_configurable_per_alarm():
     off = np.zeros(24, bool)
     assert len(fire_events(times, on, off)) == 4  # every 30 min over 115 min
     assert len(fire_events(times, on, off, refractory_min=60.0)) == 2
+
+
+@pytest.mark.parametrize("alarm", [GBMAlarm(), CombinedAlarm(MatchedFilterDetector(), "_time")])
+def test_learned_alarm_with_no_lows_in_training_never_fires(alarm, train):
+    """With nothing to learn, a learned alarm fires only at the ungated floor, at every candidate
+    threshold the operating-point rule can pick (audit 2026-10; it used to score 0, and the
+    rule's candidate just below 0 made it fire every refractory period)."""
+    from ghostlows.bench.stats import candidate_thresholds
+
+    no_lows = train.drop(columns="truth").assign(label=0)
+    alarm.fit(no_lows)
+    assert alarm.model is None
+    test = synthetic_run(7, "test:7").drop(columns=["truth", "label"])
+    scores = alarm.score(test)
+    for theta in candidate_thresholds(scores.to_numpy()):
+        fired = alarm.alarms_from_scores(test, scores, theta)
+        assert fired.empty or fired["is_floor"].all()
