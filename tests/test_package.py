@@ -95,6 +95,33 @@ def test_one_version():
     assert str(citation["version"]) == ghostlows.__version__ == version("ghostlows")
 
 
+def test_zenodo_metadata_matches_citation():
+    """Zenodo reads .zenodo.json before CITATION.cff; both must name the same work, authors and
+    licence. LICENSE must be the plain MIT text so GitHub detects it."""
+    import json
+    from pathlib import Path
+
+    import yaml
+
+    root = Path(__file__).parents[1]
+    citation = yaml.safe_load((root / "CITATION.cff").read_text())
+    zenodo = json.loads((root / ".zenodo.json").read_text())
+    assert zenodo["title"] == citation["title"]
+    assert zenodo["description"] == citation["abstract"].strip()
+    assert zenodo["license"] == citation["license"] == "MIT"
+    assert zenodo["keywords"] == citation["keywords"]
+    assert "version" not in zenodo and "doi" not in zenodo  # Zenodo sets both per release
+    assert zenodo["creators"] == [
+        {
+            "name": f"{a['family-names']}, {a['given-names']}",
+            "orcid": a["orcid"].removeprefix("https://orcid.org/"),
+            "affiliation": a["affiliation"],
+        }
+        for a in citation["authors"]
+    ]
+    assert (root / "LICENSE").read_text().rstrip().endswith("OTHER DEALINGS IN THE\nSOFTWARE.")
+
+
 def test_cli_help_lists_each_command_on_one_line():
     out = subprocess.run(
         [sys.executable, "-m", "ghostlows.cli", "--help"],

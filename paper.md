@@ -10,12 +10,14 @@ tags:
 authors:
   - name: Pranav Reddy
     orcid: 0009-0007-5767-5438
+    equal-contrib: true
     affiliation: 1
   - name: Cohen Ferrari
     orcid: 0009-0003-8060-9907
+    equal-contrib: true
     affiliation: 1
 affiliations:
-  - name: Affiliation to be completed by the author before submission
+  - name: University of California, Santa Barbara, United States
     index: 1
 date: 18 October 2026
 bibliography: paper.bib
@@ -70,6 +72,6 @@ Co-authors: Pranav Reddy and Cohen Ferrari. Research question, study direction a
 
 # Acknowledgements
 
-We thank the teams who made their data and software public: the Jaeb Center for Health Research and the authors of the study of severe hypoglycaemia in older adults [@Weinstock2016]; the GlucoBench curators [@GlucoBench2024]; the AZT1D authors [@AZT1Ddata]; and the author of simglucose [@simglucose]. The code and documentation were written with an AI coding assistant (Claude, Anthropic), as recorded in the commit history; design decisions and amendments are logged in `docs/reference/DECISIONS.md`.
+Independent project by UCSB students; not funded or endorsed by UCSB. We thank the teams who made their data and software public: the Jaeb Center for Health Research and the authors of the study of severe hypoglycaemia in older adults [@Weinstock2016]; the GlucoBench curators [@GlucoBench2024]; the AZT1D authors [@AZT1Ddata]; and the author of simglucose [@simglucose]. The code and documentation were written with an AI coding assistant (Claude, Anthropic), as recorded in the commit history; design decisions and amendments are logged in `docs/reference/DECISIONS.md`.
 
 # References

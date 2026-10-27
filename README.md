@@ -45,7 +45,7 @@ print(gl.score_alarm(gl.TrendAlarm(), observed, gl.low_events(trace), faults))
 Engineers: [CONTRIBUTING.md](CONTRIBUTING.md). Researchers: [results](results/README.md), [reference](docs/reference/). Clinicians: [summary](docs/SUMMARY.md), [claims to check](docs/CLINICAL_REVIEW.md). AI-assisted readers: [AGENTS.md](AGENTS.md).
 
 ## How this was made
-Co-authors: Pranav Reddy and Cohen Ferrari. Research question, study direction and interpretation: Pranav Reddy. Software and documentation were developed with AI coding agents (Claude, Anthropic) under Pranav Reddy's direction. Design decisions and amendments proposed by the agents are logged in docs/reference/DECISIONS.md and were reviewed and accepted by Pranav Reddy, who reviewed all code and results. Literature fact-check: Cohen Ferrari (in progress). Clinical review: none yet.
+Independent project by UCSB students; not funded or endorsed by UCSB. Co-authors: Pranav Reddy and Cohen Ferrari. Research question, study direction and interpretation: Pranav Reddy. Software and documentation were developed with AI coding agents (Claude, Anthropic) under Pranav Reddy's direction. Design decisions and amendments proposed by the agents are logged in docs/reference/DECISIONS.md and were reviewed and accepted by Pranav Reddy, who reviewed all code and results. Literature fact-check: Cohen Ferrari (in progress). Clinical review: none yet.
 
 ## License
 MIT ([LICENSE](LICENSE)). **Not a medical device. Not for treatment decisions.** If a reading looks wrong, confirm with a fingerstick and follow your care team's advice.

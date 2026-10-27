@@ -1,0 +1,27 @@
+{
+  "upload_type": "software",
+  "title": "Ghost Lows: an open benchmark for real-time CGM low-glucose alarms under sensor faults",
+  "creators": [
+    {
+      "name": "Reddy, Pranav",
+      "orcid": "0009-0007-5767-5438",
+      "affiliation": "University of California, Santa Barbara"
+    },
+    {
+      "name": "Ferrari, Cohen",
+      "orcid": "0009-0003-8060-9907",
+      "affiliation": "University of California, Santa Barbara"
+    }
+  ],
+  "description": "An open benchmark that scores real-time continuous glucose monitoring (CGM) low-glucose alarms on lows caught, false alarms per day and minutes of warning under a mixed sensor-fault suite (pressure-induced sensor attenuation, dropout, stale readings, drift, spikes), with a controlled ablation of what insulin and carbohydrate context adds. Research software; not a medical device.",
+  "license": "MIT",
+  "keywords": [
+    "continuous glucose monitoring",
+    "hypoglycaemia alarms",
+    "compression artifacts",
+    "pressure-induced sensor attenuation",
+    "benchmark",
+    "type 1 diabetes"
+  ],
+  "notes": "Co-authors with equal contribution: Pranav Reddy and Cohen Ferrari. Independent project by UCSB students; not funded or endorsed by UCSB. Benchmark results should also name the benchmark version they were computed on. Cite the datasets and simulator you use as listed in docs/reference/DATA.md and docs/CITATIONS.md."
+}

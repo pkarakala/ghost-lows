@@ -10,11 +10,13 @@ authors:
   - given-names: Pranav
     family-names: Reddy
     orcid: "https://orcid.org/0009-0007-5767-5438"
+    affiliation: "University of California, Santa Barbara"
   - given-names: Cohen
     family-names: Ferrari
     orcid: "https://orcid.org/0009-0003-8060-9907"
-version: 0.2.3
-date-released: 2026-10-22
+    affiliation: "University of California, Santa Barbara"
+version: 0.3.0
+date-released: 2026-10-27
 doi: 10.5281/zenodo.23573707
 license: MIT
 repository-code: "https://github.com/pkarakala/ghost-lows"
