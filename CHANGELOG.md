@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## v0.4.0 (2026-10-28)
 
 An audit, publication figures, shorter docs in two layers and more precise archive metadata. No number in `results/` changes, and the benchmark is still `ghostlows-bench v1`.
 
