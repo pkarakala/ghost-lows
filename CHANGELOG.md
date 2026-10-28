@@ -2,7 +2,7 @@
 
 ## v0.4.0 (2026-10-28)
 
-An audit, publication figures, shorter docs in two layers and more precise archive metadata. No number in `results/` changes, and the benchmark is still `ghostlows-bench v1`.
+An audit, publication figures, shorter docs in two layers, more precise archive metadata and a release workflow. No number in `results/` changes, and the benchmark is still `ghostlows-bench v1`.
 
 - **Audit** (`docs/development/AUDIT_2026-10.md`). A second hostile review of the code, tests and statistics, with 18 findings ranked by severity. Seven fixes, each with a regression test and none changing a result:
   - learned alarms with no lows in training no longer fire;
@@ -25,6 +25,7 @@ An audit, publication figures, shorter docs in two layers and more precise archi
   - Both link the upload report, the specifications and the results.
   - The Zenodo record's language is English. Python is a keyword, since Zenodo's language field takes only a natural language.
   - [`docs/development/RELEASE_CHECKLIST.md`](docs/development/RELEASE_CHECKLIST.md) lists the release steps done by hand.
+- **Release workflow.** Pushing a `vX.Y.Z` tag, or running `.github/workflows/release.yml` by hand on `main` with the version, publishes the GitHub Release with its CHANGELOG entry as the notes. It refuses a version that does not match `src/ghostlows/__init__.py` and `CITATION.cff`, or that has no CHANGELOG entry.
 
 ## v0.3.0 (2026-10-27)
 
