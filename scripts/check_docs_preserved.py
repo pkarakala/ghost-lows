@@ -36,6 +36,7 @@ INTENDED = [
         "Sign-off by Cohen Ferrari is still open",
         "0075ea4: Cohen Ferrari is a literature fact-checker, not a clinician",
     ),
+    ("number 0.3.0", "0.3.0", "v0.4.0: CITATION.cff's version moves from 0.3.0 to 0.4.0"),
 ]
 
 NUMBER = re.compile(r"(?<![\w.])\d+(?:[.,]\d+)*%?")

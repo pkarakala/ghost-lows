@@ -1,0 +1,44 @@
+name: Release
+
+# Publishes the GitHub Release for a version, with its CHANGELOG entry as the notes; Zenodo then
+# archives it under the concept DOI. Runs when a vX.Y.Z tag is pushed, or by hand on main with the
+# version (the tag is then created at main's head). Refuses a version that does not match
+# src/ghostlows/__init__.py and CITATION.cff, or that has no CHANGELOG entry.
+on:
+  push:
+    tags: ["v*.*.*"]
+  workflow_dispatch:
+    inputs:
+      version:
+        description: "Version without the v, for example 0.4.0"
+        required: true
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    if: github.ref_type == 'tag' || github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - name: Check the version and take the notes from CHANGELOG.md
+        env:
+          INPUT_VERSION: ${{ inputs.version }}
+          REF_NAME: ${{ github.ref_name }}
+          REF_TYPE: ${{ github.ref_type }}
+        run: |
+          if [ "$REF_TYPE" = "tag" ]; then VERSION="${REF_NAME#v}"; else VERSION="$INPUT_VERSION"; fi
+          [[ "$VERSION" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]] || { echo "not a version: $VERSION"; exit 1; }
+          PKG=$(sed -n 's/^__version__ = "\(.*\)"$/\1/p' src/ghostlows/__init__.py)
+          CFF=$(sed -n 's/^version: //p' CITATION.cff)
+          if [ "$VERSION" != "$PKG" ] || [ "$VERSION" != "$CFF" ]; then
+            echo "version $VERSION, package $PKG, CITATION.cff $CFF"; exit 1
+          fi
+          awk -v h="## v$VERSION " 'index($0, h) == 1 {on = 1; next} on && /^## / {exit} on' CHANGELOG.md > notes.md
+          [ -s notes.md ] || { echo "no CHANGELOG entry for v$VERSION"; exit 1; }
+          echo "VERSION=$VERSION" >> "$GITHUB_ENV"
+      - name: Publish the release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh release create "v$VERSION" --title "v$VERSION" --notes-file notes.md --target "$GITHUB_SHA"

@@ -14,7 +14,7 @@ The steps no pull request can do, for the project lead. Version steps are in [EN
 
 1. Merge the audit, figures, docs and metadata pull requests. Wait for CI on `main` to pass.
 2. Set `__version__ = "0.4.0"` in `src/ghostlows/__init__.py`, and `version: 0.4.0` and `date-released` in `CITATION.cff`. Move the CHANGELOG's Unreleased entry under `## v0.4.0 (<date>)`, dropping any part whose pull request was not merged. Commit, push and wait for CI.
-3. Tag and publish: `git tag -a v0.4.0 -m "v0.4.0" && git push origin v0.4.0`. Then publish a GitHub Release from the tag, with the CHANGELOG entry as its notes.
+3. Tag: `git tag -a v0.4.0 -m "v0.4.0" && git push origin v0.4.0`. The Release workflow (`.github/workflows/release.yml`) then publishes the GitHub Release with the CHANGELOG entry as its notes. Without permission to push tags, run it by hand instead (Actions > Release > Run workflow, on `main`, version `0.4.0`); it creates the tag at the head of `main`.
 
 ## Zenodo (after the release is archived)
 
