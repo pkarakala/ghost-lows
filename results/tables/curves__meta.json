@@ -1,7 +1,7 @@
 {
   "amendment": "A11 (secondary, post hoc)",
   "test_level": 1.0,
-  "train_level": 0.8642730397276527,
+  "train_level": 1.0,
   "retentions": [
     0.5,
     1.0,
