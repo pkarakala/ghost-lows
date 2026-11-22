@@ -226,6 +226,10 @@ def bootstrap_ratios(
         for j in range(draws.shape[1])
     ]
     lo_t = np.array([b[0] for b in bounds])
+    # a ratio of non-negative counts is never below 0: a linear-scale bound (used when a draw is
+    # 0) is clipped there
+    nonneg = (num >= 0).all(axis=0) & (den >= 0).all(axis=0)
+    lo_t = np.where(nonneg & (lo_t < 0), 0.0, lo_t)
     hi_t = np.array([b[1] for b in bounds])
     if not detail:
         return est, lo_t, hi_t
