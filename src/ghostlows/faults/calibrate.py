@@ -1,4 +1,8 @@
-"""Realistic default PISA frequency (SIMULATION.md §4.1, CR3).
+"""Realistic PISA frequency: a range with two ends (SIMULATION.md §4.1, CR3, amendment A14).
+
+Upper end (the D19 training level): Lobo 2026's rate of deep PISAs, reproduced on the cohort.
+Lower end: Facchinetti 2016's night-time rate of all visually identified compression artifacts,
+which needs no cohort. They differ several-fold; neither is "the" realistic level.
 
 [Lobo 2026] counts PISAs whose minimum sensor glucose falls below 85 mg/dL: 846 in 59,122 h,
 89 in 8,189 h and 325 in 26,890 h, pooled 1,260 in 94,201 h (about one per 74.8 h of wear). How
@@ -12,6 +16,15 @@ from __future__ import annotations
 import pandas as pd
 
 from .suite import FaultConfig, apply_faults
+
+# SOURCE: Facchinetti 2016 (p.268: 143 artifacts in 108 traces of 7 days, about one per 127 h;
+# p.270: probability of an artifact 0.0014 per sample in 00:00-07:59, 0.0003 in 08:00-23:59)
+# CLINICAL-REVIEW: CR3
+FACCHINETTI_NIGHT_PER_SAMPLE = 0.0014
+FACCHINETTI_NIGHT_SAMPLES = 96  # 8 h of 5-min samples
+# ASSUMPTION: the per-sample probability applies to each sample of our 8-h night window
+# (23:00-07:00 rather than 00:00-07:59); daytime artifacts are not modelled (one PISA per night)
+FACCHINETTI_FRACTION = 1 - (1 - FACCHINETTI_NIGHT_PER_SAMPLE) ** FACCHINETTI_NIGHT_SAMPLES
 
 # SOURCE: Lobo 2026 (abstract: 1,260 PISAs with minimum sensor glucose < 85 mg/dL in 94,201 h)
 # CLINICAL-REVIEW: CR3
@@ -41,7 +54,8 @@ def pisa_rate_at_full(
 
 
 def realistic_fraction(samples: pd.DataFrame, seed: int = 0) -> dict:
-    """Fraction of nights with a PISA that reproduces the Lobo 2026 rate on this cohort."""
+    """Fraction of nights with a PISA that reproduces the Lobo 2026 rate on this cohort (the upper
+    end of the realistic range; `FACCHINETTI_FRACTION` is the lower end)."""
     at_full = pisa_rate_at_full(samples, seed)
     fraction = TARGET_PER_HOUR / at_full if at_full > 0 else float("nan")
     return {

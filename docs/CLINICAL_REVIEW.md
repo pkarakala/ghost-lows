@@ -11,10 +11,12 @@ A factual item is ticked once its literature check is in. Items marked **Needs a
 - [ ] **CR1. Mechanism.** Reduced local blood flow from compression causes PISAs. [Mensh 2013] says "presumably"; is there direct physiological evidence? [Helton 2011]
   - [ ] Literature checked (name, date)
   - [ ] Clinician reviewed (name, role, date)
-- [ ] **CR2. Size and duration.** Median depth 24 mg/dL, duration 45 min [Facchinetti 2016, Dexcom G4]. Do these hold for G6/G7, children, arm vs. abdomen?
-  - [ ] Literature checked (name, date)
+- [x] **CR2. Size and duration.** Median depth 24 mg/dL, duration 45 min [Facchinetti 2016, Dexcom G4]. Do these hold for G6/G7, children, arm vs. abdomen?
+  - Confirmed for the Dexcom G4 Platinum on the abdomen: 72 people, sensors on the left and right abdomen, 143 artifacts; depth (the peak deviation A) median 24 mg/dL (10–48), duration 45 min (30–70) [Facchinetti 2016, abstract and pp.266–268]. Still open, with no source found: G6/G7, children, the arm.
+  - [x] Literature checked: Cohen Ferrari, 2026-11-21.
   - [ ] Clinician reviewed (name, role, date)
-- [ ] **CR3. Frequency.** How many nights per week a typical user has a PISA. Only figures found: ~one per 74.8 h below 85 mg/dL [Lobo 2026, abstract counts]; "once every 5 to 6 days" quoted in [Trinity Biotech 2026].
+- [ ] **CR3. Frequency.** How many nights per week a typical user has a PISA. Figures found: ~one per 74.8 h below 85 mg/dL [Lobo 2026, abstract counts]; "once every 5 to 6 days" quoted in [Trinity Biotech 2026]; 143 artifacts in 756 sensor-days (about one per 127 h) and 0.0014 per sample at 00:00–07:59, a PISA on about 13% of nights [Facchinetti 2016, pp.268, 270].
+  - Notes (A14): the sources disagree several-fold. Lobo-calibrated, the cohort needs a PISA on 86% of nights (v0.4.0); Facchinetti's rate gives about 13%. They count different things: Lobo only PISAs reaching below 85 mg/dL (abstract only; method unread); Facchinetti all artifacts found by visual inspection against a second sensor or YSI, in a trial with clinic nights. The benchmark reports both ends as a range and calls neither alone "realistic". Which end fits a typical home user is the open question.
   - [ ] Literature checked (name, date)
   - [ ] Clinician reviewed (name, role, date)
 - [ ] **CR4. Labels.** [Baysal 2014] labels were made by an engineer, not a clinician; acceptable as a reference standard?

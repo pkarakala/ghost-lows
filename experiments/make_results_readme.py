@@ -606,8 +606,10 @@ ROBUST_ALARMS = (
 ARM_MEANING = {
     "robust_delta05": "D5 allows a 5-point loss of level 2 sensitivity",
     "robust_lag6": "CGM rebuilt from plasma with a 6-min lag",
-    "robust_tau5": "test PISAs with a 5-min time constant (filter and gates assume 10)",
-    "robust_tau20": "test PISAs with a 20-min time constant",
+    "robust_tau5": "test PISAs with a 5-min time constant (filter and gates assume 9.1)",
+    "robust_tau20": "test PISAs with a 20-min time constant (durations redrawn, so also longer PISAs: P12)",
+    "robust_tau_per_event": "test PISAs with P, D and tau drawn per event from Facchinetti 2016's fitted distributions and correlations (A14)",
+    "robust_train_facchinetti": "alarms fitted and thresholded at Facchinetti 2016's night rate, the lower end of the realistic range (A14)",
     "robust_early20": "alarms up to 20 min (not 30) before onset count as on time",
     "robust_early45": "alarms up to 45 min before onset count as on time",
     "robust_late30": "alarms up to 30 min (not 15) after onset still catch the low",
@@ -650,6 +652,33 @@ def section_robustness() -> list[str]:
         "Each arm changes one thing (in bold) and is compared with the main analysis at the same PISA level (last column: false alarms/day; level 2 caught).",
         "",
         "| Arm | Alarm | PISA nights | False alarms/day | Compression false alarms/day | Level 2 caught | Main analysis |",
+        "|---|---|---|---|---|---|---|",
+        *rows,
+        "",
+    ]
+
+
+def section_realistic_range(meta: dict) -> list[str]:
+    """RQ1 at both ends of the realistic PISA range (A14), as a range, never one value."""
+    lines = ["### RQ1 across the realistic range of compression frequency (default mix; A14)", ""]
+    s = table(TABLES / "rq1_realistic_range__summary.csv")
+    if s is None:
+        return lines + ["Not run yet.", ""]
+    s = s[s["mix"] == "default"]
+    lo, hi = sorted(s["level"].unique())[0], sorted(s["level"].unique())[-1]
+    rows = []
+    for alarm in ROBUST_ALARMS:
+        g = s[s["alarm_name"] == alarm].set_index("level")
+        if lo not in g.index or hi not in g.index:
+            continue
+        a, b = g.loc[lo], g.loc[hi]
+        rows.append(
+            f"| `{alarm}` | {ci(a, 'false_compression_per_day')} | {ci(b, 'false_compression_per_day')} | {ci(a, 'false_per_day')} | {ci(b, 'false_per_day')} | {ci(a, 'sens_l2', pct=True)} | {ci(b, 'sens_l2', pct=True)} |"
+        )
+    return lines + [
+        f"Two published anchors for how often compression happens disagree, so results at a realistic frequency are a range. Lower end: Facchinetti 2016's night rate of all visually identified artifacts (0.0014 per sample, 00:00–07:59; PISA on {lo:.0%} of nights). Upper end: Lobo 2026's rate of PISAs reaching below 85 mg/dL, reproduced on this cohort (PISA on {hi:.0%} of nights; the D19 training level). Alarms are fitted once at the upper end, as in the main analysis; `robust_train_facchinetti` fits them at the lower end.",
+        "",
+        f"| Alarm | Compression false alarms/day, {lo:.0%} | … {hi:.0%} | False alarms/day, {lo:.0%} | … {hi:.0%} | Level 2 caught, {lo:.0%} | … {hi:.0%} |",
         "|---|---|---|---|---|---|---|",
         *rows,
         "",
@@ -1212,7 +1241,7 @@ def build() -> str:
         lines += [
             f"Training fault level (D19): PISA on {meta.get('train_level', float('nan')):.0%} of nights"
             + (
-                f" (realistic default from Lobo 2026's rate; reachable: {realistic.get('reachable')}; "
+                f" (the upper end of the realistic range, from Lobo 2026's rate; the lower end, Facchinetti 2016's night rate, is {meta.get('facchinetti_fraction', float('nan')):.0%} of nights; Lobo level reachable: {realistic.get('reachable')}; "
                 f"rate with a PISA every night {realistic.get('rate_at_full', float('nan')) * 24:.3f} per day vs. target "
                 f"{realistic.get('target_per_hour', float('nan')) * 24:.3f})."
                 if realistic
@@ -1224,6 +1253,7 @@ def build() -> str:
             "",
             *section_rq1(summary),
             "",
+            *section_realistic_range(meta),
             *section_h1(table(TABLES / f"{MAIN}__contrast_h1.csv")),
             *section_all_faults(),
             *section_h2(table(TABLES / f"{MAIN}__contrasts_h2.csv"), meta.get("train_level")),

@@ -37,6 +37,12 @@ INTENDED = [
         "0075ea4: Cohen Ferrari is a literature fact-checker, not a clinician",
     ),
     ("number 0.3.0", "0.3.0", "v0.4.0: CITATION.cff's version moves from 0.3.0 to 0.4.0"),
+    ("CR item - [ ] CR2.", "- [ ] CR2.", "A14: CR2 literature check in"),
+    (
+        "CR item - [ ] CR3.",
+        "Only figures found",
+        "A14: CR3 adds Facchinetti 2016's frequency to the figures found",
+    ),
 ]
 
 NUMBER = re.compile(r"(?<![\w.])\d+(?:[.,]\d+)*%?")

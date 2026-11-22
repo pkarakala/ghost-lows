@@ -58,7 +58,7 @@ Other files cite these numbers. [Full text](docs/reference/ENGINEERING.md#hard-r
 ## Writing
 
 - Authors: Pranav Reddy and Cohen Ferrari, co-authors with equal contribution, University of California, Santa Barbara; an independent project, not funded or endorsed by UCSB. `pkarakala` is a username, not a name.
-- Cohen Ferrari's work is a literature fact-check; never describe it as clinical review.
+- Cohen Ferrari shares the research question and study direction equally with Pranav Reddy, leads the findings manuscript (all but its methods) and its clinical framing, and signs the literature checks in [CLINICAL_REVIEW.md](docs/CLINICAL_REVIEW.md). Cohen Ferrari is not a clinician: never describe that work as clinical review.
 - The AI usage disclosure is one text, in `README.md`, `paper.md` and `docs/development/README.md`. Change all three or none. Never claim that text is human-written.
 - Commits and pull requests carry no AI attribution: no `Co-Authored-By` trailer, no "generated with" footer, no session link. The disclosure covers AI use.
 - Short, plain sentences. Cite literature claims; give effect sizes with CIs (rule 10).

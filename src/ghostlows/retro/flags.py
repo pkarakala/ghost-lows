@@ -18,7 +18,7 @@ from __future__ import annotations
 import numpy as np
 import pandas as pd
 
-from ..faults.pisa import DEPTH, DURATION, from_size
+from ..faults.pisa import DURATION, PEAK, from_size
 from .baysal import BAYSAL_DEFAULT, BAYSAL_SETS, baysal_flags, minutes
 
 LABEL = "possible compression artifact"
@@ -52,7 +52,7 @@ def _interval_min(times: pd.Series) -> float:
 
 def _template(interval: float) -> np.ndarray:
     """Attenuation of the median PISA from onset to its end, sampled every `interval` minutes."""
-    pisa = from_size(0.0, DEPTH.median, DURATION.median)
+    pisa = from_size(0.0, PEAK.median, DURATION.median)
     return pisa.attenuation(np.arange(0.0, pisa.duration + 1e-9, interval))
 
 

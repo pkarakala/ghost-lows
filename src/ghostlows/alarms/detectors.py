@@ -28,7 +28,7 @@ from .base import trailing_slope
 
 # ASSUMPTION: template = drop phase of the median Facchinetti PISA at 5-min sampling, compared
 # with first differences over the same span; Idi 2023 is retrospective (D7).
-_MEDIAN = pisa_model.from_size(0.0, pisa_model.DEPTH.median, pisa_model.DURATION.median)
+_MEDIAN = pisa_model.from_size(0.0, pisa_model.PEAK.median, pisa_model.DURATION.median)
 _DROP = _MEDIAN.attenuation(np.arange(0.0, _MEDIAN.pressure_min + 1e-9, 5.0))  # onset to nadir
 TEMPLATE_DIFFS = -np.diff(_DROP)  # expected CGM changes per 5 min during the drop
 

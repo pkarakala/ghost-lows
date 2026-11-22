@@ -36,7 +36,7 @@ def clean_run(days=4, level=110.0, seed=0, patient="sim:adult#001"):
 
 def test_two_piece_lognormal_matches_published_quantiles_exactly():
     for dist, (med, p5, p95) in [
-        (pisa.DEPTH, pisa.DEPTH_MG_DL),
+        (pisa.PEAK, pisa.PEAK_MG_DL),
         (pisa.DURATION, pisa.DURATION_MIN),
     ]:
         assert dist.quantile(0.5) == pytest.approx(med)
@@ -57,7 +57,7 @@ def test_realised_depth_and_duration_measured_on_traces_match_the_paper():
         after = np.flatnonzero(a[peak:] <= pisa.END_FRACTION * a[peak])
         measured_duration.append(peak + after[0])
     for values, (med, p5, p95) in [
-        (measured_depth, pisa.DEPTH_MG_DL),
+        (measured_depth, pisa.PEAK_MG_DL),
         (measured_duration, pisa.DURATION_MIN),
     ]:
         q5, q50, q95 = np.percentile(values, [5, 50, 95])
@@ -67,16 +67,77 @@ def test_realised_depth_and_duration_measured_on_traces_match_the_paper():
 
 
 def test_pisa_shape_is_a_first_order_response_to_a_rectangle():
-    p = pisa.Pisa(onset=100.0, pressure_min=30.0, amplitude=40.0, tau=10.0)
+    p = pisa.Pisa(onset=100.0, pressure_min=30.0, gain=40.0, tau=10.0)
     t = np.array([99, 100, 110, 130, 140, 300.0])
     a = p.attenuation(t)
     assert a[0] == 0 and a[1] == 0
     assert a[2] == pytest.approx(40 * (1 - np.exp(-1)))
-    assert a[3] == pytest.approx(p.depth) and p.depth == pytest.approx(40 * (1 - np.exp(-3)))
-    assert a[4] == pytest.approx(p.depth * np.exp(-1))
+    assert a[3] == pytest.approx(p.peak) and p.peak == pytest.approx(40 * (1 - np.exp(-3)))
+    assert a[4] == pytest.approx(p.peak * np.exp(-1))
     assert a[5] == 0  # past the 1% tail
     with pytest.raises(ValueError):
-        pisa.from_size(0, 20, 15)  # too short for tau = 10
+        pisa.from_size(0, 20, 15)  # too short for tau = 9.1
+
+
+def test_tau_is_the_published_median():
+    """Facchinetti 2016, Fig. 8 (p.270): tau median 9.1 min (5th-95th 3.9-21.7)."""
+    assert pisa.TAU_MIN == 9.1 and pisa.TAU_PERCENTILES == (9.1, 3.9, 21.7)
+
+
+def _three_quantiles(x):
+    return np.percentile(x, [50, 5, 95])
+
+
+def test_parameter_draws_follow_the_published_fits_and_correlations():
+    """Log-normal P and D, gamma tau (the paper's "beta" read as gamma), published Pearson r."""
+    from scipy import stats
+
+    gain, pressure, tau = pisa.sample_parameters(np.random.default_rng(0), 200_000)
+    assert np.median(np.log(gain)) == pytest.approx(3.17, abs=0.01)
+    assert np.std(np.log(gain)) == pytest.approx(0.57, abs=0.01)
+    assert np.median(np.log(pressure)) == pytest.approx(3.19, abs=0.01)
+    assert np.std(np.log(pressure)) == pytest.approx(0.42, abs=0.01)
+    gamma = stats.gamma(pisa.TAU_GAMMA[0], scale=pisa.TAU_GAMMA[1])
+    assert np.median(tau) == pytest.approx(gamma.median(), rel=0.02)
+    r = np.corrcoef([gain, pressure, tau])
+    assert r[0, 2] == pytest.approx(-0.54, abs=0.02)
+    assert r[0, 1] == pytest.approx(0.20, abs=0.02)
+    assert r[1, 2] == pytest.approx(-0.18, abs=0.02)
+    u = np.linspace(0.001, 0.999, 41)
+    assert pisa.gamma_ppf(u, 2.35) == pytest.approx(stats.gamma(2.35).ppf(u), rel=1e-6)
+
+
+def test_eq7_mapping_reproduces_the_published_artifact_size():
+    """The check behind DECISIONS.md A14: P, D and tau from the paper's Fig. 8 percentiles
+    (two-piece log-normals, published correlations) give A and duration near the reported
+    24 (10-48) mg/dL and 45 (30-70) min, so the realised-size mapping and the 10% end hold."""
+    from statistics import NormalDist
+
+    z = np.random.default_rng(1).standard_normal((20_000, 3)) @ pisa._LATENT_CHOLESKY.T
+    u = np.vectorize(NormalDist().cdf)(z)
+    gain = np.array([pisa.TwoPieceLogNormal(24.7, 10.9, 48.4).quantile(q) for q in u[:, 0]])
+    pressure = np.array([pisa.TwoPieceLogNormal(24.4, 13.1, 39.4).quantile(q) for q in u[:, 1]])
+    tau = np.array([pisa.TwoPieceLogNormal(*pisa.TAU_PERCENTILES).quantile(q) for q in u[:, 2]])
+    peak = gain * (1 - np.exp(-pressure / tau))
+    duration = pressure + tau * np.log(1 / pisa.END_FRACTION)
+    a50, a5, a95 = _three_quantiles(peak)
+    d50, d5, d95 = _three_quantiles(duration)
+    assert a50 == pytest.approx(24.0, rel=0.12) and a95 == pytest.approx(48.0, rel=0.06)
+    assert d50 == pytest.approx(45.0, rel=0.06) and d5 == pytest.approx(30.0, rel=0.06)
+    assert d95 == pytest.approx(70.0, rel=0.12)
+    assert a5 == pytest.approx(10.0, abs=3.0)
+
+
+def test_per_event_tau_mode_keeps_the_same_compressed_nights():
+    """Common random numbers: the parameter draw changes shapes, not which nights or onsets."""
+    sizes = draw_pisas(np.random.default_rng(3), 30, FaultConfig(pisa_fraction=0.5))
+    params = draw_pisas(
+        np.random.default_rng(3), 30, FaultConfig(pisa_fraction=0.5, pisa_draw="parameters")
+    )
+    assert [p.onset for p in sizes] == [p.onset for p in params]
+    assert len({p.tau for p in params}) == len(params)
+    with pytest.raises(ValueError):
+        draw_pisas(np.random.default_rng(3), 3, FaultConfig(pisa_fraction=1.0, pisa_draw="x"))
 
 
 def test_pisas_fall_in_complete_nights_at_the_requested_fraction():

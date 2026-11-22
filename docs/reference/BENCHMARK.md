@@ -97,7 +97,7 @@ Choose each alarm's threshold on the **training** patients only: θ\* minimises 
 - `summary.csv` (aggregated with CIs)
 - `figures/` (PNG + SVG): severity curves, sensitivity–false-alarm curves, false alarms split by cause, example traces
 - `config.yaml`, `git_commit.txt`, `benchmark_version.txt`, `assumptions.md` (auto-collected `# ASSUMPTION:` lines)
-- `thresholds.csv` (per fold and mix: chosen threshold, training reference sensitivity, feasibility), `contrasts_h2.csv` and `contrast_h1.csv` (the pre-registered contrasts), `meta.json` (training fault level and the realistic-PISA calibration)
+- `thresholds.csv` (per fold and mix: chosen threshold, training reference sensitivity, feasibility), `contrasts_h2.csv` and `contrast_h1.csv` (the pre-registered contrasts), `meta.json` (training fault level, the Lobo calibration and the Facchinetti fraction: the two ends of the realistic PISA range, A14)
 
 Fold fits and evaluations can run in parallel processes (`workers` in the config, `--workers` on the command line); results do not depend on it (a test compares serial and parallel runs).
 

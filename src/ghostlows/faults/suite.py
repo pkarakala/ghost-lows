@@ -36,6 +36,9 @@ class FaultConfig:
 
     pisa_fraction: float = 0.0  # fraction of complete nights with one PISA (D13)
     pisa_tau: float = pisa_model.TAU_MIN
+    # "sizes": A and duration from the published percentiles, tau fixed at `pisa_tau` (default);
+    # "parameters": P, D and tau per event from the paper's fitted distributions (robustness arm)
+    pisa_draw: str = "sizes"
     night_hours: tuple[float, float] = (23.0, 7.0)  # ASSUMPTION: PISA onset window
     severity: float = 0.5  # s in [0, 1]; 0.5 is the "moderate" default level
     # ASSUMPTION: rates and sizes at s = 1 (SIMULATION.md §4.2); rates thin and sizes scale with s
@@ -78,13 +81,23 @@ def draw_pisas(rng: np.random.Generator, days: float, config: FaultConfig) -> li
     """A candidate PISA for every complete night; kept when its uniform u < `pisa_fraction`."""
     nights = _nights(days, config.night_hours)
     n = len(nights)
-    keep_u, onset_u = rng.random(n), rng.random(n)
-    depth, duration = pisa_model.sample_sizes(rng, n, config.pisa_tau)
-    return [
-        pisa_model.from_size(lo + ou * (hi - lo), d, t, config.pisa_tau)
-        for (lo, hi), u, ou, d, t in zip(nights, keep_u, onset_u, depth, duration, strict=True)
-        if u < config.pisa_fraction
-    ]
+    keep_u, onset_u = rng.random(n), rng.random(n)  # drawn first: same nights in either mode
+    onsets = [lo + ou * (hi - lo) for (lo, hi), ou in zip(nights, onset_u, strict=True)]
+    if config.pisa_draw == "parameters":
+        gain, pressure, tau = pisa_model.sample_parameters(rng, n)
+        pisas = [
+            pisa_model.Pisa(o, d, g, t)
+            for o, g, d, t in zip(onsets, gain, pressure, tau, strict=True)
+        ]
+    elif config.pisa_draw == "sizes":
+        peak, duration = pisa_model.sample_sizes(rng, n, config.pisa_tau)
+        pisas = [
+            pisa_model.from_size(o, a, t, config.pisa_tau)
+            for o, a, t in zip(onsets, peak, duration, strict=True)
+        ]
+    else:
+        raise ValueError(f"unknown pisa_draw {config.pisa_draw!r}")
+    return [p for p, u in zip(pisas, keep_u, strict=True) if u < config.pisa_fraction]
 
 
 def _candidates(
@@ -154,7 +167,7 @@ def apply_run(
                     "fault_id": k,
                     "start": p.onset,
                     "end": p.onset + p.duration,
-                    "size": p.depth,
+                    "size": p.peak,
                     "duration": p.duration,
                     "tau": p.tau,
                 }
@@ -304,9 +317,9 @@ def inject_real(
         if rng.random() >= per_night:
             continue
         onset = candidates.iloc[int(rng.integers(len(candidates)))]
-        depth, duration = pisa_model.sample_sizes(rng, 1, tau)
+        peak, duration = pisa_model.sample_sizes(rng, 1, tau)
         start = (onset - run["time"].iloc[0]) / pd.Timedelta("1min")
-        p = pisa_model.from_size(start, float(depth[0]), float(duration[0]), tau)
+        p = pisa_model.from_size(start, float(peak[0]), float(duration[0]), tau)
         obs = obs - p.attenuation(minutes)
         label[p.active(minutes)] = "pisa"
         rows.append(
@@ -315,7 +328,7 @@ def inject_real(
                 "fault_id": k,
                 "start": onset,
                 "end": onset + pd.Timedelta(minutes=p.duration),
-                "size": p.depth,
+                "size": p.peak,
                 "duration": p.duration,
                 "tau": tau,
             }

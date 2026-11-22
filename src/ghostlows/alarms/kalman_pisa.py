@@ -13,7 +13,8 @@ Per run, causally, the filter tracks
     g  artifact-free interstitial glucose (mg/dL)
     r  glucose rate the inputs do not explain (mg/dL/min), a damped random walk
     c  compression artifact (mg/dL): first-order towards -a under pressure, back to 0 after
-    a  pressure amplitude (mg/dL): constant under pressure, drawn afresh from its prior otherwise
+    a  the gain P of [Facchinetti 2016] (mg/dL): constant under pressure, drawn afresh from its
+       prior otherwise
     n  autocorrelated sensor error (mg/dL), first-order towards 0
 
 in three modes that switch as a Markov chain: steady, manoeuvre (the rate may change quickly,
@@ -43,9 +44,9 @@ from .base import BaseAlarm, minutes, runs
 from .rules import TREND_HORIZON_MIN, TREND_TARGET_MG_DL
 
 # SOURCE: Facchinetti 2016 (first-order response to a rectangular pressure input; median size)
-_MEDIAN = pisa_model.from_size(0.0, pisa_model.DEPTH.median, pisa_model.DURATION.median)
-_AMP_P5 = pisa_model.from_size(0.0, pisa_model.DEPTH.p5, pisa_model.DURATION.median).amplitude
-_AMP_P95 = pisa_model.from_size(0.0, pisa_model.DEPTH.p95, pisa_model.DURATION.median).amplitude
+_MEDIAN = pisa_model.from_size(0.0, pisa_model.PEAK.median, pisa_model.DURATION.median)
+_GAIN_P5 = pisa_model.from_size(0.0, pisa_model.PEAK.p5, pisa_model.DURATION.median).gain
+_GAIN_P95 = pisa_model.from_size(0.0, pisa_model.PEAK.p95, pisa_model.DURATION.median).gain
 
 G, R, C, A, N = range(5)  # state indices
 # ASSUMPTION: grid for the noise settings (BENCHMARK.md §2); a sensor error variance of 0 is the
@@ -72,14 +73,14 @@ class KalmanParams:
     level_var: float = 0.1  # (mg/dL)^2 per min
     # ASSUMPTION: the unexplained rate decays slowly (240-min time constant)
     rate_tau_min: float = 240.0
-    # ASSUMPTION: the generator's time constant and the amplitude of its median PISA, with the
-    # spread of amplitudes between the 5th and 95th percentile depths (faults/pisa.py)
+    # ASSUMPTION: the generator's time constant and the gain P of its median PISA, with the
+    # spread of gains between the 5th and 95th percentile peak deviations A (faults/pisa.py)
     artifact_tau_min: float = pisa_model.TAU_MIN
-    amp_mean: float = _MEDIAN.amplitude
-    amp_sd: float = (_AMP_P95 - _AMP_P5) / (2 * pisa_model.Z95)
-    # ASSUMPTION: the amplitude is constant while pressure lasts (the model's rectangular input);
+    gain_mean: float = _MEDIAN.gain
+    gain_sd: float = (_GAIN_P95 - _GAIN_P5) / (2 * pisa_model.Z95)
+    # ASSUMPTION: the gain is constant while pressure lasts (the model's rectangular input);
     # the artifact may deviate a little from the first-order shape (tolerates shape mismatch)
-    amp_var: float = 0.0  # (mg/dL)^2 per min
+    gain_var: float = 0.0  # (mg/dL)^2 per min
     artifact_var: float = 0.5  # (mg/dL)^2 per min
     pressure_mode: bool = True  # False: the ablation without a compressed state
     # SOURCE: Lobo 2026 (pooled abstract counts: one PISA per 74.8 h of wear) CLINICAL-REVIEW: CR3
@@ -182,11 +183,11 @@ def imm_filter(y, dt, u, p: KalmanParams, per_run: dict | None = None):
     first, start = _first_observed(y)
     p_low, p_pressure = np.full((n, length), np.nan), np.full((n, length), np.nan)
     x = np.zeros((m_count, n, 5))
-    x[:, :, G], x[:, :, A] = start, p.amp_mean
+    x[:, :, G], x[:, :, A] = start, p.gain_mean
     cov = np.zeros((m_count, n, 5, 5))
     # ASSUMPTION: initial uncertainty of glucose, rate and artifact at a run's first reading
     cov[:, :, G, G] = obs_var + 100.0
-    cov[:, :, R, R], cov[:, :, C, C], cov[:, :, A, A] = 0.25, 1.0, p.amp_sd**2
+    cov[:, :, R, R], cov[:, :, C, C], cov[:, :, A, A] = 0.25, 1.0, p.gain_sd**2
     cov[:, :, N, N] = noise_var
     mu = np.full((m_count, n), 1e-6)
     mu[0] = 1 - 1e-6 * (m_count - 1)
@@ -219,13 +220,13 @@ def imm_filter(y, dt, u, p: KalmanParams, per_run: dict | None = None):
         f[:, :, N, N] = e_n
         b = np.zeros((m_count, n, 5))
         b[:, :, G] = d * u[:, k]
-        b[~pressure, :, A] = p.amp_mean
+        b[~pressure, :, A] = p.gain_mean
         q = np.zeros((m_count, n, 5, 5))
         q[:, :, G, G] = p.level_var * d
         q[:, :, R, R] = mode_rate * d
         q[pressure, :, C, C] = p.artifact_var * d
-        q[~pressure, :, A, A] = p.amp_sd**2
-        q[pressure, :, A, A] = p.amp_var * d
+        q[~pressure, :, A, A] = p.gain_sd**2
+        q[pressure, :, A, A] = p.gain_var * d
         q[:, :, N, N] = noise_var * (1 - e_n**2)
         xp = np.einsum("mnrs,mns->mnr", f, x0) + b
         cp = f @ c0 @ np.swapaxes(f, -1, -2) + q
