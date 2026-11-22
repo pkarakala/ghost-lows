@@ -4,7 +4,7 @@
 
 An open benchmark for real-time CGM low-glucose alarms under sensor faults. Continuous glucose monitors (CGMs, under-skin sensors) can show false lows, often when slept on (a compression low). Ghost Lows scores alarms on lows caught, false alarms and warning time as simulated faults worsen, with and without insulin and carb data.
 
-**Finding.** With a compression low every night in 30 virtual patients, the trend alarm caught 90% (86–93%) of severe lows, and compression caused 0.32 (0.30–0.35) of its 1.53 (1.33–1.73) false alarms per day (95% CIs). Insulin and carb data never cut compression false alarms by the pre-set 25%, and published compression detectors cut them only by missing real severe lows (post hoc).
+**Finding.** With a compression low every night in 30 virtual patients, the trend alarm caught 90% (85–93%) of severe lows, and compression added 0.27 (0.25–0.29) of its 1.54 (1.33–1.77) false alarms per day (95% CIs). Insulin and carb data never cut compression false alarms by the pre-set 25%, and published compression detectors cut them only by missing real severe lows (post hoc).
 
 **Limits.** The simulator lacks counter-regulation (the body's defence against lows). No public dataset labels real compression lows. Real-data checks use the same CGM as the reference, so they are near-circular. [All limitations](docs/reference/RESEARCH.md#6-known-limitations-to-state-up-front).
 

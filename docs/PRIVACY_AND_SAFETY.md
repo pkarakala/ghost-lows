@@ -21,7 +21,7 @@ The rules the upload report must follow, for anyone changing `app/` or `ghostlow
 ## How the report meets them
 
 - **Flag rule.** A flag needs two published methods to agree and must start at night (23:00–07:00).
-- **Flags are often wrong.** On simulated data, flags caught 35% of injected compression artifacts. They also fell on other dips, a median of 4 per 14 days. In 37% of runs, a flag overlapped a real low.
+- **Flags are often wrong.** On simulated data, flags caught 36% of injected compression artifacts. They also fell on other dips, a median of 3.5 per 14 days. In 37% of runs, a flag overlapped a real low.
 - **So no number leaves out flagged readings.** Flags are annotations and a count, shown with that performance.
 - **Network.** The page contacts only its pinned runtime and package hosts. A browser test fails if the uploaded file is sent anywhere.
 

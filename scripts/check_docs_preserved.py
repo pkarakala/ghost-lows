@@ -36,6 +36,11 @@ INTENDED = [
         "Sign-off by Cohen Ferrari is still open",
         "0075ea4: Cohen Ferrari is a literature fact-checker, not a clinician",
     ),
+    (
+        "CR item - [ ] CR12.",
+        "35% of injected PISAs",
+        "A18 rerun: the flag survey on the new cohort (36%, median 3.5)",
+    ),
     ("number 0.3.0", "0.3.0", "v0.4.0: CITATION.cff's version moves from 0.3.0 to 0.4.0"),
     ("CR item - [ ] CR2.", "- [ ] CR2.", "A14: CR2 literature check in"),
     (
