@@ -112,8 +112,7 @@ jobs:
       fail-fast: false
       matrix:
         config:
-          - rq1_pisa_sweep
-          - rq3_kalman
+          # rq1_pisa_sweep and rq3_kalman run in the last job instead (see there)
           - rq1_all_faults
           - rq1_realistic_range
           - robust_lag6
@@ -196,7 +195,7 @@ jobs:
       ((needs.benchmark.result == 'success' && needs.real.result == 'success') ||
        needs.gate.outputs.bench_run != '')
     runs-on: ubuntu-latest
-    timeout-minutes: 350
+    timeout-minutes: 355
     env:
       GH_TOKEN: ${{ github.token }}
     steps:
@@ -209,6 +208,7 @@ jobs:
           python-version: "3.11"
           enable-cache: true
       - run: uv sync --locked
+      - run: lscpu | grep -E "Model name|^CPU\(s\)|Flags" | cut -c1-200  # recorded for the CPU note
       - name: Fetch the cohort, every config's outputs and the real-data track
         run: |
           src="${{ needs.gate.outputs.bench_run || github.run_id }}"
@@ -219,6 +219,10 @@ jobs:
           for a in $(gh api "repos/${{ github.repository }}/actions/runs/$src/artifacts?per_page=100" --jq '.artifacts[].name | select(startswith("bench-"))'); do
             gh run download "$src" -R ${{ github.repository }} -n "$a" -D "results/${a#bench-}/"
           done
+          # the curves check that r = 1 reproduces rq1_pisa_sweep and rq3_kalman to 1e-9 (A11);
+          # learned alarms differ in the last digits between runner CPUs, so those two configs
+          # run here, on the machine that draws the curves
+          rm -rf results/rq1_pisa_sweep results/rq3_kalman
       # skips every config whose outputs exist, then pairs RQ3, writes age groups and warning
       # times, copies the tables, runs the curves (A11, A13), the paper figures and the README
       - run: uv run python experiments/run_all.py --workers 3
