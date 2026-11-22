@@ -88,3 +88,19 @@ def test_vectorised_bootstrap_agrees_with_the_reference():
     )
     assert est[0] == pytest.approx(ref[0])
     assert lo[0] == pytest.approx(ref[1], abs=0.03) and hi[0] == pytest.approx(ref[2], abs=0.03)
+
+
+def test_t_bounds_correct_the_stratified_se_and_keep_proportions_in_range():
+    from ghostlows.bench.stats import t_bounds, t_quantile
+
+    rng = np.random.default_rng(0)
+    draws = rng.normal(0.0, 1.0, 4000)  # crosses 0, so the linear scale
+    lo, hi = t_bounds(0.0, draws, df=27, n_strata=3)
+    se = np.std(draws, ddof=1) * np.sqrt(30 / 27)
+    assert np.isclose(hi, t_quantile(0.975, 27) * se) and np.isclose(lo, -hi)
+    p = np.clip(rng.normal(0.976, 0.01, 4000), 0.9, 0.9999)
+    lo, hi = t_bounds(0.976, p, df=27, n_strata=3, proportion=True)
+    assert 0 < lo < 0.976 < hi < 1
+    ones = np.r_[np.ones(2000), np.full(2000, 0.95)]  # draws of exactly 1 still give bounds < 1
+    lo, hi = t_bounds(0.976, ones, df=27, n_strata=3, proportion=True, continuity=0.5 / 100)
+    assert 0 < lo < 0.976 < hi < 1

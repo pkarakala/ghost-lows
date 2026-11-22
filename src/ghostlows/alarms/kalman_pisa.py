@@ -140,19 +140,20 @@ def fit_gains(y, dt, ins, carb) -> tuple[float, float]:
 def transition_matrix(rates: np.ndarray, d: np.ndarray) -> np.ndarray:
     """Mode-switching probabilities over steps of `d` minutes, shape (modes, modes, runs).
 
-    Competing exits (A18, audit fix 11): mode i is left with probability 1 - exp(-r_i d), where
-    r_i is its total exit rate, and goes to j in proportion to rates[i, j]. Rows sum to 1 and every
-    entry is in [0, 1] for any gap; the earlier per-pair form gave negative self-transitions for
-    gaps of 85 min or more.
+    The continuous-time chain's exact transition matrix expm(Q d) (A18, audit fix 11), with Q the
+    generator (off-diagonal `rates` per minute, rows summing to 0), from an eigen-decomposition so
+    that numpy suffices. The earlier per-pair form gave negative self-transitions for gaps of
+    85 min or more; a competing-exits form gave valid but wrong probabilities over long gaps.
     """
     d = np.asarray(d, float)
-    total = rates.sum(axis=1)  # per-minute exit rate of each mode
-    leave = 1 - np.exp(-total[:, None] * d[None, :])  # (modes, runs)
-    share = np.divide(rates, total[:, None], out=np.zeros_like(rates), where=total[:, None] > 0)
-    trans = share[:, :, None] * leave[:, None, :]
-    idx = np.arange(rates.shape[0])
-    trans[idx, idx] = 1 - leave
-    return trans
+    q = np.array(rates, float)
+    np.fill_diagonal(q, 0.0)
+    q -= np.diag(q.sum(axis=1))
+    lam, vec = np.linalg.eig(q)
+    inv = np.linalg.inv(vec)
+    grow = np.exp(lam[:, None] * d[None, :])  # (modes, runs)
+    trans = np.einsum("ik,kn,kj->ijn", vec, grow, inv).real
+    return np.clip(trans, 0.0, 1.0)
 
 
 def modes(p: KalmanParams):

@@ -111,3 +111,18 @@ def test_mode_switching_stays_a_probability_over_long_gaps():
     small = transition_matrix(rates, np.array([1e-3]))[..., 0]
     off = ~np.eye(len(rates), dtype=bool)
     assert np.allclose(small[off], rates[off] * 1e-3, rtol=1e-3)  # first order: rate x time
+
+
+def test_transition_matrix_is_the_chains_matrix_exponential():
+    from scipy.linalg import expm
+
+    from ghostlows.alarms.kalman_pisa import KalmanParams, modes, transition_matrix
+
+    _, _, rates = modes(KalmanParams())
+    q = np.array(rates, float)
+    np.fill_diagonal(q, 0.0)
+    q -= np.diag(q.sum(axis=1))
+    gaps = np.array([0.0, 5.0, 30.0, 360.0])
+    t = transition_matrix(rates, gaps)
+    for k, gap in enumerate(gaps):
+        assert np.allclose(t[..., k], expm(q * gap), atol=1e-10)

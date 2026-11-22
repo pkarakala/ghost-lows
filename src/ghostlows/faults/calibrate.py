@@ -48,8 +48,11 @@ LOBO_START_MEAN_SD = (104.9, 27.7)
 
 
 def lobo_criteria(window: pd.DataFrame, length_min: float) -> dict[str, bool | float]:
-    """Lobo 2026's tests for a PISA of interest, on the observed CGM from an injected artifact's
-    start to its end. The start value is the first reading in the window."""
+    """Lobo 2026's tests for a PISA of interest, on the observed CGM readings that bracket an
+    injected artifact: the start value is the last reading at or before onset and the end value
+    the first at or after the end (`pisa_census` builds that window). The first reading inside
+    the artifact comes on average 2.5 min after onset, already 6.6 mg/dL lower, which failed the
+    20 mg/dL drop test for PISAs that pass it (2026-11 audit check)."""
     cgm = window["cgm_observed"].dropna().to_numpy(float)
     if cgm.size == 0:
         return {
@@ -74,6 +77,17 @@ def lobo_criteria(window: pd.DataFrame, length_min: float) -> dict[str, bool | f
     return out
 
 
+def bracket(run: pd.DataFrame, start, end) -> pd.DataFrame:
+    """Readings from the last at or before `start` to the first at or after `end`."""
+    t = run["time"]
+    seen = run["cgm_observed"].notna()
+    before = t[(t <= start) & seen]
+    after = t[(t >= end) & seen]
+    lo = before.max() if len(before) else start
+    hi = after.min() if len(after) else end
+    return run[(t >= lo) & (t <= hi)]
+
+
 def pisa_census(samples: pd.DataFrame, seed: int = 0) -> tuple[pd.DataFrame, float]:
     """Every injected PISA with a PISA every night, with Lobo's tests; and the hours of wear."""
     config = FaultConfig(pisa_fraction=1.0, enabled=frozenset({"pisa"}))
@@ -83,7 +97,7 @@ def pisa_census(samples: pd.DataFrame, seed: int = 0) -> tuple[pd.DataFrame, flo
     rows = []
     for _, f in faults.iterrows():
         run = by_run[tuple(f[k] for k in keys)] if keys else observed
-        window = run[(run["time"] >= f["start"]) & (run["time"] <= f["end"])]
+        window = bracket(run, f["start"], f["end"])
         length = (f["end"] - f["start"]) / pd.Timedelta("1min")
         rows.append(lobo_criteria(window, length))
     hours = observed.groupby(keys)["time"].agg(

@@ -290,3 +290,14 @@ def test_lobo_criteria_follow_the_published_definition():
     assert not lobo_criteria(window([120, 100, 90, 110]), 40)["of_interest"]  # never below 85
     assert not lobo_criteria(window([100, 80, 75, 80]), 40)["of_interest"]  # no matching rise
     assert not lobo_criteria(window([100, 80, 75, 100]), 200)["of_interest"]  # longer than 180
+
+
+def test_lobo_window_brackets_the_artifact():
+    """The start value is the last reading at or before onset, not the first inside the PISA."""
+    from ghostlows.faults.calibrate import bracket
+
+    t = pd.date_range("2026-01-01 00:00", periods=8, freq="5min")
+    run = pd.DataFrame({"time": t, "cgm_observed": [110, 108, 95, 80, 78, 90, 104, 106.0]})
+    onset, end = t[1] + pd.Timedelta("2.5min"), t[5] + pd.Timedelta("2min")
+    w = bracket(run, onset, end)
+    assert w["time"].iloc[0] == t[1] and w["time"].iloc[-1] == t[6]

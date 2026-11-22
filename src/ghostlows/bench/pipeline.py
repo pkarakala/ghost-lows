@@ -486,7 +486,12 @@ def summarise(metrics: pd.DataFrame, n_boot: int) -> pd.DataFrame:
         num = np.column_stack([g[SUMMARY_RATES[n][0]].to_numpy(float) for n in names])
         den = np.column_stack([g[SUMMARY_RATES[n][1]].to_numpy(float) for n in names])
         est, lo, hi, lo_p, hi_p, bad = bootstrap_ratios(
-            num, den, g["patient_id"].to_numpy(), n_boot=n_boot, detail=True
+            num,
+            den,
+            g["patient_id"].to_numpy(),
+            n_boot=n_boot,
+            detail=True,
+            proportion=[n.startswith("sens") for n in names],
         )
         for i, n in enumerate(names):
             row.update({n: est[i], f"{n}_lo": lo[i], f"{n}_hi": hi[i]})
