@@ -676,6 +676,7 @@ def section_realistic_range(meta: dict) -> list[str]:
             f"| `{alarm}` | {ci(a, 'false_compression_per_day')} | {ci(b, 'false_compression_per_day')} | {ci(a, 'false_per_day')} | {ci(b, 'false_per_day')} | {ci(a, 'sens_l2', pct=True)} | {ci(b, 'sens_l2', pct=True)} |"
         )
     return lines + [
+        *lobo_calibration_note(meta),
         f"Two published anchors for how often compression happens disagree, so results at a realistic frequency are a range. Lower end: Facchinetti 2016's night rate of all visually identified artifacts (0.0014 per sample, 00:00–07:59; PISA on {lo:.0%} of nights). Upper end: Lobo 2026's rate of PISAs reaching below 85 mg/dL, reproduced on this cohort (PISA on {hi:.0%} of nights; the D19 training level). Alarms are fitted once at the upper end, as in the main analysis; `robust_train_facchinetti` fits them at the lower end.",
         "",
         f"| Alarm | Compression false alarms/day, {lo:.0%} | … {hi:.0%} | False alarms/day, {lo:.0%} | … {hi:.0%} | Level 2 caught, {lo:.0%} | … {hi:.0%} |",
@@ -683,6 +684,42 @@ def section_realistic_range(meta: dict) -> list[str]:
         *rows,
         "",
     ]
+
+
+def lobo_calibration_note(meta: dict) -> list[str]:
+    """How the Lobo-calibrated level was reached (A15) and the starting-glucose face validity."""
+    r = meta.get("realistic_pisa") or {}
+    share, every, hit = (
+        r.get("share_passing") or {},
+        r.get("start_glucose_all") or {},
+        r.get("start_glucose_of_interest") or {},
+    )
+    if not share or not every:
+        return []
+    lobo = r.get("start_glucose_lobo") or {"mean": 104.9, "sd": 27.7}
+    text = (
+        f"Calibration to Lobo 2026 (A15), with a PISA every night ({r.get('pisas_at_full', 0)} injected PISAs, default mix): "
+        f"{share.get('below', float('nan')):.0%} reach an observed CGM below 85 mg/dL, "
+        f"{share.get('drop', float('nan')):.0%} drop at least 20 mg/dL, "
+        f"{share.get('start_ok', float('nan')):.0%} start at 70 mg/dL or above, "
+        f"{share.get('rise', float('nan')):.0%} have a matching rise, "
+        f"and {share.get('of_interest', float('nan')):.0%} pass every test of Lobo's PISA of interest. "
+        f"Rate with a PISA every night: {r.get('rate_at_full', float('nan')) * 24:.3f} per day counted as Lobo counts "
+        f"({r.get('rate_at_full_below85_only', float('nan')) * 24:.3f} counting only < 85 mg/dL, as v0.4.0 did) vs. Lobo's "
+        f"{r.get('target_per_hour', float('nan')) * 24:.3f} per sensor-day; reachable: {r.get('reachable')}."
+    )
+    face = (
+        f"Face validity of starting glucose: simulated PISAs start at mean {every['mean']:.1f} mg/dL (SD {every['sd']:.1f}; "
+        f"5th–95th percentile {every['p5']:.0f}–{every['p95']:.0f})"
+        + (
+            f", and those that qualify as PISAs of interest at {hit['mean']:.1f} (SD {hit['sd']:.1f})"
+            if hit
+            else ""
+        )
+        + f", against {lobo['mean']} (SD {lobo['sd']}) for Lobo's PISAs of interest on Dexcom G7. "
+        "The higher simulated PISAs start, the fewer reach below 85 mg/dL, and the more compressed nights the Lobo-calibrated level needs."
+    )
+    return [text, "", face, ""]
 
 
 def comparator(b: str) -> tuple[str, str]:

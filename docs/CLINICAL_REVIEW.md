@@ -15,9 +15,9 @@ A factual item is ticked once its literature check is in. Items marked **Needs a
   - Confirmed for the Dexcom G4 Platinum on the abdomen: 72 people, sensors on the left and right abdomen, 143 artifacts; depth (the peak deviation A) median 24 mg/dL (10–48), duration 45 min (30–70) [Facchinetti 2016, abstract and pp.266–268]. Still open, with no source found: G6/G7, children, the arm.
   - [x] Literature checked: Cohen Ferrari, 2026-11-21.
   - [ ] Clinician reviewed (name, role, date)
-- [ ] **CR3. Frequency.** How many nights per week a typical user has a PISA. Figures found: ~one per 74.8 h below 85 mg/dL [Lobo 2026, abstract counts]; "once every 5 to 6 days" quoted in [Trinity Biotech 2026]; 143 artifacts in 756 sensor-days (about one per 127 h) and 0.0014 per sample at 00:00–07:59, a PISA on about 13% of nights [Facchinetti 2016, pp.268, 270].
-  - Notes (A14): the sources disagree several-fold. Lobo-calibrated, the cohort needs a PISA on 86% of nights (v0.4.0); Facchinetti's rate gives about 13%. They count different things: Lobo only PISAs reaching below 85 mg/dL (abstract only; method unread); Facchinetti all artifacts found by visual inspection against a second sensor or YSI, in a trial with clinic nights. The benchmark reports both ends as a range and calls neither alone "realistic". Which end fits a typical home user is the open question.
-  - [ ] Literature checked (name, date)
+- [x] **CR3. Frequency.** How many nights per week a typical user has a PISA. Figures found: ~one per 74.8 h below 85 mg/dL [Lobo 2026, Table 1, sensor-hours]; "once every 5 to 6 days" quoted in [Trinity Biotech 2026]; 143 artifacts in 756 sensor-days (about one per 127 h) and 0.0014 per sample at 00:00–07:59, a PISA on about 13% of nights [Facchinetti 2016, pp.268, 270].
+  - Notes (A14): the sources disagree several-fold. Lobo-calibrated, the cohort needs a PISA on 86% of nights (v0.4.0); Facchinetti's rate gives about 13%. They differ in sensor (Dexcom G4 Platinum vs. G7), site (abdomen vs. arms and abdomen), labelling (visual inspection against a second sensor or YSI, in a trial with clinic nights, vs. semi-automatic labelling against the consensus of 2 to 4 sensors, Lobo's Supplement A) and what is counted (every artifact, about one per 127 sensor-hours, vs. only "PISAs of interest": a drop of at least 20 mg/dL from a start of at least 70 to below 85, a matching rise, 15 to 180 min; one per 74.8 sensor-hours) (A15). The benchmark reports both ends as a range and calls neither alone "realistic". Which end fits a typical home user is the open question.
+  - [x] Literature checked: Cohen Ferrari, 2026-11-21.
   - [ ] Clinician reviewed (name, role, date)
 - [ ] **CR4. Labels.** [Baysal 2014] labels were made by an engineer, not a clinician; acceptable as a reference standard?
   - [ ] Literature checked (name, date)
@@ -25,14 +25,17 @@ A factual item is ticked once its literature check is in. Items marked **Needs a
 - [ ] **CR5. AID impact.** Needless suspensions and rebound highs [Baysal 2014; Altnickel 2026]. Any data for Control-IQ, 780G, Omnipod 5?
   - [ ] Literature checked (name, date)
   - [ ] Clinician reviewed (name, role, date)
-- [ ] **CR6. Hypoglycaemia levels** (<70, <54, level 3 severe) [IHSG 2017] and the event definition (≥15 min below threshold) [Battelino 2023].
-  - [ ] Literature checked (name, date)
+- [x] **CR6. Hypoglycaemia levels** (<70, <54, level 3 severe) [IHSG 2017] and the event definition (≥15 min below threshold) [Battelino 2023].
+  - Levels confirmed against [IHSG 2017], Table 1. Event rules confirmed against [Battelino 2023] (*Lancet Diabetes Endocrinol* 2023;11:42–57): an event starts after at least 15 consecutive minutes below the threshold and ends after at least 15 consecutive minutes at or above it, as in `bench/events.py`. IHSG words level 1 as "≤70 mg/dL", Battelino 2023 as "<70"; the benchmark follows Battelino 2023.
+  - [x] Literature checked: Cohen Ferrari, 2026-11-21.
   - [ ] Clinician reviewed (name, role, date)
-- [ ] **CR7. Time-below-range targets** <4% below 70, <1% below 54 [Battelino 2019].
-  - [ ] Literature checked (name, date)
+- [x] **CR7. Time-below-range targets** <4% below 70, <1% below 54 [Battelino 2019].
+  - Confirmed against [Battelino 2019], Table 1: <4% of time below 70 mg/dL and <1% below 54 for type 1 and type 2 diabetes; <1% below 70 for older or high-risk people.
+  - [x] Literature checked: Cohen Ferrari, 2026-11-21.
   - [ ] Clinician reviewed (name, role, date)
-- [ ] **CR8. Blood-to-interstitial lag** ~5 to 6 min, up to ~10 [Basu 2013, 8 healthy fasted adults]. Longer during falling glucose or in T1D?
-  - [ ] Literature checked (name, date)
+- [x] **CR8. Blood-to-interstitial lag** ~5 to 6 min [Basu 2013, 8 healthy fasted adults]. Longer during falling glucose or in T1D?
+  - [Basu 2013] confirms 5.3 to 6.2 min in 8 healthy, overnight-fasted adults (abdominal microdialysis). It does not support "up to ~10 min", which is removed. Basu notes that the lag may differ between rising and falling glucose, citing other work. No code change.
+  - [x] Literature checked: Cohen Ferrari, 2026-11-21.
   - [ ] Clinician reviewed (name, role, date)
 - [ ] **CR9. Cost asymmetry.** How many extra false alarms per night is one missed level 2 low worth? Sets the operating point ([BENCHMARK.md](reference/BENCHMARK.md) §5).
   - **Needs a clinician:** a clinical judgment, not a fact a literature check can confirm.
@@ -51,8 +54,9 @@ A factual item is ticked once its literature check is in. Items marked **Needs a
 - [ ] **CR13. Simulation assumptions** in [SIMULATION.md](reference/SIMULATION.md) §3 (exercise effect size and duration, sensitivity range, meal error rates).
   - [ ] Literature checked (name, date)
   - [ ] Clinician reviewed (name, role, date)
-- [ ] **CR14. G7 alert facts.** Urgent Low fixed at 55 mg/dL; Urgent Low Soon predicts 55 within 20 min; G7 MARD 8.2% arm, 9.1% abdomen [Garg 2022]. The benchmark's ungated floor fires on any reading ≤55 mg/dL ([BENCHMARK.md](reference/BENCHMARK.md) §1): is that how the device alarm behaves?
-  - [ ] Literature checked (name, date)
+- [x] **CR14. G7 alert facts.** Urgent Low fixed at 55 mg/dL; Urgent Low Soon predicts 55 within 20 min; G7 MARD 8.2% arm, 9.1% abdomen [Garg 2022]. The benchmark's ungated floor fires on any reading ≤55 mg/dL ([BENCHMARK.md](reference/BENCHMARK.md) §1): is that how the device alarm behaves?
+  - The US Dexcom G7 User Guide [Dexcom 2026] says Urgent Low fires "when your sensor reading is 55 mg/dL or below", and Urgent Low Soon when the reading "will be 55 mg/dL or below in less than 20 minutes", even while glucose is in range. [Garg 2022] confirms MARD 8.2% (arm) and 9.1% (abdomen). The ungated floor (any reading ≤55 mg/dL) matches the device. The device's "≤55" differs from the trend alarm's predicted "<55"; the difference is negligible, and nothing changes.
+  - [x] Literature checked: Cohen Ferrari, 2026-11-21.
   - [ ] Clinician reviewed (name, role, date)
 - [ ] **CR15. Virtual-cohort calibration target.** Under standard meals, each virtual patient's therapy settings are calibrated so that 14-day TBR <70 is within 1–8% and plasma glucose never falls below 40 mg/dL ([SIMULATION.md](reference/SIMULATION.md) §2). Is this a plausible range for open-loop T1D users?
   - [ ] Literature checked (name, date)

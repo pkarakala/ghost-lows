@@ -274,3 +274,19 @@ def test_realistic_fraction_scales_linearly_with_the_lobo_rate():
     assert out["reachable"] and 0 < out["fraction"] < 1
     # with a PISA every night the rate is (nights reaching < 85) / hours
     assert out["rate_at_full"] <= 7 / (8 * 24) + 1e-9
+
+
+def test_lobo_criteria_follow_the_published_definition():
+    """Lobo 2026: drop >= 20 mg/dL from a start >= 70, a reading < 85, matching rise, 15-180 min."""
+    from ghostlows.faults.calibrate import lobo_criteria
+
+    def window(values):
+        return pd.DataFrame({"cgm_observed": np.asarray(values, float)})
+
+    good = lobo_criteria(window([100, 90, 80, 84, 101]), 40)
+    assert good["of_interest"] and good["start"] == 100
+    assert not lobo_criteria(window([95, 88, 84, 95]), 40)["of_interest"]  # drop of 11
+    assert not lobo_criteria(window([69, 50, 45, 69]), 40)["of_interest"]  # starts below 70
+    assert not lobo_criteria(window([120, 100, 90, 110]), 40)["of_interest"]  # never below 85
+    assert not lobo_criteria(window([100, 80, 75, 80]), 40)["of_interest"]  # no matching rise
+    assert not lobo_criteria(window([100, 80, 75, 100]), 200)["of_interest"]  # longer than 180

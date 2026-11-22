@@ -43,6 +43,20 @@ INTENDED = [
         "Only figures found",
         "A14: CR3 adds Facchinetti 2016's frequency to the figures found",
     ),
+    ("CR item - [ ] CR6.", "- [ ] CR6.", "A17: CR6 literature check in"),
+    ("CR item - [ ] CR7.", "- [ ] CR7.", "A17: CR7 literature check in"),
+    ("CR item - [ ] CR8.", "up to ~10", "A17: Basu 2013 does not support up to ~10 min"),
+    ("CR item - [ ] CR14.", "- [ ] CR14.", "A17: CR14 literature check in"),
+    (
+        'limitation The "realistic" training fault level',
+        'The "realistic" training fault level',
+        "A14: the Lobo level is the upper end of a range, not 'realistic' alone",
+    ),
+    (
+        "limitation The realistic training PISA fraction",
+        "The realistic training PISA fraction",
+        "A14: renamed the Lobo-calibrated training PISA fraction",
+    ),
 ]
 
 NUMBER = re.compile(r"(?<![\w.])\d+(?:[.,]\d+)*%?")
