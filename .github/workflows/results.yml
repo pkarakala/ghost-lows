@@ -232,7 +232,15 @@ jobs:
           uv run python scripts/make_sample_export.py --survey data/sim/sim_full-*/ || echo "::warning::survey failed"
           uv run python scripts/make_sample_export.py || echo "::warning::sample run no longer meets its conditions"
       - run: git checkout results/tables/assumptions.md  # stale by design since v0.3.0
-      - run: uv run pytest -q tests/test_figures.py
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        if: always()  # keep the work even if a later step fails
+        with:
+          name: results
+          path: |
+            results/
+            app/
+            docs/figures/
+          retention-days: 7
       - name: Commit results/ to the branch
         run: |
           git config user.name "github-actions[bot]"
@@ -240,3 +248,4 @@ jobs:
           git add results/ app/ docs/figures/ || true
           git commit -m "Full rerun: results from ${GITHUB_SHA::7}" || echo "nothing to commit"
           git push origin "HEAD:${GITHUB_REF_NAME}"
+      - run: uv run pytest -q tests/test_figures.py  # after the commit, so a failure loses nothing
