@@ -97,3 +97,17 @@ def test_comparator_is_chosen_on_training_results_only():
     chosen = select_comparators(thresholds, pool).set_index("fold")["comparator"]
     assert chosen[0] == "gbm_ctx"  # fewest training false alarms
     assert chosen[1] == "trend_combined_ctx"  # gbm_ctx missed the sensitivity constraint
+
+
+def test_mode_switching_stays_a_probability_over_long_gaps():
+    """Audit fix 11 (A18): rows sum to 1 and no entry leaves [0, 1], even for a 6-hour gap."""
+    from ghostlows.alarms.kalman_pisa import KalmanParams, modes, transition_matrix
+
+    _, _, rates = modes(KalmanParams())
+    for gap in (5.0, 85.0, 360.0):
+        t = transition_matrix(rates, np.array([gap]))
+        assert np.allclose(t.sum(axis=1), 1.0)
+        assert (t >= 0).all() and (t <= 1).all()
+    small = transition_matrix(rates, np.array([1e-3]))[..., 0]
+    off = ~np.eye(len(rates), dtype=bool)
+    assert np.allclose(small[off], rates[off] * 1e-3, rtol=1e-3)  # first order: rate x time

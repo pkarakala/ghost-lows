@@ -52,7 +52,7 @@ Reimplementations of published methods follow the papers as closely as their tex
 ## 3. Ground truth (D11)
 
 - **True low event (simulation):** on the 1-minute `truth_glucose` (plasma, D1), at least 15 consecutive minutes below 70 (level 1) or below 54 (level 2); the event ends after at least 15 consecutive minutes at or above the threshold [Battelino 2023].
-- **CGM-referenced event (real data):** a run of readings below the threshold spanning at least 15 min (first to last reading plus one sampling interval); a gap longer than two sampling intervals ends the run **[assumption]**.
+- **CGM-referenced event (real data):** a run of readings below the threshold spanning at least 15 min (first to last reading plus one sampling interval); a gap longer than two sampling intervals ends the run **[assumption]**. As implemented since A18: a single missing reading is interpolated and continues the run; two or more in a row end it (`detect_events_with_gaps`).
 - Level 2 events lie inside level 1 events. Each level is scored separately; false-alarm matching uses level 1 events, so an alarm during any true low is not false.
 
 ## 4. Metrics (per patient, then aggregated)
@@ -82,8 +82,9 @@ Choose each alarm's threshold on the **training** patients only: θ\* minimises 
 ## 6. Statistics (D14)
 
 - **Leave-patients-out cross-validation** over all 30 virtual patients (5 folds, stratified by age group). No patient's data in both training and test.
-- **Confidence intervals across patients**, not across seeds or runs: patient-level bootstrap stratified by age group, 2,000 resamples, 95% percentile intervals. They describe variability across this simulator's cohort, not a population.
+- **Confidence intervals across patients**, not across seeds or runs: patient-level bootstrap stratified by age group, 2,000 resamples, 95% percentile intervals. They describe variability across this simulator's cohort, not a population. As implemented since A18 (audit fix 4): the primary 95% interval is the estimate ± t·SE of the bootstrap draws (t with patients minus strata degrees of freedom, on the log scale for positive ratios), because percentile intervals over 3 × 10 patients under-cover; the percentile interval and the share of non-finite draws are reported beside it (`*_lo_pct`, `*_hi_pct`, `*_nonfinite`). A13's interpolated comparisons stay percentile. Four `robust_fold_seed*` arms repeat the analysis with other fold splits.
 - Repeated seeds change scenarios and faults; they do not add independent patients. Report the effective sample size.
+- **Causal share of compression false alarms (A18, audit fix 2):** the false alarms per day at a PISA level minus those at level 0 on the same patients, scenarios and other faults (`paired_increment.csv`), reported beside the attribution by overlap (`false_alarms_by_cause`), which also counts alarms that would have fired anyway.
 - Paired comparisons (with vs. without context) use the same patients, scenarios and faults.
 - Report results by age group and pooled; children dominate low counts.
 - Pre-registered decision rules apply only to H1–H3 (RESEARCH.md §3). Everything else is estimation, reported with CIs and no significance claims.
@@ -97,7 +98,7 @@ Choose each alarm's threshold on the **training** patients only: θ\* minimises 
 - `summary.csv` (aggregated with CIs)
 - `figures/` (PNG + SVG): severity curves, sensitivity–false-alarm curves, false alarms split by cause, example traces
 - `config.yaml`, `git_commit.txt`, `benchmark_version.txt`, `assumptions.md` (auto-collected `# ASSUMPTION:` lines)
-- `thresholds.csv` (per fold and mix: chosen threshold, training reference sensitivity, feasibility), `contrasts_h2.csv` and `contrast_h1.csv` (the pre-registered contrasts), `meta.json` (training fault level, the Lobo calibration and the Facchinetti fraction: the two ends of the realistic PISA range, A14)
+- `thresholds.csv` (per fold and mix: chosen threshold, training reference sensitivity, feasibility), `contrasts_h2.csv` and `contrast_h1.csv` (the pre-registered contrasts), `meta.json` (training fault level, the Lobo calibration and the Facchinetti fraction: the two ends of the realistic PISA range, A14), `paired_increment.csv` (the paired increment above) and `per_patient.csv` (every metric per patient, so others can redo the statistics; A18, audit fix 8)
 
 Fold fits and evaluations can run in parallel processes (`workers` in the config, `--workers` on the command line); results do not depend on it (a test compares serial and parallel runs).
 

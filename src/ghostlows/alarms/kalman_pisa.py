@@ -137,6 +137,24 @@ def fit_gains(y, dt, ins, carb) -> tuple[float, float]:
     return float(coef[1]), float(coef[0])
 
 
+def transition_matrix(rates: np.ndarray, d: np.ndarray) -> np.ndarray:
+    """Mode-switching probabilities over steps of `d` minutes, shape (modes, modes, runs).
+
+    Competing exits (A18, audit fix 11): mode i is left with probability 1 - exp(-r_i d), where
+    r_i is its total exit rate, and goes to j in proportion to rates[i, j]. Rows sum to 1 and every
+    entry is in [0, 1] for any gap; the earlier per-pair form gave negative self-transitions for
+    gaps of 85 min or more.
+    """
+    d = np.asarray(d, float)
+    total = rates.sum(axis=1)  # per-minute exit rate of each mode
+    leave = 1 - np.exp(-total[:, None] * d[None, :])  # (modes, runs)
+    share = np.divide(rates, total[:, None], out=np.zeros_like(rates), where=total[:, None] > 0)
+    trans = share[:, :, None] * leave[:, None, :]
+    idx = np.arange(rates.shape[0])
+    trans[idx, idx] = 1 - leave
+    return trans
+
+
 def modes(p: KalmanParams):
     """Pressure flag, rate-variance multiplier and per-minute switching rates of each mode:
     steady (0), manoeuvre (1, if enabled), pressure (last, if enabled). Pressure starts from
@@ -193,14 +211,11 @@ def imm_filter(y, dt, u, p: KalmanParams, per_run: dict | None = None):
     mu[0] = 1 - 1e-6 * (m_count - 1)
     h_gain = p.rate_tau_min * (1 - np.exp(-p.horizon_min / p.rate_tau_min))
     h_var = p.level_var * p.horizon_min + mode_rate * p.horizon_min**3 / 3
-    off = ~np.eye(m_count, dtype=bool)
-    diag = np.arange(m_count)
     for k in range(length):
         live = k > first
         d = np.where(live, dt[:, k], 0.0)
         # ---- mixing (Markov switching between modes)
-        trans = np.where(off[..., None], 1 - np.exp(-rates[..., None] * d), 0.0)
-        trans[diag, diag] = 1 - trans.sum(axis=1)
+        trans = transition_matrix(rates, d)
         cbar = np.einsum("in,ijn->jn", mu, trans)
         w = mu[:, None, :] * trans / np.maximum(cbar[None, :, :], 1e-300)
         x0 = np.einsum("ijn,ins->jns", w, x)

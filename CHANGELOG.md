@@ -1,5 +1,14 @@
 # Changelog
 
+## Unreleased
+
+Amendments A14–A18 (DECISIONS.md) and a full rerun; numbers in `results/` change.
+
+- **Compression model from the papers' full texts.** τ is Facchinetti's median 9.1 min, with a per-event τ arm; P is the gain and A the peak; the realistic frequency is a range from Facchinetti 2016 (about 13% of nights) to Lobo 2026, counted by Lobo's definition (A14, A15).
+- **Contribution record and literature checks** (A16, A17).
+- **Statistics.** Gap rule on real data (P10); t-based primary intervals with the percentile interval and non-finite shares beside them, and fold-seed arms (P13, audit fix 4); the paired causal increment of compression false alarms (fix 2); per-patient tables (fix 8); a correct Kalman transition matrix for long gaps (fix 11) (A18).
+- **Rerun on GitHub Actions.** `.github/workflows/results.yml` runs `make results` split into cohort shards and per-config jobs (`scripts/sim_shard.py`).
+
 ## v0.4.0 (2026-10-28)
 
 An audit, publication figures, shorter docs in two layers, more precise archive metadata and a release workflow. No number in `results/` changes, and the benchmark is still `ghostlows-bench v1`.

@@ -1,10 +1,10 @@
 # RQ1 at the two ends of the realistic PISA range (A14): Facchinetti 2016's night rate (about 13%
-# of nights) and the Lobo-calibrated level (D19). Same fit as the main analysis; reported as a
+# of nights) and the Lobo-calibrated level (D19), with no PISAs as the paired base (A18). Same fit as the main analysis; reported as a
 # range, never as one realistic value (default mix only; the alarms H1-H2 need).
 name: rq1_realistic_range
 simulation: experiments/configs/sim_full.yaml
 sweep: pisa
-levels: [facchinetti, realistic]
+levels: [0.0, facchinetti, realistic]
 severity: 0.5
 train_level: realistic
 mixes: [default]

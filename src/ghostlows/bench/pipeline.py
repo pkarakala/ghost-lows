@@ -25,7 +25,7 @@ from ..alarms import BaseAlarm, TrendAlarm, benchmark_alarms, stretch_alarms, vi
 from ..alarms.base import REFRACTORY_MIN
 from ..faults import FaultConfig, apply_faults
 from ..faults.calibrate import FACCHINETTI_FRACTION, realistic_fraction
-from .analysis import context_contrasts, h1_contrast, rq3_contrasts
+from .analysis import context_contrasts, h1_contrast, paired_increment, rq3_contrasts
 from .events import leak_auc, low_labels, true_events
 from .scoring import (
     CAUSES,
@@ -424,6 +424,8 @@ def run_benchmark(config: BenchConfig, out_dir: Path, extra_alarms=()) -> dict[s
     thresholds_df = pd.DataFrame(thresholds)
     extras = {
         "thresholds": thresholds_df,
+        "paired_increment": paired_increment(metrics_df, n_boot=config.n_boot),
+        "per_patient": per_patient(metrics_df),  # audit fix 8: counts per patient, for checking
         "contrasts_rq3": rq3_contrasts(metrics_df, thresholds_df, n_boot=config.n_boot),
         "contrasts_h2": context_contrasts(metrics_df, n_boot=config.n_boot, sesoi=config.sesoi),
         "contrast_h1": (
@@ -483,9 +485,13 @@ def summarise(metrics: pd.DataFrame, n_boot: int) -> pd.DataFrame:
         row["patients"] = g["patient_id"].nunique()
         num = np.column_stack([g[SUMMARY_RATES[n][0]].to_numpy(float) for n in names])
         den = np.column_stack([g[SUMMARY_RATES[n][1]].to_numpy(float) for n in names])
-        est, lo, hi = bootstrap_ratios(num, den, g["patient_id"].to_numpy(), n_boot=n_boot)
+        est, lo, hi, lo_p, hi_p, bad = bootstrap_ratios(
+            num, den, g["patient_id"].to_numpy(), n_boot=n_boot, detail=True
+        )
         for i, n in enumerate(names):
             row.update({n: est[i], f"{n}_lo": lo[i], f"{n}_hi": hi[i]})
+        for i, n in enumerate(names):  # A18: percentile interval and non-finite share beside it
+            row.update({f"{n}_lo_pct": lo_p[i], f"{n}_hi_pct": hi_p[i], f"{n}_nonfinite": bad[i]})
         rows.append(row)
     return pd.DataFrame(rows)
 
