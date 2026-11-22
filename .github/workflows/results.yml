@@ -118,19 +118,25 @@ jobs:
       - run: uv sync --locked
       - run: gh run download ${{ github.run_id }} -R ${{ github.repository }} -n cohort -D data/sim/
       - name: Run the config (as run_all.py does, figures included)
+        # a file, not a heredoc: spawned worker processes re-import the main module
         run: |
-          uv run python - <<'EOF'
+          cat > "$RUNNER_TEMP/run_one.py" <<'EOF'
           import os
+          import subprocess
+          import sys
           from pathlib import Path
-          import subprocess, sys
+
           from ghostlows.bench.pipeline import BenchConfig, run_benchmark
-          name = "${{ matrix.config }}"
-          config = BenchConfig.load(Path("experiments/configs") / f"{name}.yaml")
-          config.workers = max(1, (os.cpu_count() or 2) - 1)
-          out = Path("results") / name
-          run_benchmark(config, out)
-          subprocess.run([sys.executable, "experiments/make_figures.py", str(out)], check=True)
+
+          if __name__ == "__main__":
+              name = sys.argv[1]
+              config = BenchConfig.load(Path("experiments/configs") / f"{name}.yaml")
+              config.workers = max(1, (os.cpu_count() or 2) - 1)
+              out = Path("results") / name
+              run_benchmark(config, out)
+              subprocess.run([sys.executable, "experiments/make_figures.py", str(out)], check=True)
           EOF
+          uv run python "$RUNNER_TEMP/run_one.py" "${{ matrix.config }}"
       - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: bench-${{ matrix.config }}
