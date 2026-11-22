@@ -32,6 +32,7 @@ jobs:
     runs-on: ubuntu-latest
     outputs:
       cohort_run: ${{ steps.reuse.outputs.run }}
+      bench_run: ${{ steps.reuse.outputs.bench }}
     steps:
       # "[cohort-from:<run id>]" in the commit message reuses that run's cohort artifact
       # instead of simulating again; only valid when nothing under src/ghostlows/sim changed
@@ -40,11 +41,14 @@ jobs:
           MESSAGE: ${{ github.event.head_commit.message }}
         run: |
           echo "run=$(printf '%s' "$MESSAGE" | grep -oP '\[cohort-from:\K[0-9]+' || true)" >> "$GITHUB_OUTPUT"
+          # "[bench-from:<run id>]" reuses that run's cohort, config outputs and real-data track
+          # and runs only the last job; only valid when nothing but that job's steps changed
+          echo "bench=$(printf '%s' "$MESSAGE" | grep -oP '\[bench-from:\K[0-9]+' || true)" >> "$GITHUB_OUTPUT"
           echo "full rerun for ${{ github.sha }}"
 
   simulate:
     needs: gate
-    if: needs.gate.outputs.cohort_run == ''
+    if: needs.gate.outputs.cohort_run == '' && needs.gate.outputs.bench_run == ''
     runs-on: ubuntu-latest
     timeout-minutes: 340
     strategy:
@@ -68,7 +72,7 @@ jobs:
 
   cohort:
     needs: [gate, simulate]
-    if: always() && needs.gate.result == 'success' && (needs.simulate.result == 'success' || needs.simulate.result == 'skipped')
+    if: always() && needs.gate.result == 'success' && needs.gate.outputs.bench_run == '' && (needs.simulate.result == 'success' || needs.simulate.result == 'skipped')
     runs-on: ubuntu-latest
     env:
       GH_TOKEN: ${{ github.token }}
@@ -162,6 +166,7 @@ jobs:
 
   real:
     needs: gate
+    if: needs.gate.outputs.bench_run == ''
     runs-on: ubuntu-latest
     timeout-minutes: 340
     steps:
@@ -185,8 +190,11 @@ jobs:
           retention-days: 7
 
   finish:
-    needs: [benchmark, real]
-    if: always() && needs.benchmark.result == 'success' && needs.real.result == 'success'
+    needs: [gate, benchmark, real]
+    if: >-
+      always() && needs.gate.result == 'success' &&
+      ((needs.benchmark.result == 'success' && needs.real.result == 'success') ||
+       needs.gate.outputs.bench_run != '')
     runs-on: ubuntu-latest
     timeout-minutes: 350
     env:
@@ -203,10 +211,13 @@ jobs:
       - run: uv sync --locked
       - name: Fetch the cohort, every config's outputs and the real-data track
         run: |
-          gh run download ${{ github.run_id }} -R ${{ github.repository }} -n cohort -D data/sim/
-          gh run download ${{ github.run_id }} -R ${{ github.repository }} -n real -D results/
-          for a in $(gh api "repos/${{ github.repository }}/actions/runs/${{ github.run_id }}/artifacts?per_page=100" --jq '.artifacts[].name | select(startswith("bench-"))'); do
-            gh run download ${{ github.run_id }} -R ${{ github.repository }} -n "$a" -D "results/${a#bench-}/"
+          src="${{ needs.gate.outputs.bench_run || github.run_id }}"
+          gh run download "$src" -R ${{ github.repository }} -n cohort -D data/sim/
+          # results/tables is committed, so unpack into a fresh folder and copy over it
+          gh run download "$src" -R ${{ github.repository }} -n real -D "$RUNNER_TEMP/real"
+          cp -r "$RUNNER_TEMP/real/." results/
+          for a in $(gh api "repos/${{ github.repository }}/actions/runs/$src/artifacts?per_page=100" --jq '.artifacts[].name | select(startswith("bench-"))'); do
+            gh run download "$src" -R ${{ github.repository }} -n "$a" -D "results/${a#bench-}/"
           done
       # skips every config whose outputs exist, then pairs RQ3, writes age groups and warning
       # times, copies the tables, runs the curves (A11, A13), the paper figures and the README
