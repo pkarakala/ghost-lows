@@ -27,12 +27,12 @@ Cite the concept DOI [10.5281/zenodo.23573707](https://doi.org/10.5281/zenodo.23
 
 ## Read next
 
-Clinicians: [summary](docs/SUMMARY.md), [claims to check](docs/CLINICAL_REVIEW.md). Researchers: [results](results/README.md), [specifications](docs/reference/README.md), [changes](CHANGELOG.md). Contributors: [CONTRIBUTING.md](CONTRIBUTING.md). AI agents: [AGENTS.md](AGENTS.md). Provenance: [build records](docs/development/README.md).
+Clinicians: [summary](docs/SUMMARY.md), [clinical assumptions](docs/CLINICAL_REVIEW.md) (none reviewed by a clinician). Researchers: [results](results/README.md), [specifications](docs/reference/README.md), [changes](CHANGELOG.md). Contributors: [CONTRIBUTING.md](CONTRIBUTING.md). AI agents: [AGENTS.md](AGENTS.md). Provenance: [build records](docs/development/README.md).
 
 ## How this was made
 
-Independent project by UCSB students; not funded or endorsed by UCSB. Co-authors: Pranav Reddy and Cohen Ferrari. Research question, study direction, interpretation and review of results: Pranav Reddy and Cohen Ferrari (equal). Manuscript: Cohen Ferrari. Literature review and clinical-claim sign-offs: Cohen Ferrari. Software and documentation were developed with AI coding agents (Claude, Anthropic) under the authors' direction; design decisions and amendments are logged in docs/reference/DECISIONS.md, and all code was reviewed by Pranav Reddy. Clinical review: none yet.
+Independent project by UCSB undergraduate students; not funded or endorsed by UCSB. Co-authors: Pranav Reddy and Cohen Ferrari. Research question, study direction, interpretation and review of results: Pranav Reddy and Cohen Ferrari (equal). Manuscript: Cohen Ferrari. Literature review and clinical-claim sign-offs: Cohen Ferrari. Software and documentation were developed with AI coding agents (Claude, Anthropic) under the authors' direction; design decisions and amendments are logged in docs/reference/DECISIONS.md, and all code was reviewed by Pranav Reddy. Clinical review: none; clinical assumptions are literature-anchored, not clinically validated.
 
 ## License
 
-MIT ([LICENSE](LICENSE)). **Not a medical device. Not for treatment decisions.** If a reading looks wrong, confirm with a fingerstick and follow your care team's advice.
+MIT ([LICENSE](LICENSE)). Simulation research by undergraduate students. Not medical advice. **Not a medical device. Not for treatment decisions.** If a reading looks wrong, confirm with a fingerstick and follow your care team's advice.

@@ -1,12 +1,14 @@
 # Clinical claims to verify
 
-The clinical claims the code depends on, for anyone checking them against the literature and for clinicians. [How to review one](../CONTRIBUTING.md#review-a-clinical-claim).
+The clinical claims the code depends on, for anyone checking them against the literature, including clinicians. [How to review one](../CONTRIBUTING.md#review-a-clinical-claim).
 
-**Two sign-offs.** Each item has two, filled in by a maintainer:
-- **Literature checked (name, date):** the claim matches its cited sources. Filled in as `Literature checked: <name>, <YYYY-MM-DD>.`
-- **Clinician reviewed (name, role, date):** a clinician agrees with the claim. Filled in as `Clinician reviewed: <name>, <role>, <YYYY-MM-DD>.`
+**No clinician has reviewed any item, and no step waits for one** (amendment [A19](reference/DECISIONS.md#amendments)). This is simulation research by undergraduate students, not medical advice.
 
-A factual item is ticked once its literature check is in. Items marked **Needs a clinician** are clinical judgments a literature check cannot settle (CR9, CR12, CR16, CR17); they are ticked only when both sign-offs are in. A test rejects a ticked sign-off without its names and date, a filled-in one that is not ticked, and an item ticked without the sign-offs it needs.
+**Sign-offs.** Each item has two, filled in by a maintainer:
+- **Literature checked (name, date):** the claim matches its cited sources. Filled in as `Literature checked: <name>, <YYYY-MM-DD>.` Required.
+- **Clinician reviewed (name, role, date):** a clinician agrees with the claim. Filled in as `Clinician reviewed: <name>, <role>, <YYYY-MM-DD>.` Optional: future validation, not a requirement.
+
+Items marked **Judgment** (CR9, CR12, CR16, CR17) are clinical judgments a literature check cannot settle. Each is a **literature-anchored assumption, not clinically validated**: it states its anchor (the published sources it rests on) and its sensitivity (the range tested, or why none). Every item, judgment or fact, is ticked once its literature check is in. A test rejects a ticked sign-off without its names and date, a filled-in one that is not ticked, an item ticked without its literature check, and a judgment without its anchor and sensitivity.
 
 - [ ] **CR1. Mechanism.** Reduced local blood flow from compression causes PISAs. [Mensh 2013] says "presumably"; is there direct physiological evidence? [Helton 2011]
   - [ ] Literature checked (name, date)
@@ -38,7 +40,7 @@ A factual item is ticked once its literature check is in. Items marked **Needs a
   - [x] Literature checked: Cohen Ferrari, 2026-11-21.
   - [ ] Clinician reviewed (name, role, date)
 - [ ] **CR9. Cost asymmetry.** How many extra false alarms per night is one missed level 2 low worth? Sets the operating point ([BENCHMARK.md](reference/BENCHMARK.md) §5).
-  - **Needs a clinician:** a clinical judgment, not a fact a literature check can confirm.
+  - **Judgment: literature-anchored assumption, not clinically validated.** Anchor: level 2 (<54 mg/dL) marks serious, clinically important hypoglycaemia [IHSG 2017]; false alarms cause alarm fatigue [Shivers 2013]. No published source gives an exchange rate between missed level 2 lows and false alarms. Default: no loss of level 2 sensitivity against the trend alarm (δ = 0). Sensitivity: δ = 0.05 (pre-registered) and the curves at 95% and 99% retention (A11); the reader picks the trade-off.
   - [ ] Literature checked (name, date)
   - [ ] Clinician reviewed (name, role, date)
 - [ ] **CR10. Context signals.** Which are plausible (IOB, COB, exercise), and the fastest plausible real overnight fall rate.
@@ -47,8 +49,8 @@ A factual item is ticked once its literature check is in. Items marked **Needs a
 - [ ] **CR11. Other causes of false lows** (dehydration, first-day sensor error, poor perfusion, salicylic acid on Libre). Find primary sources or drop them.
   - [ ] Literature checked (name, date)
   - [ ] Clinician reviewed (name, role, date)
-- [ ] **CR12. Safety wording and flag rule** for the upload tool ([PRIVACY_AND_SAFETY.md](PRIVACY_AND_SAFETY.md)): flags need both methods and a night-time start; is that conservative enough, and is the wording right? On simulated data the rule flags 36% of injected PISAs, raises a median of 3.5 other flags per 14 days, and in 37% of runs a flag overlaps a real low ([PRIVACY_AND_SAFETY.md, as implemented](reference/UPLOAD_REPORT.md#as-implemented); `results/tables/flag_survey.json`). Since amendment [A12](reference/DECISIONS.md#amendments) the report no longer shows time below range without flagged readings: flags are annotations and a count, with that performance stated next to them. The [A12](reference/DECISIONS.md#amendments) version has been live since 2026-10-19. **A clinician's sign-off is still open** for the flag rule, the annotation wording and the plain-words performance text.
-  - **Needs a clinician:** a clinical judgment, not a fact a literature check can confirm.
+- [ ] **CR12. Safety wording and flag rule** for the upload tool ([PRIVACY_AND_SAFETY.md](PRIVACY_AND_SAFETY.md)): flags need both methods and a night-time start; is that conservative enough, and is the wording right? On simulated data the rule flags 36% of injected PISAs, raises a median of 3.5 other flags per 14 days, and in 37% of runs a flag overlaps a real low ([PRIVACY_AND_SAFETY.md, as implemented](reference/UPLOAD_REPORT.md#as-implemented); `results/tables/flag_survey.json`). Since amendment [A12](reference/DECISIONS.md#amendments) the report no longer shows time below range without flagged readings: flags are annotations and a count, with that performance stated next to them. The [A12](reference/DECISIONS.md#amendments) version has been live since 2026-10-19. A clinician's sign-off on the flag rule, the annotation wording and the plain-words performance text would be optional validation (A19).
+  - **Judgment: literature-anchored assumption, not clinically validated.** Anchor: none; no consensus source on labelling suspected artifacts in a retrospective report was found. Safety rests on design: flags only annotate and never lower a number (A12), and every page with flags tells the user to check with a fingerstick and follow their care plan. Sensitivity: the flag rule's performance on simulated data is stated beside the flags. The report is a research demonstration; use with real patients would need clinical and usability review, which this project does not claim.
   - [ ] Literature checked (name, date)
   - [ ] Clinician reviewed (name, role, date)
 - [ ] **CR13. Simulation assumptions** in [SIMULATION.md](reference/SIMULATION.md) §3 (exercise effect size and duration, sensitivity range, meal error rates).
@@ -62,10 +64,10 @@ A factual item is ticked once its literature check is in. Items marked **Needs a
   - [ ] Literature checked (name, date)
   - [ ] Clinician reviewed (name, role, date)
 - [ ] **CR16. Smallest effect size of interest.** [H2](reference/RESEARCH.md#3-hypotheses-fixed-before-running-the-full-benchmark-frozen-by-the-git-tag-protocol-v1) calls a context effect meaningful if compression false alarms fall by at least 25% (rate ratio ≤0.75) at matched sensitivity ([RESEARCH.md](reference/RESEARCH.md) §3). Is 25% the right bar for patients and caregivers?
-  - **Needs a clinician:** a clinical judgment, not a fact a literature check can confirm.
+  - **Judgment: literature-anchored assumption, not clinically validated.** Anchor: none; no published minimal important reduction in CGM false alarms was found. Default: 25% (frozen). Sensitivity (post hoc, A19, `results/tables/sesoi_sensitivity.csv`): on the default mix the null holds at every PISA level for any SESOI of 20% or more. At 15%, `trend` is inconclusive at 2 of 5 levels; at 10%, `trend` (rate ratio about 0.89) is a meaningful reduction at 4 of 5 levels. The H2 null therefore holds only for a bar of about 20% or more.
   - [ ] Literature checked (name, date)
   - [ ] Clinician reviewed (name, role, date)
 - [ ] **CR17. How virtual patients treat lows (amendment [A6](reference/DECISIONS.md#amendments)).** The virtual person eats 15 g of fast carbohydrate when the displayed CGM is below 70 mg/dL by day, or at or below 55 mg/dL at night (23:00–07:00, when only the urgent-low alarm is assumed to wake them), rechecks after 15 min, repeats while below 70, and never logs the rescue carbs [CDC 2024; Garg 2022]. Is this a fair picture of open-loop CGM users, by day and at night?
-  - **Needs a clinician:** a clinical judgment, not a fact a literature check can confirm.
+  - **Judgment: literature-anchored assumption, not clinically validated.** Anchor: the 15-15 rule [CDC 2024]; the urgent-low alarm is fixed at 55 mg/dL [Garg 2022; Dexcom 2026]. No source found on how often users wake to a low alarm. Default: as above. Sensitivity: none run; a different night trigger is proposal P5 and needs a rerun. Real people treat less regularly (RESEARCH.md §6).
   - [ ] Literature checked (name, date)
   - [ ] Clinician reviewed (name, role, date)

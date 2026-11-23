@@ -1,6 +1,6 @@
 # Research plan
 
-The research questions, hypotheses, novelty claim and limitations; for researchers and reviewers judging the claims. Citations in [brackets] resolve to entries in [`CITATIONS.md`](../CITATIONS.md). Items marked **[clinical review]** are listed in [`CLINICAL_REVIEW.md`](../CLINICAL_REVIEW.md). Design decisions D1–D19, amendments A1–A13 and proposed amendments P4–P9 (P1–P3 adopted as A10–A12), with their evidence, are in [`DECISIONS.md`](DECISIONS.md).
+The research questions, hypotheses, novelty claim and limitations; for researchers and reviewers judging the claims. Citations in [brackets] resolve to entries in [`CITATIONS.md`](../CITATIONS.md). Items marked **[clinical review]** are listed in [`CLINICAL_REVIEW.md`](../CLINICAL_REVIEW.md); none has been reviewed by a clinician, and none waits for one (A19). Design decisions D1–D19, amendments A1–A13 and proposed amendments P4–P9 (P1–P3 adopted as A10–A12), with their evidence, are in [`DECISIONS.md`](DECISIONS.md).
 
 ## 1. Definitions
 
@@ -78,6 +78,7 @@ Compression-low detection itself is established (above), and detecting it from C
 
 ## 6. Known limitations to state up front
 
+- **No clinician reviewed the clinical assumptions.** The operating point (CR9), the SESOI (CR16), the treatment rule (CR17) and the upload report's wording (CR12) are literature-anchored assumptions, not clinically validated (A19). The H2 null depends on the SESOI: post hoc, it holds on the default mix for any SESOI of 20% or more; at 10%, `trend` is a meaningful reduction at 4 of 5 PISA levels (`results/tables/sesoi_sensitivity.csv`).
 - **Simulated hypoglycaemia is the weakest part of the simulator.** simglucose implements the 2008 UVA/Padova model [simglucose; Kovatchev 2009]. It lacks the 2013 model's nonlinear rise of insulin action in hypoglycaemia and its glucagon counter-regulation [Dalla Man 2014]. Those equations are published, but the parameter values needed to add them are not. Hence the real-data validation in §7 (D16).
 - Virtual patients treat lows with a fixed rule (15 g when the fault-free CGM is below 70 mg/dL by day or at or below 55 at night, never logged; amendment A6). Real people treat less regularly. Without any treatment the 2008 model gives impossible hypoglycaemia, so the rule is needed, but it shapes how long and how deep simulated lows are **[clinical review CR17]**. Its night trigger (≤55 mg/dL) is the urgent-low floor and the trend alarm's target, and its day trigger (<70) is the threshold alarm's, so true lows tend to end where the alarms fire; a decoupled arm is proposed (P5).
 - The three scenario mixes span a narrow range of how much recorded insulin explains nocturnal lows: leak AUC 0.69, 0.65 and 0.63 (SIMULATION_NOTES.md). The secondary H2 comparison and H3 therefore compare modestly different worlds, and AZT1D's real 0.59 lies outside the simulated range.

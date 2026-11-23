@@ -13,7 +13,7 @@ The project rules for any AI agent, whatever the tool; `CLAUDE.md`, `GEMINI.md` 
 - `examples/`: the library [quickstart](examples/quickstart.py) and a [plug-in alarm](examples/custom_alarm.py).
 - [data/](data/README.md): downloaded datasets and the cached cohort, gitignored.
 - [docs/SUMMARY.md](docs/SUMMARY.md): one-page results for clinicians.
-- [docs/CLINICAL_REVIEW.md](docs/CLINICAL_REVIEW.md): clinical claims awaiting sign-off.
+- [docs/CLINICAL_REVIEW.md](docs/CLINICAL_REVIEW.md): clinical claims and their literature sign-offs.
 - [docs/PRIVACY_AND_SAFETY.md](docs/PRIVACY_AND_SAFETY.md): upload-report rules.
 - [docs/CITATIONS.md](docs/CITATIONS.md): every source key.
 - [RESEARCH.md](docs/reference/RESEARCH.md): questions, hypotheses, limitations.
@@ -61,6 +61,7 @@ Other files cite these numbers. [Full text](docs/reference/ENGINEERING.md#hard-r
 - Cohen Ferrari is co-lead on the research question, direction, interpretation and results review, writes the manuscript, and does the literature sign-offs; he is not a clinician, so never describe his work as clinical review.
 - The AI usage disclosure is one text, in `README.md`, `paper.md` and `docs/development/README.md`. Change all three or none. Never claim that text is human-written.
 - Commits and pull requests carry no AI attribution: no `Co-Authored-By` trailer, no "generated with" footer, no session link. The disclosure covers AI use.
+- Undergraduate simulation research, not medical advice. No step waits for a clinician: a clinical judgment is a literature-anchored assumption, not clinically validated, with a sensitivity range (A19). Never write "clinically validated", or "clinically meaningful" as our own judgment.
 - Short, plain sentences. Cite literature claims; give effect sizes with CIs (rule 10).
 
 ## Commands

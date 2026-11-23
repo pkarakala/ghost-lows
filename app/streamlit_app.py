@@ -20,7 +20,10 @@ from ghostlows import io as gio
 from ghostlows import metrics, retro
 
 # CLINICAL-REVIEW: CR12 (safety wording and the flag rule)
-DISCLAIMER = "Research software, not a medical device. Not for treatment decisions."
+DISCLAIMER = (
+    "Research software, not a medical device. Not for treatment decisions. "
+    "A research demonstration by undergraduate students; not medical advice."
+)
 FINGERSTICK = (
     "If you are unsure whether a low is real, check with a fingerstick and treat according to "
     "your care plan."

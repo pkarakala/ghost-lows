@@ -7,7 +7,7 @@ about: A clinical claim, threshold or wording is wrong or needs review
 
 **Current claim**
 
-**Review type:** literature check / clinician (your role)
+**Review type:** literature check / clinician (your role; optional, A19)
 
 **Your verdict:** agree / disagree / unsure
 

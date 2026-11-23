@@ -33,6 +33,11 @@ SAFETY = [
 INTENDED = [
     (
         "CR item - [ ] CR12.",
+        "A clinician's sign-off is still open",
+        "A19: no step waits for a clinician; the clinician's sign-off is optional",
+    ),
+    (
+        "CR item - [ ] CR12.",
         "Sign-off by Cohen Ferrari is still open",
         "0075ea4: Cohen Ferrari is a literature fact-checker, not a clinician",
     ),
