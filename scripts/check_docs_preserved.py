@@ -54,6 +54,7 @@ INTENDED = [
     ("CR item - [ ] CR14.", "- [ ] CR14.", "A17: CR14 literature check in"),
     ("CR item - [ ] CR1.", "- [ ] CR1.", "A19: CR1 literature check in"),
     ("CR item - [ ] CR4.", "- [ ] CR4.", "A19: CR4 literature check in"),
+    ("CR item - [ ] CR5.", "- [ ] CR5.", "A19: CR5 literature check in"),
     (
         'limitation The "realistic" training fault level',
         'The "realistic" training fault level',
