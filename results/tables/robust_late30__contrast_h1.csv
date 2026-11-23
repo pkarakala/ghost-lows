@@ -1,2 +1,2 @@
-mix,contrast,median_slope_diff,lo,hi,supported
-default,trend - threshold,0.08571428571428541,0.057142857142857495,0.11428571428571455,True
+mix,contrast,median_slope_diff,lo,hi,supported,lo_pct,hi_pct,supported_pct,nonfinite_share
+default,trend - threshold,0.08571428571428565,0.06265096266165458,0.11726777152950074,True,0.05714285714285794,0.11428571428571466,True,0.0

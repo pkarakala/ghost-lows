@@ -118,6 +118,28 @@ def cause_share(s: pd.DataFrame, top: float, alarm: str = "trend") -> list[str]:
         f"of `{alarm}`'s {ci(r, 'false_per_day')} false alarms per day ({share:.0%}); noise with no fault or low nearby "
         f"({r['false_noise_per_day']:.2f}) and the other faults ({r['false_other_fault_per_day']:.2f}) cause more. "
         "In this simulator, compression is a minor share of false low alarms.",
+        *increment_note(top, alarm),
+    ]
+
+
+def increment_note(level: float, alarm: str = "trend", config: str = MAIN) -> list[str]:
+    """The paired causal increment beside the D10 attributed count (A18, audit fix 2)."""
+    inc = table(TABLES / f"{config}__paired_increment.csv")
+    if inc is None or inc.empty:
+        return []
+    r = inc[
+        (inc["alarm_name"] == alarm) & (inc["mix"] == "default") & np.isclose(inc["level"], level)
+    ]
+    if r.empty:
+        return []
+    r = r.iloc[0]
+    per_pisa = r["increment_per_day"] / level if level else np.nan
+    return [
+        "",
+        f"The count above uses D10's cause attribution, which credits compression with any false alarm a PISA was active for, including ones the noise would have raised anyway. "
+        f"The paired difference against the same runs with no PISAs is the causal increment: {fmt_ci(r['increment_per_day'], r['lo'], r['hi'])} false alarms per day "
+        f"({r['share_of_false_alarms']:.0%} of {r['false_per_day']:.2f}; percentile interval {r['lo_pct']:.2f}–{r['hi_pct']:.2f}; `{config}__paired_increment.csv`), "
+        f"about {per_pisa:.2f} extra false alarms per PISA (A18).",
     ]
 
 
@@ -606,8 +628,14 @@ ROBUST_ALARMS = (
 ARM_MEANING = {
     "robust_delta05": "D5 allows a 5-point loss of level 2 sensitivity",
     "robust_lag6": "CGM rebuilt from plasma with a 6-min lag",
-    "robust_tau5": "test PISAs with a 5-min time constant (filter and gates assume 10)",
-    "robust_tau20": "test PISAs with a 20-min time constant",
+    "robust_tau5": "test PISAs with a 5-min time constant (filter and gates assume 9.1)",
+    "robust_tau20": "test PISAs with a 20-min time constant (durations redrawn, so also longer PISAs: P12)",
+    "robust_tau_per_event": "test PISAs with P, D and tau drawn per event from Facchinetti 2016's fitted distributions and correlations (A14)",
+    "robust_train_facchinetti": "alarms fitted and thresholded at Facchinetti 2016's night rate, the lower end of the realistic range (A14)",
+    **{
+        f"robust_fold_seed{k}": f"patients dealt to folds with seed {k} (main analysis: 0), repeated cross-validation (A18)"
+        for k in (1, 2, 3, 4)
+    },
     "robust_early20": "alarms up to 20 min (not 30) before onset count as on time",
     "robust_early45": "alarms up to 45 min before onset count as on time",
     "robust_late30": "alarms up to 30 min (not 15) after onset still catch the low",
@@ -654,6 +682,94 @@ def section_robustness() -> list[str]:
         *rows,
         "",
     ]
+
+
+def section_realistic_range(meta: dict) -> list[str]:
+    """RQ1 at both ends of the realistic PISA range (A14), as a range, never one value."""
+    lines = ["### RQ1 across the realistic range of compression frequency (default mix; A14)", ""]
+    s = table(TABLES / "rq1_realistic_range__summary.csv")
+    if s is None:
+        return lines + ["Not run yet.", ""]
+    s = s[(s["mix"] == "default") & (s["level"] > 0)]
+    lo, hi = sorted(s["level"].unique())[0], sorted(s["level"].unique())[-1]
+    rows = []
+    for alarm in ROBUST_ALARMS:
+        g = s[s["alarm_name"] == alarm].set_index("level")
+        if lo not in g.index or hi not in g.index:
+            continue
+        a, b = g.loc[lo], g.loc[hi]
+        rows.append(
+            f"| `{alarm}` | {ci(a, 'false_compression_per_day')} | {ci(b, 'false_compression_per_day')} | {ci(a, 'false_per_day')} | {ci(b, 'false_per_day')} | {ci(a, 'sens_l2', pct=True)} | {ci(b, 'sens_l2', pct=True)} |"
+        )
+    inc = table(TABLES / "rq1_realistic_range__paired_increment.csv")
+    inc_rows = []
+    if inc is not None and not inc.empty:
+        d = inc[inc["mix"] == "default"]
+        for alarm in ROBUST_ALARMS:
+            g = d[d["alarm_name"] == alarm].set_index("level")
+            if lo in g.index and hi in g.index:
+                a, b = g.loc[lo], g.loc[hi]
+                inc_rows.append(
+                    f"| `{alarm}` | {fmt_ci(a['increment_per_day'], a['lo'], a['hi'])} | {fmt_ci(b['increment_per_day'], b['lo'], b['hi'])} |"
+                )
+    inc_lines = (
+        [
+            "Causal increment (paired against the same runs with no PISAs; A18): false alarms per day that compression adds.",
+            "",
+            f"| Alarm | Added false alarms/day, {lo:.0%} | … {hi:.0%} |",
+            "|---|---|---|",
+            *inc_rows,
+            "",
+        ]
+        if inc_rows
+        else []
+    )
+    return lines + [
+        *lobo_calibration_note(meta),
+        f"Two published anchors for how often compression happens disagree, so results at a realistic frequency are a range. Lower end: Facchinetti 2016's night rate of all visually identified artifacts (0.0014 per sample, 00:00–07:59; PISA on {lo:.0%} of nights). Upper end: Lobo 2026's rate of PISAs of interest (reaching below 85 mg/dL, Lobo's definition), reproduced on this cohort (PISA on {hi:.0%} of nights; the D19 training level). Alarms are fitted once at the upper end, as in the main analysis; `robust_train_facchinetti` fits them at the lower end.",
+        "",
+        f"| Alarm | Compression false alarms/day, {lo:.0%} | … {hi:.0%} | False alarms/day, {lo:.0%} | … {hi:.0%} | Level 2 caught, {lo:.0%} | … {hi:.0%} |",
+        "|---|---|---|---|---|---|---|",
+        *rows,
+        "",
+        *inc_lines,
+    ]
+
+
+def lobo_calibration_note(meta: dict) -> list[str]:
+    """How the Lobo-calibrated level was reached (A15) and the starting-glucose face validity."""
+    r = meta.get("realistic_pisa") or {}
+    share, every, hit = (
+        r.get("share_passing") or {},
+        r.get("start_glucose_all") or {},
+        r.get("start_glucose_of_interest") or {},
+    )
+    if not share or not every:
+        return []
+    lobo = r.get("start_glucose_lobo") or {"mean": 104.9, "sd": 27.7}
+    text = (
+        f"Calibration to Lobo 2026 (A15), with a PISA every night ({r.get('pisas_at_full', 0)} injected PISAs, default mix): "
+        f"{share.get('below', float('nan')):.0%} reach an observed CGM below 85 mg/dL, "
+        f"{share.get('drop', float('nan')):.0%} drop at least 20 mg/dL, "
+        f"{share.get('start_ok', float('nan')):.0%} start at 70 mg/dL or above, "
+        f"{share.get('rise', float('nan')):.0%} have a matching rise, "
+        f"and {share.get('of_interest', float('nan')):.0%} pass every test of Lobo's PISA of interest. "
+        f"Rate with a PISA every night: {r.get('rate_at_full', float('nan')) * 24:.3f} per day counted as Lobo counts "
+        f"({r.get('rate_at_full_below85_only', float('nan')) * 24:.3f} counting only < 85 mg/dL, as v0.4.0 did) vs. Lobo's "
+        f"{r.get('target_per_hour', float('nan')) * 24:.3f} per sensor-day; reachable: {r.get('reachable')}."
+    )
+    face = (
+        f"Face validity of starting glucose: simulated PISAs start at mean {every['mean']:.1f} mg/dL (SD {every['sd']:.1f}; "
+        f"5th–95th percentile {every['p5']:.0f}–{every['p95']:.0f})"
+        + (
+            f", and those that qualify as PISAs of interest at {hit['mean']:.1f} (SD {hit['sd']:.1f})"
+            if hit
+            else ""
+        )
+        + f", against {lobo['mean']} (SD {lobo['sd']}) for Lobo's PISAs of interest on Dexcom G7. "
+        "The higher simulated PISAs start, the fewer reach below 85 mg/dL, and the more compressed nights the Lobo-calibrated level needs."
+    )
+    return [text, "", face, ""]
 
 
 def comparator(b: str) -> tuple[str, str]:
@@ -1212,7 +1328,7 @@ def build() -> str:
         lines += [
             f"Training fault level (D19): PISA on {meta.get('train_level', float('nan')):.0%} of nights"
             + (
-                f" (realistic default from Lobo 2026's rate; reachable: {realistic.get('reachable')}; "
+                f" (the upper end of the realistic range, from Lobo 2026's rate; the lower end, Facchinetti 2016's night rate, is {meta.get('facchinetti_fraction', float('nan')):.0%} of nights; Lobo level reachable: {realistic.get('reachable')}; "
                 f"rate with a PISA every night {realistic.get('rate_at_full', float('nan')) * 24:.3f} per day vs. target "
                 f"{realistic.get('target_per_hour', float('nan')) * 24:.3f})."
                 if realistic
@@ -1224,6 +1340,7 @@ def build() -> str:
             "",
             *section_rq1(summary),
             "",
+            *section_realistic_range(meta),
             *section_h1(table(TABLES / f"{MAIN}__contrast_h1.csv")),
             *section_all_faults(),
             *section_h2(table(TABLES / f"{MAIN}__contrasts_h2.csv"), meta.get("train_level")),

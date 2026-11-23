@@ -1,11 +1,11 @@
 """Sensor-fault suite: PISA, dropout, stale, drift, spikes (docs/reference/SIMULATION.md §4)."""
 
 from .calibrate import realistic_fraction
-from .pisa import DEPTH, DURATION, Pisa, from_size, sample_sizes
+from .pisa import DURATION, PEAK, Pisa, from_size, sample_parameters, sample_sizes
 from .suite import FaultConfig, apply_faults, inject_real, stable_onsets
 
 __all__ = [
-    "DEPTH",
+    "PEAK",
     "DURATION",
     "FaultConfig",
     "Pisa",
@@ -13,6 +13,7 @@ __all__ = [
     "from_size",
     "inject_real",
     "realistic_fraction",
+    "sample_parameters",
     "sample_sizes",
     "stable_onsets",
 ]

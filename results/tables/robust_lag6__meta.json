@@ -1,18 +1,50 @@
 {
   "realistic_pisa": {
     "target_per_hour": 0.013375654186261292,
-    "rate_at_full": 0.015396825396825397,
-    "fraction": 0.868728055396352,
-    "reachable": true
+    "rate_at_full": 0.008154761904761904,
+    "rate_at_full_below85_only": 0.015654761904761904,
+    "fraction": 1.0,
+    "reachable": false,
+    "pisas_at_full": 1950,
+    "share_passing": {
+      "below": 0.4046153846153846,
+      "drop": 0.6338461538461538,
+      "rise": 0.6056410256410256,
+      "start_ok": 0.9441025641025641,
+      "length": 1.0,
+      "of_interest": 0.21076923076923076
+    },
+    "start_glucose_all": {
+      "n": 1950,
+      "mean": 127.6807756956947,
+      "sd": 47.93642447209345,
+      "p5": 68.3067342494557,
+      "median": 120.79825229745387,
+      "p95": 215.1011288261588
+    },
+    "start_glucose_of_interest": {
+      "n": 411,
+      "mean": 102.61703316056715,
+      "sd": 16.880853294199497,
+      "p5": 77.64298997092621,
+      "median": 100.78470238308776,
+      "p95": 133.1161640728105
+    },
+    "start_glucose_lobo": {
+      "mean": 104.9,
+      "sd": 27.7
+    }
   },
-  "train_level": 0.868728055396352,
+  "facchinetti_fraction": 0.12584202296181668,
+  "train_level": 1.0,
   "leak_auc": {
     "default": {
       "iob": 0.6539994610048744,
       "cob": 0.5825628176686247
     }
   },
-  "seconds": 394.7,
+  "seconds": 1046.8,
   "patients": 30,
-  "runs": 150
+  "runs": 150,
+  "git_dirty": false
 }

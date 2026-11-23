@@ -2,50 +2,54 @@
 
 - `src/ghostlows/alarms/base.py:19` `REFRACTORY_MIN = 30.0`: BENCHMARK.md §1
 - `src/ghostlows/alarms/base.py:20` `FLICKER_MIN = 15.0`: BENCHMARK.md §1
-- `src/ghostlows/alarms/detectors.py:29` `_MEDIAN = pisa_model.from_size(0.0, pisa_model.DEPTH.median, pisa_model.DURATION`: template = drop phase of the median Facchinetti PISA at 5-min sampling, compared with first differences over the same span; Idi 2023 is retrospective (D7).
+- `src/ghostlows/alarms/detectors.py:29` `_MEDIAN = pisa_model.from_size(0.0, pisa_model.PEAK.median, pisa_model.DURATION.`: template = drop phase of the median Facchinetti PISA at 5-min sampling, compared with first differences over the same span; Idi 2023 is retrospective (D7).
 - `src/ghostlows/alarms/detectors.py:67` `y = np.asarray(cgm, float)`: which five features, and their windows (Idi 2024's own set is retrospective)
 - `src/ghostlows/alarms/kalman_pisa.py:52` `TUNE_GRID = {`: grid for the noise settings (BENCHMARK.md §2); a sensor error variance of 0 is the white-noise model, so the grid nests it
 - `src/ghostlows/alarms/kalman_pisa.py:60` `TUNE_RUNS = 16`: training runs used to choose the noise settings (evenly chosen)
 - `src/ghostlows/alarms/kalman_pisa.py:72` `level_var: float = 0.1  # (mg/dL)^2 per min`: small level noise, so that real changes go through the rate state
 - `src/ghostlows/alarms/kalman_pisa.py:74` `rate_tau_min: float = 240.0`: the unexplained rate decays slowly (240-min time constant)
-- `src/ghostlows/alarms/kalman_pisa.py:76` `artifact_tau_min: float = pisa_model.TAU_MIN`: the generator's time constant and the amplitude of its median PISA, with the spread of amplitudes between the 5th and 95th percentile depths (faults/pisa.py)
-- `src/ghostlows/alarms/kalman_pisa.py:81` `amp_var: float = 0.0  # (mg/dL)^2 per min`: the amplitude is constant while pressure lasts (the model's rectangular input); the artifact may deviate a little from the first-order shape (tolerates shape mismatch)
+- `src/ghostlows/alarms/kalman_pisa.py:76` `artifact_tau_min: float = pisa_model.TAU_MIN`: the generator's time constant and the gain P of its median PISA, with the spread of gains between the 5th and 95th percentile peak deviations A (faults/pisa.py)
+- `src/ghostlows/alarms/kalman_pisa.py:81` `gain_var: float = 0.0  # (mg/dL)^2 per min`: the gain is constant while pressure lasts (the model's rectangular input); the artifact may deviate a little from the first-order shape (tolerates shape mismatch)
 - `src/ghostlows/alarms/kalman_pisa.py:88` `release_per_min: float = 1.0 / _MEDIAN.pressure_min`: mean pressure time = that of the median PISA under the realised-size mapping
 - `src/ghostlows/alarms/kalman_pisa.py:90` `manoeuvre_factor: float = 30.0`: in the manoeuvre mode the rate variance is 30 times the steady one; the mode is entered about every 2 h and left after about 20 min. 0 disables the mode.
-- `src/ghostlows/alarms/kalman_pisa.py:186` `cov[:, :, G, G] = obs_var + 100.0`: initial uncertainty of glucose, rate and artifact at a run's first reading
-- `src/ghostlows/alarms/kalman_pisa.py:296` `default_threshold = 0.5`: untuned default; the benchmark tunes it (D5)
+- `src/ghostlows/alarms/kalman_pisa.py:207` `cov[:, :, G, G] = obs_var + 100.0`: initial uncertainty of glucose, rate and artifact at a run's first reading
+- `src/ghostlows/alarms/kalman_pisa.py:314` `default_threshold = 0.5`: untuned default; the benchmark tunes it (D5)
 - `src/ghostlows/alarms/learned.py:164` `default_threshold = 0.5`: untuned default (suppress when gate > 0.5); the benchmark tunes it (D5)
 - `src/ghostlows/alarms/learned.py:222` `LogisticRegression(C=1.0, max_iter=2000),`: default L2 strength
 - `src/ghostlows/alarms/learned.py:237` `cgm = run["cgm"].to_numpy(float)`: the exact feature set and windows (the paper's are not reproduced)
 - `src/ghostlows/alarms/learned.py:283` `self.model = HistGradientBoostingClassifier(random_state=self.seed).fit(x, y)`: library defaults with a fixed seed; no tuning on test patients
 - `src/ghostlows/alarms/rules.py:15` `TREND_WINDOW_MIN = 15.0`: the stand-in fits a line to the last 15 min (4 readings at 5 min); the device's prediction model is not public (RESEARCH.md §6)
 - `src/ghostlows/bench/analysis.py:19` `SESOI_RATE_RATIO = 0.75`: smallest effect size of interest for H2
-- `src/ghostlows/bench/curves.py:45` `RETENTIONS = tuple(round(r, 2) for r in np.arange(0.50, 1.0 + 1e-9, 0.01))`: retention grid of amendment A11 (training sensitivity as a fraction of the trend alarm's, 0.50 to 1.00 in steps of 0.01)
-- `src/ghostlows/bench/curves.py:344` `FINE_RETENTIONS = tuple(round(r, 4) for r in np.arange(0.50, 1.0 + 1e-9, 0.0025)`: amendment A13's finer retention grid for `trend` and the gates (0.0025 steps)
+- `src/ghostlows/bench/curves.py:46` `RETENTIONS = tuple(round(r, 2) for r in np.arange(0.50, 1.0 + 1e-9, 0.01))`: retention grid of amendment A11 (training sensitivity as a fraction of the trend alarm's, 0.50 to 1.00 in steps of 0.01)
+- `src/ghostlows/bench/curves.py:365` `FINE_RETENTIONS = tuple(round(r, 4) for r in np.arange(0.50, 1.0 + 1e-9, 0.0025)`: amendment A13's finer retention grid for `trend` and the gates (0.0025 steps)
 - `src/ghostlows/bench/events.py:12` `NIGHT_HOURS = (23, 7)`: same window as PISA onsets (SIMULATION.md §4.1)
-- `src/ghostlows/bench/events.py:104` `LABEL_HORIZON_MIN = 30.0`: training target horizon, 30 min like the default early matching window (D12). The window robustness arms keep it at 30 (proposed amendment P4 in DECISIONS.md)
+- `src/ghostlows/bench/events.py:189` `LABEL_HORIZON_MIN = 30.0`: training target horizon, 30 min like the default early matching window (D12). The window robustness arms keep it at 30 (proposed amendment P4 in DECISIONS.md)
 - `src/ghostlows/bench/pipeline.py:50` `N_CANDIDATES = 30`: candidate thresholds per learned alarm (training quantiles)
 - `src/ghostlows/bench/scoring.py:18` `@dataclass(frozen=True)`: matching and attribution windows (D10, D12); early/late are swept in robustness arms
 - `src/ghostlows/bench/scoring.py:29` `fda_reference_every: float = 15.0`: reference sampling like YSI every 15 min
 - `src/ghostlows/bench/stats.py:16` `MIN_L2_EVENTS = 10`: BENCHMARK.md §5 (D5)
 - `src/ghostlows/bench/stats.py:62` `TAIL_FRACTIONS = (0.05, 1e-4)`: log-spaced firing fractions from 5% down to 0.01% of training samples are added to the evenly spaced quantiles, so the rule can reach the sparse operating points that low alarms need (time below range is a few percent); amendment A2
-- `src/ghostlows/faults/pisa.py:22` `TAU_MIN = 10.0`: time constant until the full text is read (SIMULATION.md §4.1); swept 5/10/20 min
-- `src/ghostlows/faults/pisa.py:24` `END_FRACTION = 0.10`: the artifact "lasts" from onset until the attenuation decays to 10% of its peak
-- `src/ghostlows/faults/pisa.py:26` `TAIL_FRACTION = 0.01`: the tail below 1% of the peak is dropped
-- `src/ghostlows/faults/pisa.py:38` `median: float`: a two-piece log-normal fits the published median and 5th/95th percentiles
+- `src/ghostlows/bench/stats.py:86`: t interval primary because percentile intervals under-cover with 3 x 10 patients (about 87-93% at a nominal 95% in the 2026-11 audit's simulation)
+- `src/ghostlows/faults/calibrate.py:27` `FACCHINETTI_FRACTION = 1 - (1 - FACCHINETTI_NIGHT_PER_SAMPLE) ** FACCHINETTI_NIG`: the per-sample probability applies to each sample of our 8-h night window
+- `src/ghostlows/faults/calibrate.py:43` `LOBO_MIN_RISE = LOBO_MIN_DROP`: "a matching rise" = the reading at the artifact's end is at least LOBO_MIN_DROP above its minimum (Lobo labels semi-automatically against other sensors; we have one trace)
+- `src/ghostlows/faults/pisa.py:34` `END_FRACTION = 0.10`: the artifact "lasts" from onset until the attenuation decays to 10% of its peak. Checked (DECISIONS.md A14): with P, D and tau drawn from the paper's Fig. 8 percentiles, this end gives an observed duration of median 47 min (5th-95th 30-76) against the published 45 (30-70).
+- `src/ghostlows/faults/pisa.py:38` `TAIL_FRACTION = 0.01`: the tail below 1% of the peak is dropped
+- `src/ghostlows/faults/pisa.py:50` `median: float`: a two-piece log-normal fits the published median and 5th/95th percentiles
+- `src/ghostlows/faults/pisa.py:82` `TAU_GAMMA = (2.35, 4.81)  # shape, scale (minutes)`: "beta" is a typo for gamma(shape 2.35, scale 4.81 min). A beta lives on [0, 1] (median 0.31 min); the gamma has median 9.7 min, near the reported 9.1, and the paper's own goodness-of-fit test is against a gamma distribution.
+- `src/ghostlows/faults/pisa.py:170` `return gain, pressure, np.maximum(tau, 0.1)`: tau floor 0.1 min (numerics only)
 - `src/ghostlows/faults/suite.py:22` `DEVICE_LIMITS = (40.0, 400.0)`: as in ghostlows.sim (SIMULATION.md §1)
-- `src/ghostlows/faults/suite.py:34` `night_hours: tuple[float, float] = (23.0, 7.0)`: PISA onset window
-- `src/ghostlows/faults/suite.py:36` `dropout_per_day: float = 4.0`: rates and sizes at s = 1 (SIMULATION.md §4.2); rates thin and sizes scale with s
-- `src/ghostlows/faults/suite.py:52` `DROPOUT_RATE_PER_MIN = np.log(10) / 20.0`: exponential gap length until the paper's three-state Markov model is read
-- `src/ghostlows/faults/suite.py:251` `r = (`: injection sites are 2 h of complete, steady night data (SD <= 15, no reading < 70)
-- `src/ghostlows/faults/suite.py:252` `r = (`: stability rule for semi-synthetic injection (SIMULATION.md §5)
+- `src/ghostlows/faults/suite.py:42` `night_hours: tuple[float, float] = (23.0, 7.0)`: PISA onset window
+- `src/ghostlows/faults/suite.py:44` `dropout_per_day: float = 4.0`: rates and sizes at s = 1 (SIMULATION.md §4.2); rates thin and sizes scale with s
+- `src/ghostlows/faults/suite.py:60` `DROPOUT_RATE_PER_MIN = np.log(10) / 20.0`: exponential gap length until the paper's three-state Markov model is read
+- `src/ghostlows/faults/suite.py:276` `r = (`: injection sites are 2 h of complete, steady night data (SD <= 15, no reading < 70)
+- `src/ghostlows/faults/suite.py:277` `r = (`: stability rule for semi-synthetic injection (SIMULATION.md §5)
 - `src/ghostlows/io/azt1d.py:32` `USER = re.compile(r"^(Standard|BLE Standard Bolus|Quick|Extended)")`: the extended remainder, in about 60 of 300,000 rows, is ignored
 - `src/ghostlows/io/glucobench.py:22` `SENTINELS = {`: inferred from pile-ups at the extremes (docs/reference/DATA.md §1): weinstock has 11,924 readings of 39 vs 605 of 40 and 11,978 of 401 vs 187 of 400; dubosson piles up at 39.6 and 399.6 (2.2 and 22.2 mmol/L x 18); colas has 75 readings of 40 vs 12 of 41.
 - `src/ghostlows/io/schema.py:25` `DEVICE_LIMITS_MG_DL = (40.0, 400.0)`: reportable range of current Dexcom and Libre sensors; censored "Low"/"High" readings are stored at these limits (with a flag). Configurable per loader call.
 - `src/ghostlows/io/schema.py:29` `MG_DL_PER_MMOL_L = 18.0`: devices convert with 1 mmol/L = 18 mg/dL (the molar-mass factor is 18.016).
 - `src/ghostlows/metrics/consensus.py:22` `NOMINAL_INTERVALS_MIN = (1, 5, 15)`: the sampling interval of an export is the nearest of these to its median spacing (G6/G7/Libre 3 report every 5 min, Libre 1/2 history every 15 min).
-- `src/ghostlows/metrics/consensus.py:62` `sd = float(g.std(ddof=1)) if g.size > 1 else float("nan")`: sample SD (ddof=1), matching the iglu reference implementation (Broll 2021)
-- `src/ghostlows/metrics/consensus.py:93` `if 1440 % bin_min:`: 15-min bins and no smoothing by default; the published AGP smoothing method is not specified in the consensus, so it is left configurable.
+- `src/ghostlows/metrics/consensus.py:67` `sd = float(g.std(ddof=1)) if g.size > 1 else float("nan")`: sample SD (ddof=1), matching the iglu reference implementation (Broll 2021)
+- `src/ghostlows/metrics/consensus.py:100` `if 1440 % bin_min:`: 15-min bins and no smoothing by default; the published AGP smoothing method is not specified in the consensus, so it is left configurable.
 - `src/ghostlows/retro/baysal.py:28` `max_pisa_min: float = 120.0`: t_PISA,max and t_dropout,max are not given in the paper's tables
 - `src/ghostlows/retro/baysal.py:40` `BAYSAL_DEFAULT = "trial"`: pre-specified set for the benchmark (D7, SR7); the others are a sensitivity analysis
 - `src/ghostlows/retro/baysal.py:43` `KF_MEASUREMENT_SD = 10.0  # mg/dL`: Kalman tuning; [Cameron 2012] gives the structure (glucose and rate estimated every minute, updated at each sensor reading) but its appendix values were not available.
@@ -64,9 +68,9 @@
 - `src/ghostlows/sim/engine.py:50` `night_hours: tuple[int, int] = (23, 7)`: at night only the urgent-low alarm wakes the person; once awake, the 70 mg/dL rule applies for the next 30 min. Same night window as the PISA onsets.
 - `src/ghostlows/sim/engine.py:118` `dia_h: float = 5.0,`: insulin action duration for IOB (SIMULATION.md §2)
 - `src/ghostlows/sim/engine.py:119` `cob_h: float = 3.0,`: carbohydrate absorption time for COB (SIMULATION.md §2)
-- `src/ghostlows/sim/run.py:33` `days: int = 14`: SIMULATION.md §1
-- `src/ghostlows/sim/run.py:38` `dia_h: float = 5.0`: insulin action duration for IOB (SIMULATION.md §2)
-- `src/ghostlows/sim/run.py:39` `cob_h: float = 3.0`: carbohydrate absorption time for COB (SIMULATION.md §2)
+- `src/ghostlows/sim/run.py:36` `days: int = 14`: SIMULATION.md §1
+- `src/ghostlows/sim/run.py:41` `dia_h: float = 5.0`: insulin action duration for IOB (SIMULATION.md §2)
+- `src/ghostlows/sim/run.py:42` `cob_h: float = 3.0`: carbohydrate absorption time for COB (SIMULATION.md §2)
 - `src/ghostlows/sim/scenario.py:35` `exercise_uptake_gain: float = 0.5  # Vm0 x (1 + gain) during the session`: exercise raises insulin-independent uptake during the session and insulin sensitivity afterwards, decaying exponentially (the 2008 model has no exercise). CLINICAL-REVIEW: CR13
 - `src/ghostlows/sim/scenario.py:45` `DEFAULT = Mix(`: SIMULATION.md §3 values
 - `src/ghostlows/sim/scenario.py:55` `HIGH = Mix(`: every perturbation doubled relative to DEFAULT (D3)

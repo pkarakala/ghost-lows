@@ -24,8 +24,8 @@ import yaml
 from ..alarms import BaseAlarm, TrendAlarm, benchmark_alarms, stretch_alarms, view
 from ..alarms.base import REFRACTORY_MIN
 from ..faults import FaultConfig, apply_faults
-from ..faults.calibrate import realistic_fraction
-from .analysis import context_contrasts, h1_contrast, rq3_contrasts
+from ..faults.calibrate import FACCHINETTI_FRACTION, realistic_fraction
+from .analysis import context_contrasts, h1_contrast, paired_increment, rq3_contrasts
 from .events import leak_auc, low_labels, true_events
 from .scoring import (
     CAUSES,
@@ -56,11 +56,15 @@ class BenchConfig:
     name: str
     simulation: str  # path to a SimConfig YAML (relative to the repository or absolute)
     sweep: str = "pisa"  # "pisa": PISA fraction = level, others at `severity`; "all": both = level
-    levels: list[float] = field(default_factory=lambda: [0.0, 0.1, 0.25, 0.5, 0.75, 1.0])
+    # sweep levels; "realistic" (Lobo, cohort-calibrated) and "facchinetti" name the two ends of
+    # the realistic PISA range (A14)
+    levels: list[float | str] = field(default_factory=lambda: [0.0, 0.1, 0.25, 0.5, 0.75, 1.0])
     severity: float = 0.5  # other faults in the PISA sweep (SIMULATION.md §4.3)
-    train_level: float | str = "realistic"  # PISA fraction for fitting and thresholds (D19)
+    # PISA fraction for fitting and thresholds (D19): "realistic", "facchinetti" or a number
+    train_level: float | str = "realistic"
     mixes: list[str] | None = None  # default: every mix in the cohort
     pisa_tau: float | None = None  # test-time PISA time constant (generator mismatch, D8)
+    pisa_draw: str | None = None  # test-time "parameters": tau per event (A14 robustness arm)
     # CLINICAL-REVIEW: CR8 (the 6-min arm uses Basu 2013's healthy-adult lag)
     lag_tau_min: float | None = None  # rebuild the CGM with this blood-to-ISF lag (D1 arm)
     early_min: float = 30.0  # matching windows (D12 sensitivity analysis)
@@ -93,6 +97,8 @@ class BenchConfig:
         if not test:
             return FaultConfig(pisa_fraction=level, severity=self.severity)
         tau = {"pisa_tau": self.pisa_tau} if self.pisa_tau else {}
+        if self.pisa_draw:
+            tau["pisa_draw"] = self.pisa_draw
         if self.sweep == "all":
             return FaultConfig(pisa_fraction=level, severity=level, **tau)
         return FaultConfig(pisa_fraction=level, severity=self.severity, **tau)
@@ -313,12 +319,27 @@ def prepare(config: BenchConfig) -> dict:
     folds = patient_folds(patients, min(config.n_folds, len(patients)), config.fold_seed)
     mixes = sorted(samples["mix"].unique())
 
-    train_level, realistic = config.train_level, None
-    if train_level == "realistic":
+    realistic = None
+    if "realistic" in [config.train_level, *config.levels]:
         base_mix = "default" if "default" in mixes else mixes[0]
         realistic = realistic_fraction(samples[samples["mix"] == base_mix], seed=config.fault_seed)
+    named = {
         # no complete nights (very short cohorts): train without PISAs
-        train_level = realistic["fraction"] if np.isfinite(realistic["fraction"]) else 0.0
+        "realistic": (
+            realistic["fraction"] if realistic and np.isfinite(realistic["fraction"]) else 0.0
+        ),
+        "facchinetti": FACCHINETTI_FRACTION,
+    }
+
+    def resolve(level):
+        if isinstance(level, str):
+            if level not in named:
+                raise ValueError(f"unknown PISA level {level!r}")
+            return float(named[level])
+        return level
+
+    train_level = resolve(config.train_level)
+    config.levels = [resolve(level) for level in config.levels]
     train_config = config.fault_config(train_level, test=False)
     train_obs, train_faults = apply_faults(samples, train_config, seed=config.fault_seed)
     train_obs["label"] = low_labels(train_obs, events, horizon_min=config.label_horizon_min)
@@ -332,6 +353,7 @@ def prepare(config: BenchConfig) -> dict:
         "mixes": mixes,
         "train_level": train_level,
         "realistic": realistic,
+        "facchinetti_fraction": FACCHINETTI_FRACTION,
         "train_obs": train_obs,
         "train_faults": train_faults,
     }
@@ -402,6 +424,8 @@ def run_benchmark(config: BenchConfig, out_dir: Path, extra_alarms=()) -> dict[s
     thresholds_df = pd.DataFrame(thresholds)
     extras = {
         "thresholds": thresholds_df,
+        "paired_increment": paired_increment(metrics_df, n_boot=config.n_boot),
+        "per_patient": per_patient(metrics_df),  # audit fix 8: counts per patient, for checking
         "contrasts_rq3": rq3_contrasts(metrics_df, thresholds_df, n_boot=config.n_boot),
         "contrasts_h2": context_contrasts(metrics_df, n_boot=config.n_boot, sesoi=config.sesoi),
         "contrast_h1": (
@@ -412,6 +436,7 @@ def run_benchmark(config: BenchConfig, out_dir: Path, extra_alarms=()) -> dict[s
     }
     meta = {
         "realistic_pisa": realistic,
+        "facchinetti_fraction": FACCHINETTI_FRACTION,
         "train_level": train_level,
         "leak_auc": {  # D3: IOB/COB at nocturnal true-low onsets vs. all night samples, per mix
             mix: {
@@ -460,9 +485,18 @@ def summarise(metrics: pd.DataFrame, n_boot: int) -> pd.DataFrame:
         row["patients"] = g["patient_id"].nunique()
         num = np.column_stack([g[SUMMARY_RATES[n][0]].to_numpy(float) for n in names])
         den = np.column_stack([g[SUMMARY_RATES[n][1]].to_numpy(float) for n in names])
-        est, lo, hi = bootstrap_ratios(num, den, g["patient_id"].to_numpy(), n_boot=n_boot)
+        est, lo, hi, lo_p, hi_p, bad = bootstrap_ratios(
+            num,
+            den,
+            g["patient_id"].to_numpy(),
+            n_boot=n_boot,
+            detail=True,
+            proportion=[n.startswith("sens") for n in names],
+        )
         for i, n in enumerate(names):
             row.update({n: est[i], f"{n}_lo": lo[i], f"{n}_hi": hi[i]})
+        for i, n in enumerate(names):  # A18: percentile interval and non-finite share beside it
+            row.update({f"{n}_lo_pct": lo_p[i], f"{n}_hi_pct": hi_p[i], f"{n}_nonfinite": bad[i]})
         rows.append(row)
     return pd.DataFrame(rows)
 

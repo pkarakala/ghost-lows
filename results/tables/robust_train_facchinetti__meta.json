@@ -1,0 +1,15 @@
+{
+  "realistic_pisa": null,
+  "facchinetti_fraction": 0.12584202296181668,
+  "train_level": 0.12584202296181668,
+  "leak_auc": {
+    "default": {
+      "iob": 0.6539994610048744,
+      "cob": 0.5825628176686247
+    }
+  },
+  "seconds": 1098.0,
+  "patients": 30,
+  "runs": 150,
+  "git_dirty": false
+}

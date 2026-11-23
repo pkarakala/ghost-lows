@@ -116,7 +116,7 @@ def main() -> None:
         0.35,
         "Simulated adolescent#002; one fault type per panel, severity 1.\n"
         "PISA: first-order response to a rectangular input [Facchinetti 2016],\n"
-        "tau = 10 min (assumption). Faults never change the truth.",
+        "tau = 9.1 min [Facchinetti 2016]. Faults never change the truth.",
         color=MUTED,
         fontsize=8,
         va="top",

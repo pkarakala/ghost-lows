@@ -59,7 +59,8 @@ def context_contrasts(
                 den = df[b].sum()
                 return float(df[a].sum() / den) if den > 0 else float("nan")
 
-            est, lo, hi = bootstrap_ci(pp, ratio, n_boot=n_boot)
+            ci = bootstrap_ci(pp, ratio, n_boot=n_boot, detail=True)
+            est, lo, hi = ci["estimate"], ci["lo"], ci["hi"]
             rows.append(
                 {
                     "detector": det,
@@ -72,6 +73,10 @@ def context_contrasts(
                     "lo": lo,
                     "hi": hi,
                     "reading": h2_reading(est, lo, hi, sesoi),
+                    "lo_pct": ci["lo_pct"],
+                    "hi_pct": ci["hi_pct"],
+                    "reading_pct": h2_reading(est, ci["lo_pct"], ci["hi_pct"], sesoi),
+                    "nonfinite_share": ci["nonfinite_share"],
                 }
             )
     columns = [
@@ -112,7 +117,8 @@ def h1_contrast(
         if a not in wide or b not in wide:
             continue
         wide["diff"] = wide[a] - wide[b]
-        est, lo, hi = bootstrap_ci(wide, lambda df: float(np.median(df["diff"])), n_boot=n_boot)
+        ci = bootstrap_ci(wide, lambda df: float(np.median(df["diff"])), n_boot=n_boot, detail=True)
+        est, lo, hi = ci["estimate"], ci["lo"], ci["hi"]
         rows.append(
             {
                 "mix": mix,
@@ -121,8 +127,73 @@ def h1_contrast(
                 "lo": lo,
                 "hi": hi,
                 "supported": bool(lo > 1e-9),  # strictly above 0; 1e-9 absorbs rounding error
+                # A18 (P13): the percentile interval as a sensitivity analysis
+                "lo_pct": ci["lo_pct"],
+                "hi_pct": ci["hi_pct"],
+                "supported_pct": bool(ci["lo_pct"] > 1e-9),
+                "nonfinite_share": ci["nonfinite_share"],
             }
         )
+    return pd.DataFrame(rows)
+
+
+# ------------------------------------------------------------------ paired increment (A18)
+
+
+def paired_increment(metrics: pd.DataFrame, n_boot: int = 2000, base: float = 0.0) -> pd.DataFrame:
+    """False alarms per day added by compression (audit fix 2, A18): at each PISA level, the
+    pooled rate minus the rate at `base` (no PISAs) on the same patients and runs, which the
+    common random numbers pair (SIMULATION.md §4.3). This is the causal increment; the D10
+    cause-attributed rate (`false_compression_per_day`) counts coincidence and is shown beside it.
+    Patient-bootstrap t interval (A18) with the percentile interval beside it."""
+    from .pipeline import per_patient
+
+    pp = per_patient(metrics)
+    if base not in set(pp["level"]):
+        return pd.DataFrame()
+    rows = []
+    for (alarm, mix), g in pp.groupby(["alarm_name", "mix"]):
+        none = g[g["level"] == base].set_index("patient_id")
+        for level, h in g[g["level"] != base].groupby("level"):
+            h = h.set_index("patient_id")
+            ids = h.index.intersection(none.index)
+            w = pd.DataFrame(
+                {
+                    "patient_id": ids,
+                    "n_level": h.loc[ids, "n_false"].to_numpy(float),
+                    "d_level": h.loc[ids, "days"].to_numpy(float),
+                    "n_base": none.loc[ids, "n_false"].to_numpy(float),
+                    "d_base": none.loc[ids, "days"].to_numpy(float),
+                    "n_attr": h.loc[ids, "false_compression"].to_numpy(float)
+                    if "false_compression" in h
+                    else np.zeros(len(ids)),
+                }
+            )
+
+            def inc(df):
+                return float(df["n_level"].sum() / df["d_level"].sum()) - float(
+                    df["n_base"].sum() / df["d_base"].sum()
+                )
+
+            ci = bootstrap_ci(w, inc, n_boot=n_boot, detail=True)
+            at_level = float(w["n_level"].sum() / w["d_level"].sum())
+            rows.append(
+                {
+                    "alarm_name": alarm,
+                    "mix": mix,
+                    "level": level,
+                    "false_per_day": at_level,
+                    "false_per_day_no_pisa": float(w["n_base"].sum() / w["d_base"].sum()),
+                    "increment_per_day": ci["estimate"],
+                    "lo": ci["lo"],
+                    "hi": ci["hi"],
+                    "lo_pct": ci["lo_pct"],
+                    "hi_pct": ci["hi_pct"],
+                    "share_of_false_alarms": ci["estimate"] / at_level if at_level else np.nan,
+                    "attributed_per_day": float(w["n_attr"].sum() / w["d_level"].sum()),
+                    "patients": len(ids),
+                }
+            )
     return pd.DataFrame(rows)
 
 

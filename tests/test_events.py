@@ -4,7 +4,13 @@ import numpy as np
 import pandas as pd
 import pytest
 
-from ghostlows.bench.events import auc, detect_events, leak_auc, true_events
+from ghostlows.bench.events import (
+    auc,
+    detect_events,
+    detect_events_with_gaps,
+    leak_auc,
+    true_events,
+)
 
 
 def trace(*segments):
@@ -87,3 +93,14 @@ def test_low_events_never_join_readings_across_a_gap():
         {"patient_id": "p", "time": pd.date_range("2026-01-05", periods=36, freq="5min")}
     )
     assert len(low_events(regular.assign(glucose=glucose))) == 1
+
+
+def test_real_data_gap_rule_lets_one_missing_reading_continue_a_run():
+    """BENCHMARK.md §3 (A18, P10): a gap of two sampling intervals keeps the run; longer ends it."""
+    low = np.full(3, 60.0)  # 15 min at 5-min sampling
+    one_gap = np.r_[np.full(4, 100.0), low[:2], np.nan, low[:1], np.full(4, 100.0)]
+    assert detect_events(one_gap, 70, step_min=5) == []  # as built before: split by the NaN
+    assert detect_events_with_gaps(one_gap, 70, step_min=5) == [(4, 8)]
+    two_gap = np.r_[np.full(4, 100.0), low, np.nan, np.nan, low, np.full(4, 100.0)]
+    # the longer gap ends the first event and starts a new run
+    assert detect_events_with_gaps(two_gap, 70, step_min=5) == [(4, 7), (9, 12)]

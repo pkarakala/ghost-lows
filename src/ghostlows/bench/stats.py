@@ -79,14 +79,72 @@ def candidate_thresholds(scores: np.ndarray, n: int = 60, low: float = 0.5) -> n
     return qs - 1e-9  # alarms fire when score > threshold
 
 
+# A18 (P13, audit fix 4): the primary 95% interval is a bootstrap-standard-error t interval
+# (SE corrected for stratification), on the logit scale for proportions and the log scale for
+# other positive statistics, with n_patients - n_age_groups degrees of freedom;
+# the percentile interval is kept beside it, with the share of non-finite draws.
+# ASSUMPTION: t interval primary because percentile intervals under-cover with 3 x 10 patients
+# (about 87-93% at a nominal 95% in the 2026-11 audit's simulation)
+
+
+def t_quantile(p: float, df: int) -> float:
+    """Student t quantile (Cornish-Fisher expansion; error below 1e-4 for df >= 5)."""
+    from statistics import NormalDist
+
+    z = NormalDist().inv_cdf(p)
+    g1 = (z**3 + z) / 4
+    g2 = (5 * z**5 + 16 * z**3 + 3 * z) / 96
+    g3 = (3 * z**7 + 19 * z**5 + 17 * z**3 - 15 * z) / 384
+    g4 = (79 * z**9 + 776 * z**7 + 1482 * z**5 - 1920 * z**3 - 945 * z) / 92160
+    return z + g1 / df + g2 / df**2 + g3 / df**3 + g4 / df**4
+
+
+def t_bounds(
+    estimate: float,
+    draws: np.ndarray,
+    df: int,
+    level: float = 0.95,
+    n_strata: int = 0,
+    proportion: bool = False,
+    continuity: float = 0.0,
+) -> tuple[float, float]:
+    """estimate +- t * SE, with SE the SD of the bootstrap draws times sqrt(N / (N - H)): a
+    stratified bootstrap's SD is sqrt((N - H) / N) of the unbiased SE, so without the factor the
+    t interval is a z interval (about 93.8% for 3 x 10 patients; 2026-11 audit check). On the
+    logit scale for a proportion (bounds stay in [0, 1]), on the log scale for any other estimate
+    whose draws are all > 0, else linear. Coverage in the 2026-11 audit's simulations of 3 x 10
+    patients: 95.4-96.6% for sensitivities of 0.87-0.97 (logit), 94.8% for ratios (log)."""
+    d = np.asarray(draws, float)
+    d = d[np.isfinite(d)]
+    if d.size < 2 or not np.isfinite(estimate) or df < 1:
+        return float("nan"), float("nan")
+    if np.ptp(d) == 0:  # no spread: the interval is the point (avoids log/exp rounding)
+        return float(estimate), float(estimate)
+    q = t_quantile(1 - (1 - level) / 2, df) * np.sqrt((df + n_strata) / df)
+    if proportion:  # draws of 0 or 1 are moved in by `continuity` (0.5 / events)
+        c = min(max(continuity, 1e-6), 0.25)
+        p, e = np.clip(d, c, 1 - c), float(np.clip(estimate, c, 1 - c))
+        logit = np.log(p / (1 - p))
+        centre, se = np.log(e / (1 - e)), float(np.std(logit, ddof=1))
+        lo, hi = centre - q * se, centre + q * se
+        return float(1 / (1 + np.exp(-lo))), float(1 / (1 + np.exp(-hi)))
+    if estimate > 0 and (d > 0).all() and not proportion:
+        se = float(np.std(np.log(d), ddof=1))
+        return float(estimate * np.exp(-q * se)), float(estimate * np.exp(q * se))
+    se = float(np.std(d, ddof=1))
+    return float(estimate - q * se), float(estimate + q * se)
+
+
 def bootstrap_ci(
     per_patient: pd.DataFrame,
     statistic: Callable[[pd.DataFrame], float],
     n_boot: int = N_BOOT,
     seed: int = 0,
     level: float = 0.95,
-) -> tuple[float, float, float]:
-    """(estimate, low, high): percentile CI from a patient bootstrap stratified by age group.
+    detail: bool = False,
+):
+    """(estimate, low, high) from a patient bootstrap stratified by age group: the t interval
+    (A18). With `detail`, a dict that adds the percentile interval and the non-finite share.
 
     `per_patient` has one row per patient (column `patient_id`); `statistic` maps a resample
     (rows may repeat) to a number, e.g. a ratio of summed counts.
@@ -101,10 +159,21 @@ def bootstrap_ci(
         )
         draws.append(statistic(per_patient.iloc[idx]))
     draws = np.asarray(draws, float)
-    draws = draws[np.isfinite(draws)]
+    finite = draws[np.isfinite(draws)]
     alpha = (1 - level) / 2
-    lo, hi = np.quantile(draws, [alpha, 1 - alpha]) if draws.size else (np.nan, np.nan)
-    return estimate, float(lo), float(hi)
+    lo, hi = np.quantile(finite, [alpha, 1 - alpha]) if finite.size else (np.nan, np.nan)
+    df = len(per_patient) - len(groups)
+    lo_t, hi_t = t_bounds(estimate, finite, df, level, n_strata=len(groups))
+    if not detail:
+        return estimate, lo_t, hi_t
+    return {
+        "estimate": estimate,
+        "lo": lo_t,
+        "hi": hi_t,
+        "lo_pct": float(lo),
+        "hi_pct": float(hi),
+        "nonfinite_share": float(1 - finite.size / max(len(draws), 1)),
+    }
 
 
 def bootstrap_ratios(
@@ -114,18 +183,23 @@ def bootstrap_ratios(
     n_boot: int = N_BOOT,
     seed: int = 0,
     level: float = 0.95,
-) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
-    """Vectorised `bootstrap_ci` for ratio-of-sums statistics.
+    detail: bool = False,
+    proportion=None,
+):
+    """Vectorised `bootstrap_ci` for ratio-of-sums statistics; `proportion` flags (one per
+    statistic) the ones that are proportions, such as sensitivities.
 
     `numerators` / `denominators` are (patients x statistics); returns estimates, lows and highs
-    per statistic. Resampling is stratified by age group, as in `bootstrap_ci`.
+    (t intervals, A18) per statistic; with `detail`, also percentile lows and highs and the
+    non-finite share. Resampling is stratified by age group, as in `bootstrap_ci`.
     """
     num = np.atleast_2d(np.asarray(numerators, float).T).T
     den = np.atleast_2d(np.asarray(denominators, float).T).T
     rng = np.random.default_rng(seed)
     index = []
     labels = np.array([age_group(p) for p in patient_ids])
-    for g in sorted(set(labels)):
+    strata = sorted(set(labels))
+    for g in strata:
         rows = np.flatnonzero(labels == g)
         index.append(rows[rng.integers(0, len(rows), size=(n_boot, len(rows)))])
     idx = np.concatenate(index, axis=1)  # n_boot x n_patients
@@ -133,7 +207,31 @@ def bootstrap_ratios(
         est = num.sum(0) / den.sum(0)
         draws = num[idx].sum(1) / den[idx].sum(1)  # n_boot x statistics
     alpha = (1 - level) / 2
-    lo = np.nanquantile(np.where(np.isfinite(draws), draws, np.nan), alpha, axis=0)
-    hi = np.nanquantile(np.where(np.isfinite(draws), draws, np.nan), 1 - alpha, axis=0)
+    clean = np.where(np.isfinite(draws), draws, np.nan)
+    lo = np.nanquantile(clean, alpha, axis=0)
+    hi = np.nanquantile(clean, 1 - alpha, axis=0)
     est = np.where(den.sum(0) > 0, est, np.nan)
-    return est, lo, hi
+    df = len(labels) - len(strata)
+    prop = np.zeros(num.shape[1], bool) if proportion is None else np.asarray(proportion, bool)
+    bounds = [
+        t_bounds(
+            est[j],
+            draws[:, j],
+            df,
+            level,
+            n_strata=len(strata),
+            proportion=bool(prop[j]),
+            continuity=0.5 / max(den[:, j].sum(), 1.0),
+        )
+        for j in range(draws.shape[1])
+    ]
+    lo_t = np.array([b[0] for b in bounds])
+    # a ratio of non-negative counts is never below 0: a linear-scale bound (used when a draw is
+    # 0) is clipped there
+    nonneg = (num >= 0).all(axis=0) & (den >= 0).all(axis=0)
+    lo_t = np.where(nonneg & (lo_t < 0), 0.0, lo_t)
+    hi_t = np.array([b[1] for b in bounds])
+    if not detail:
+        return est, lo_t, hi_t
+    nonfinite = 1 - np.isfinite(draws).mean(axis=0)
+    return est, lo_t, hi_t, lo, hi, nonfinite

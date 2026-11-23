@@ -1,0 +1,9 @@
+detector,level,mix,cause,count_context,count_base,rate_ratio,lo,hi,reading
+baysal,0.5,default,compression,295.0,307.0,0.9609120521172638,0.9239404797505477,0.9993630457164345,no meaningful reduction
+baysal,1.0,default,compression,612.0,641.0,0.9547581903276131,0.9233504508832008,0.9872342631399948,no meaningful reduction
+matched_filter_causal,0.5,default,compression,343.0,343.0,1.0,0.9909846773102065,1.0090973381286414,no meaningful reduction
+matched_filter_causal,1.0,default,compression,696.0,699.0,0.9957081545064378,0.9894160471945563,1.0020402759403222,no meaningful reduction
+trend,0.5,default,compression,274.0,291.0,0.9415807560137457,0.900798750093415,0.9842090922123027,no meaningful reduction
+trend,1.0,default,compression,572.0,601.0,0.9517470881863561,0.9160338449545964,0.988852677071233,no meaningful reduction
+gbm,0.5,default,compression,200.0,209.0,0.9569377990430622,0.8916745154766771,1.0269778213273744,no meaningful reduction
+gbm,1.0,default,compression,414.0,423.0,0.9787234042553191,0.9351266363508531,1.0243527077521117,no meaningful reduction

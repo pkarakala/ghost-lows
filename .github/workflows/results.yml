@@ -1,0 +1,251 @@
+name: Results (full rerun)
+
+# `make results` split across runners, because one runner would pass the 6-hour job limit:
+# the cohort is simulated in shards, every benchmark config runs in its own job on the
+# assembled cohort, the real-data track runs on its own, and a last job draws the curves,
+# figures and results/README.md and commits results/ to the branch. Every step runs the same
+# scripts as `make results`; nothing here changes a number.
+#
+# Runs on a push whose commit message contains "[results]", or by hand once this file is on
+# main. Never on pull requests.
+on:
+  push:
+    branches-ignore: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: write  # the last job commits results/ to the branch
+  actions: read  # jobs download earlier jobs' artifacts with `gh run download`
+
+concurrency:
+  group: results-${{ github.ref }}
+  cancel-in-progress: false
+
+env:
+  OMP_NUM_THREADS: "2"
+  SIM_CONFIG: experiments/configs/sim_full.yaml
+  SHARDS: "8"
+
+jobs:
+  gate:
+    if: github.event_name == 'workflow_dispatch' || contains(github.event.head_commit.message, '[results]')
+    runs-on: ubuntu-latest
+    outputs:
+      cohort_run: ${{ steps.reuse.outputs.run }}
+      bench_run: ${{ steps.reuse.outputs.bench }}
+    steps:
+      # "[cohort-from:<run id>]" in the commit message reuses that run's cohort artifact
+      # instead of simulating again; only valid when nothing under src/ghostlows/sim changed
+      - id: reuse
+        env:
+          MESSAGE: ${{ github.event.head_commit.message }}
+        run: |
+          echo "run=$(printf '%s' "$MESSAGE" | grep -oP '\[cohort-from:\K[0-9]+' || true)" >> "$GITHUB_OUTPUT"
+          # "[bench-from:<run id>]" reuses that run's cohort, config outputs and real-data track
+          # and runs only the last job; only valid when nothing but that job's steps changed
+          echo "bench=$(printf '%s' "$MESSAGE" | grep -oP '\[bench-from:\K[0-9]+' || true)" >> "$GITHUB_OUTPUT"
+          echo "full rerun for ${{ github.sha }}"
+
+  simulate:
+    needs: gate
+    if: needs.gate.outputs.cohort_run == '' && needs.gate.outputs.bench_run == ''
+    runs-on: ubuntu-latest
+    timeout-minutes: 340
+    strategy:
+      fail-fast: true
+      matrix:
+        shard: [0, 1, 2, 3, 4, 5, 6, 7]
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: astral-sh/setup-uv@1c37ad07a6a961277cf70c0d37d6f313000f5884 # v10.3.0
+        with:
+          version: "0.13.1"
+          python-version: "3.11"
+          enable-cache: true
+      - run: uv sync --locked
+      - run: uv run python scripts/sim_shard.py --config "$SIM_CONFIG" --shard ${{ matrix.shard }} --of "$SHARDS"
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: shard-${{ matrix.shard }}
+          path: data/sim/
+          retention-days: 7
+
+  cohort:
+    needs: [gate, simulate]
+    if: always() && needs.gate.result == 'success' && needs.gate.outputs.bench_run == '' && (needs.simulate.result == 'success' || needs.simulate.result == 'skipped')
+    runs-on: ubuntu-latest
+    env:
+      GH_TOKEN: ${{ github.token }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: astral-sh/setup-uv@1c37ad07a6a961277cf70c0d37d6f313000f5884 # v10.3.0
+        with:
+          version: "0.13.1"
+          python-version: "3.11"
+          enable-cache: true
+      - run: uv sync --locked
+      - name: Reuse an earlier run's cohort
+        if: needs.gate.outputs.cohort_run != ''
+        run: gh run download ${{ needs.gate.outputs.cohort_run }} -R ${{ github.repository }} -n cohort -D data/sim/
+      - name: Merge the shards
+        if: needs.gate.outputs.cohort_run == ''
+        run: |
+          for i in $(seq 0 $((SHARDS - 1))); do
+            gh run download ${{ github.run_id }} -R ${{ github.repository }} -n shard-$i -D data/sim/
+          done
+      - if: needs.gate.outputs.cohort_run == ''
+        run: uv run python scripts/sim_shard.py --config "$SIM_CONFIG" --assemble
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: cohort
+          path: data/sim/
+          retention-days: 7
+
+  benchmark:
+    needs: cohort
+    if: always() && needs.cohort.result == 'success'  # also when the shards were skipped
+    runs-on: ubuntu-latest
+    timeout-minutes: 350
+    env:
+      GH_TOKEN: ${{ github.token }}
+    strategy:
+      fail-fast: false
+      matrix:
+        config:
+          # rq1_pisa_sweep and rq3_kalman run in the last job instead (see there)
+          - rq1_all_faults
+          - rq1_realistic_range
+          - robust_lag6
+          - robust_tau5
+          - robust_tau20
+          - robust_tau_per_event
+          - robust_train_facchinetti
+          - robust_fold_seed1
+          - robust_fold_seed2
+          - robust_fold_seed3
+          - robust_fold_seed4
+          - robust_early20
+          - robust_early45
+          - robust_late30
+          - robust_delta05
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: astral-sh/setup-uv@1c37ad07a6a961277cf70c0d37d6f313000f5884 # v10.3.0
+        with:
+          version: "0.13.1"
+          python-version: "3.11"
+          enable-cache: true
+      - run: uv sync --locked
+      - run: gh run download ${{ github.run_id }} -R ${{ github.repository }} -n cohort -D data/sim/
+      - name: Run the config (as run_all.py does, figures included)
+        # a file, not a heredoc: spawned worker processes re-import the main module
+        run: |
+          cat > "$RUNNER_TEMP/run_one.py" <<'EOF'
+          import os
+          import subprocess
+          import sys
+          from pathlib import Path
+
+          from ghostlows.bench.pipeline import BenchConfig, run_benchmark
+
+          if __name__ == "__main__":
+              name = sys.argv[1]
+              config = BenchConfig.load(Path("experiments/configs") / f"{name}.yaml")
+              config.workers = max(1, (os.cpu_count() or 2) - 1)
+              out = Path("results") / name
+              run_benchmark(config, out)
+              subprocess.run([sys.executable, "experiments/make_figures.py", str(out)], check=True)
+          EOF
+          uv run python "$RUNNER_TEMP/run_one.py" "${{ matrix.config }}"
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: bench-${{ matrix.config }}
+          path: results/${{ matrix.config }}/
+          retention-days: 7
+
+  real:
+    needs: gate
+    if: needs.gate.outputs.bench_run == ''
+    runs-on: ubuntu-latest
+    timeout-minutes: 340
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: astral-sh/setup-uv@1c37ad07a6a961277cf70c0d37d6f313000f5884 # v10.3.0
+        with:
+          version: "0.13.1"
+          python-version: "3.11"
+          enable-cache: true
+      - run: uv sync --locked
+      - run: uv run python scripts/download_data.py
+      - run: uv run python scripts/download_data.py --azt1d
+      - run: uv run python experiments/real_data.py
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: real
+          path: |
+            results/real/
+            results/tables/real__*
+            results/figures/real*
+          retention-days: 7
+
+  finish:
+    needs: [gate, benchmark, real]
+    if: >-
+      always() && needs.gate.result == 'success' &&
+      ((needs.benchmark.result == 'success' && needs.real.result == 'success') ||
+       needs.gate.outputs.bench_run != '')
+    runs-on: ubuntu-latest
+    timeout-minutes: 355
+    env:
+      GH_TOKEN: ${{ github.token }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ github.ref }}
+      - uses: astral-sh/setup-uv@1c37ad07a6a961277cf70c0d37d6f313000f5884 # v10.3.0
+        with:
+          version: "0.13.1"
+          python-version: "3.11"
+          enable-cache: true
+      - run: uv sync --locked
+      - run: lscpu | grep -E "Model name|^CPU\(s\)|Flags" | cut -c1-200  # recorded for the CPU note
+      - name: Fetch the cohort, every config's outputs and the real-data track
+        run: |
+          src="${{ needs.gate.outputs.bench_run || github.run_id }}"
+          gh run download "$src" -R ${{ github.repository }} -n cohort -D data/sim/
+          # results/tables is committed, so unpack into a fresh folder and copy over it
+          gh run download "$src" -R ${{ github.repository }} -n real -D "$RUNNER_TEMP/real"
+          cp -r "$RUNNER_TEMP/real/." results/
+          for a in $(gh api "repos/${{ github.repository }}/actions/runs/$src/artifacts?per_page=100" --jq '.artifacts[].name | select(startswith("bench-"))'); do
+            gh run download "$src" -R ${{ github.repository }} -n "$a" -D "results/${a#bench-}/"
+          done
+          # the curves check that r = 1 reproduces rq1_pisa_sweep and rq3_kalman to 1e-9 (A11);
+          # learned alarms differ in the last digits between runner CPUs, so those two configs
+          # run here, on the machine that draws the curves
+          rm -rf results/rq1_pisa_sweep results/rq3_kalman
+      # skips every config whose outputs exist, then pairs RQ3, writes age groups and warning
+      # times, copies the tables, runs the curves (A11, A13), the paper figures and the README
+      - run: uv run python experiments/run_all.py --workers 3
+      # the app's sample export and the flag survey it quotes; the τ change can move the
+      # sample run off its conditions, which is reported, not fatal
+      - run: |
+          uv run python scripts/make_sample_export.py --survey data/sim/sim_full-*/ || echo "::warning::survey failed"
+          uv run python scripts/make_sample_export.py || echo "::warning::sample run no longer meets its conditions"
+      - run: git checkout results/tables/assumptions.md  # stale by design since v0.3.0
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        if: always()  # keep the work even if a later step fails
+        with:
+          name: results
+          path: |
+            results/
+            app/
+            docs/figures/
+          retention-days: 7
+      - name: Commit results/ to the branch
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add results/ app/ docs/figures/ || true
+          git commit -m "Full rerun: results from ${GITHUB_SHA::7}" || echo "nothing to commit"
+          git push origin "HEAD:${GITHUB_REF_NAME}"
+      - run: uv run pytest -q tests/test_figures.py  # after the commit, so a failure loses nothing

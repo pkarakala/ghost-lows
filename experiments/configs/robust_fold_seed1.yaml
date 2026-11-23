@@ -1,0 +1,12 @@
+# Robustness arm (A18, audit fix 4): repeated cross-validation; patients dealt to folds with seed 1 (main: 0), default mix.
+name: robust_fold_seed1
+simulation: experiments/configs/sim_full.yaml
+sweep: pisa
+levels: [0.5, 1.0]
+severity: 0.5
+train_level: realistic
+mixes: [default]
+alarms: [floor_only, threshold, trend, baysal_gate, matched_filter_causal_gate, iforest_causal_gate, trend_combined_time, trend_combined_time_ctx, baysal_combined_time, baysal_combined_time_ctx, matched_filter_causal_combined_time, matched_filter_causal_combined_time_ctx, gbm_time, gbm_time_ctx]
+n_folds: 5
+n_boot: 2000
+fold_seed: 1

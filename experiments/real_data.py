@@ -38,6 +38,7 @@ from ghostlows.bench.events import (
     EVENT_MIN,
     LEVEL_THRESHOLDS,
     detect_events,
+    detect_events_with_gaps,
     is_night,
     leak_auc,
     low_labels,
@@ -104,7 +105,8 @@ def reference_events(grid: pd.DataFrame) -> pd.DataFrame:
     for key, g in grid.groupby(["patient_id", "seed", "mix"], sort=False):
         times = g["time"].to_numpy()
         for level, thr in LEVEL_THRESHOLDS.items():
-            for s, e in detect_events(g["glucose"].to_numpy(float), thr, step_min=5):
+            # A18 (P10): one missing reading continues a run; a longer gap ends it (BENCHMARK §3)
+            for s, e in detect_events_with_gaps(g["glucose"].to_numpy(float), thr, step_min=5):
                 end = times[e] if e < len(times) else times[-1] + np.timedelta64(5, "m")
                 rows.append(
                     {

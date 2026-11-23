@@ -1,0 +1,13 @@
+# Robustness arm (A14): alarms fitted and thresholded at the lower end of the realistic range,
+# Facchinetti 2016's night rate (PISA on about 13% of nights), instead of the Lobo-calibrated
+# level (D19) (default mix only; the alarms H1-H2 need).
+name: robust_train_facchinetti
+simulation: experiments/configs/sim_full.yaml
+sweep: pisa
+levels: [0.5, 1.0]
+severity: 0.5
+train_level: facchinetti
+mixes: [default]
+alarms: [floor_only, threshold, trend, baysal_gate, matched_filter_causal_gate, iforest_causal_gate, trend_combined_time, trend_combined_time_ctx, baysal_combined_time, baysal_combined_time_ctx, matched_filter_causal_combined_time, matched_filter_causal_combined_time_ctx, gbm_time, gbm_time_ctx]
+n_folds: 5
+n_boot: 2000

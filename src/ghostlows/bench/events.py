@@ -42,6 +42,38 @@ def detect_events(
     return events
 
 
+def detect_events_with_gaps(
+    values: np.ndarray, threshold: float, step_min: float = 5.0
+) -> list[tuple[int, int]]:
+    """`detect_events` on real CGM with missing readings (BENCHMARK.md §3, amendment A18, P10).
+
+    A single missing reading (a gap of two sampling intervals) does not split a run: it is filled
+    by linear interpolation. A gap longer than two sampling intervals ends the run, and ends an
+    open event at the gap's first missing reading.
+    """
+    y = np.asarray(values, dtype=float)
+    missing = np.isnan(y)
+    filled = y.copy()
+    for i in np.flatnonzero(missing):
+        lone = 0 < i < y.size - 1 and not missing[i - 1] and not missing[i + 1]
+        if lone:
+            filled[i] = 0.5 * (y[i - 1] + y[i + 1])
+    gap = np.isnan(filled)  # runs of two or more missing readings (and missing ends)
+    events = []
+    start = 0
+    while start < y.size:
+        if gap[start]:
+            start += 1
+            continue
+        stop = start
+        while stop < y.size and not gap[stop]:
+            stop += 1
+        for s, e in detect_events(filled[start:stop], threshold, step_min):
+            events.append((start + s, start + e))
+        start = stop
+    return events
+
+
 def true_events(truth: pd.DataFrame, levels=(1, 2)) -> pd.DataFrame:
     """True low events per patient (and run tags) from 1-minute truth (D11)."""
     keys = [c for c in ("patient_id", "seed", "mix") if c in truth]

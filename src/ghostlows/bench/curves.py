@@ -248,7 +248,13 @@ def curve_summary(pp: pd.DataFrame, n_boot: int = 2000) -> pd.DataFrame:
     for (name, mix, point), g in pp.groupby(["alarm_name", "mix", "point"]):
         num = np.column_stack([g[a].to_numpy(float) for a, _ in CURVE_RATES.values()])
         den = np.column_stack([g[b].to_numpy(float) for _, b in CURVE_RATES.values()])
-        est, lo, hi = bootstrap_ratios(num, den, g["patient_id"].to_numpy(), n_boot=n_boot)
+        est, lo, hi = bootstrap_ratios(
+            num,
+            den,
+            g["patient_id"].to_numpy(),
+            n_boot=n_boot,
+            proportion=[n.startswith("sens") for n in CURVE_RATES],
+        )
         folds = g.drop_duplicates("fold")
         row = {
             "alarm_name": name,

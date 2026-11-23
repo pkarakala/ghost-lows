@@ -34,7 +34,7 @@ ANSWER_KEY = Path(__file__).with_name("sample_answer_key.json")
 SAMPLE_BANNER = "You are viewing synthetic sample data, not a real person's data."
 # How the flags do on simulated data with known truth: results/tables/flag_survey.json, written by
 # `scripts/make_sample_export.py --survey` (a test keeps these in step with it; amendment A12)
-FLAG_CAUGHT_PCT, FLAG_ON_REAL_LOW_PCT = 35, 37
+FLAG_CAUGHT_PCT, FLAG_ON_REAL_LOW_PCT = 36, 37
 FLAG_PERFORMANCE = (
     "How well the flags work: we tested them on simulated data, where the truth is known. They "
     f"caught about {FLAG_CAUGHT_PCT} in 100 injected compression artifacts, and in about "

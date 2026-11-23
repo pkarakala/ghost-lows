@@ -46,7 +46,8 @@ def test_each_publication_figure_is_shown_with_its_vector_files():
 def test_robustness_figures_are_in_the_appendix():
     figures = RESULTS / "figures"
     assert list(figures.glob("robust_*")) == []
-    assert len(list((figures / "appendix").glob("robust_*.png"))) == 28
+    robust = [c for c in experiment("run_all").CONFIGS if c.startswith("robust_")]
+    assert len(list((figures / "appendix").glob("robust_*.png"))) == 4 * len(robust)
 
 
 def test_results_readme_is_what_the_generator_writes():

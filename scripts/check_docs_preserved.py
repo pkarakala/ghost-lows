@@ -36,7 +36,32 @@ INTENDED = [
         "Sign-off by Cohen Ferrari is still open",
         "0075ea4: Cohen Ferrari is a literature fact-checker, not a clinician",
     ),
+    (
+        "CR item - [ ] CR12.",
+        "35% of injected PISAs",
+        "A18 rerun: the flag survey on the new cohort (36%, median 3.5)",
+    ),
     ("number 0.3.0", "0.3.0", "v0.4.0: CITATION.cff's version moves from 0.3.0 to 0.4.0"),
+    ("CR item - [ ] CR2.", "- [ ] CR2.", "A14: CR2 literature check in"),
+    (
+        "CR item - [ ] CR3.",
+        "Only figures found",
+        "A14: CR3 adds Facchinetti 2016's frequency to the figures found",
+    ),
+    ("CR item - [ ] CR6.", "- [ ] CR6.", "A17: CR6 literature check in"),
+    ("CR item - [ ] CR7.", "- [ ] CR7.", "A17: CR7 literature check in"),
+    ("CR item - [ ] CR8.", "up to ~10", "A17: Basu 2013 does not support up to ~10 min"),
+    ("CR item - [ ] CR14.", "- [ ] CR14.", "A17: CR14 literature check in"),
+    (
+        'limitation The "realistic" training fault level',
+        'The "realistic" training fault level',
+        "A14: the Lobo level is the upper end of a range, not 'realistic' alone",
+    ),
+    (
+        "limitation The realistic training PISA fraction",
+        "The realistic training PISA fraction",
+        "A14: renamed the Lobo-calibrated training PISA fraction",
+    ),
 ]
 
 NUMBER = re.compile(r"(?<![\w.])\d+(?:[.,]\d+)*%?")
