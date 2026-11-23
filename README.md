@@ -31,7 +31,7 @@ Clinicians: [summary](docs/SUMMARY.md), [claims to check](docs/CLINICAL_REVIEW.m
 
 ## How this was made
 
-Independent project by UCSB students; not funded or endorsed by UCSB. Co-authors: Pranav Reddy and Cohen Ferrari. Research question, study direction, interpretation and review of results: Pranav Reddy and Cohen Ferrari (equal). Manuscript: Cohen Ferrari. Literature review and clinical-claim sign-offs: Cohen Ferrari. Software and documentation were developed with AI coding agents (Claude, Anthropic) under the authors' direction; design decisions and amendments are logged in docs/reference/DECISIONS.md, and all code was reviewed by Pranav Reddy. Clinical review: none yet.
+Independent project by UCSB students; not funded or endorsed by UCSB. Co-authors: Pranav Reddy and Cohen Ferrari. Research question, study direction, interpretation and review of results: Pranav Reddy and Cohen Ferrari (equal). Manuscript: Cohen Ferrari. Literature review and clinical-claim sign-offs: Cohen Ferrari. Software and documentation were developed with AI coding agents (Claude, Anthropic) under the authors' direction; design decisions and amendments are logged in docs/reference/DECISIONS.md, and all code was reviewed by Pranav Reddy. Clinical review: none; the clinical assumptions are stated as such (RESEARCH.md §6).
 
 ## License
 

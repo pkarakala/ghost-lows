@@ -8,6 +8,8 @@ The clinical claims the code depends on, for anyone checking them against the li
 
 A factual item is ticked once its literature check is in. Items marked **Needs a clinician** are clinical judgments a literature check cannot settle (CR9, CR12, CR16, CR17); they are ticked only when both sign-offs are in. A test rejects a ticked sign-off without its names and date, a filled-in one that is not ticked, and an item ticked without the sign-offs it needs.
 
+**No clinician review for the first paper (A20).** The authors chose to publish without one. The clinician lines stay open, and the four items that need a clinician are stated as assumptions and listed as a limitation (RESEARCH.md §6). A clinician who reviews an item later can still sign it here.
+
 - [x] **CR1. Mechanism.** Reduced local blood flow from compression causes PISAs. [Mensh 2013] says "presumably"; is there direct physiological evidence? [Helton 2011]
   - [Mensh 2013] (healthy nondiabetic adults, four abdominal sensors, sleeping position from video) found aberrant readings strongly correlated with lying on the sensor, mostly sudden decreases, "presumably due to local blood-flow decreases caused by tissue compression" (abstract). [Helton 2011] gives the theoretical framework: pressure-induced stresses change tissue physiology around the sensor, including blood flow and oxygen, and acute forces can change the signal temporarily (abstract). Neither measures the mechanism directly; the claim stands as a hypothesis, worded "thought to".
   - [x] Literature checked: Cohen Ferrari, 2026-11-22.
