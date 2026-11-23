@@ -34,7 +34,7 @@ INTENDED = [
     (
         "CR item - [ ] CR12.",
         "A clinician's sign-off is still open",
-        "A19: no step waits for a clinician; the clinician's sign-off is optional",
+        "A20: no step waits for a clinician; the clinician's sign-off is optional",
     ),
     (
         "CR item - [ ] CR12.",
@@ -57,6 +57,9 @@ INTENDED = [
     ("CR item - [ ] CR7.", "- [ ] CR7.", "A17: CR7 literature check in"),
     ("CR item - [ ] CR8.", "up to ~10", "A17: Basu 2013 does not support up to ~10 min"),
     ("CR item - [ ] CR14.", "- [ ] CR14.", "A17: CR14 literature check in"),
+    ("CR item - [ ] CR1.", "- [ ] CR1.", "A19: CR1 literature check in"),
+    ("CR item - [ ] CR4.", "- [ ] CR4.", "A19: CR4 literature check in"),
+    ("CR item - [ ] CR5.", "- [ ] CR5.", "A19: CR5 literature check in"),
     (
         'limitation The "realistic" training fault level',
         'The "realistic" training fault level',

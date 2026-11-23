@@ -59,7 +59,7 @@ Hard rule 11: amend before computing.
 
 ## Review a clinical claim
 
-For literature checkers and clinicians; no code needed. No step waits for a clinician (A19). [`docs/CLINICAL_REVIEW.md`](docs/CLINICAL_REVIEW.md) lists each clinical claim the code depends on (CR1–CR17), with its source.
+For literature checkers and clinicians; no code needed. No step waits for a clinician (A20). [`docs/CLINICAL_REVIEW.md`](docs/CLINICAL_REVIEW.md) lists each clinical claim the code depends on (CR1–CR17), with its source.
 
 1. Pick an item. Check it against the cited source or your clinical experience. A literature check closes any item; for a **Judgment** item it also confirms the stated anchor and sensitivity. A clinician's review is welcome and optional.
 2. Open a [**Clinical correction** issue](https://github.com/pkarakala/ghost-lows/issues/new/choose). Give the CR id, whether you checked the literature or reviewed as a clinician (with your role), your verdict (agree, disagree or unsure), your evidence and, if you disagree, the value or wording you would use.
