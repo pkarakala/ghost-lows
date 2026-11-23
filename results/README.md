@@ -592,6 +592,7 @@ This is weaker than re-running everything. It needs the cached cohort under `dat
 - On the real-data tracks the reference lows come from the same CGM the alarms read, so lows caught there is near-circular. Only the false alarms caused by injected PISAs are informative.
 - There is no G7-specific PISA data in the literature found so far; the injected artifacts come from Dexcom G4 data [Facchinetti 2016]. The model's time constant and the mapping from reported artifact size to model inputs await the full text (SIMULATION.md §4.1).
 - The Dexcom Urgent Low Soon prediction model is not public; the trend alarm here is a stand-in (predict 55 mg/dL within 20 min) [Garg 2022].
+- No clinician reviewed the clinical judgments the benchmark depends on: the cost of a missed level 2 low against false alarms behind the operating point (CR9), the smallest meaningful context effect, RR = 0.75 (CR16), the virtual patients' treatment rule (CR17) and the upload report's flag rule and wording (CR12). They were set by the authors from the literature and are stated as assumptions. The H2 reading does not hinge on CR16 alone: no gate reaches a meaningful reduction at any marked point of the trade-off curves. The literature checks in CLINICAL_REVIEW.md are by a pre-medical student, not a clinician.
 
 ## Assumptions
 
