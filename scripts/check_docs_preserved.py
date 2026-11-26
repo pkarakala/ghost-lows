@@ -32,6 +32,16 @@ SAFETY = [
 # matches is reported as CHANGED ON PURPOSE instead of LOST.
 INTENDED = [
     (
+        "limitation No clinician reviewed the clinical judgments",
+        "The H2 reading does not hinge on CR16 alone",
+        "A21: merged with A21's limitation; the SESOI re-reading shows H2 does depend on CR16",
+    ),
+    (
+        "CR item - [ ] CR12.",
+        "A clinician's sign-off is still open",
+        "A21: no step waits for a clinician; the clinician's sign-off is optional",
+    ),
+    (
         "CR item - [ ] CR12.",
         "Sign-off by Cohen Ferrari is still open",
         "0075ea4: Cohen Ferrari is a literature fact-checker, not a clinician",

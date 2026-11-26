@@ -1,0 +1,19 @@
+detector,mix,levels,0.90 meaningful reduction,0.90 inconclusive,0.90 no meaningful reduction,0.85 meaningful reduction,0.85 inconclusive,0.85 no meaningful reduction,0.80 meaningful reduction,0.80 inconclusive,0.80 no meaningful reduction,0.75 meaningful reduction,0.75 inconclusive,0.75 no meaningful reduction,0.50 meaningful reduction,0.50 inconclusive,0.50 no meaningful reduction
+baysal,default,5,0,0,5,0,0,5,0,0,5,0,0,5,0,0,5
+baysal,high,5,0,0,5,0,0,5,0,0,5,0,0,5,0,0,5
+baysal,standard,5,0,0,5,0,0,5,0,0,5,0,0,5,0,0,5
+gbm,default,5,0,2,3,0,0,5,0,0,5,0,0,5,0,0,5
+gbm,high,5,0,3,2,0,1,4,0,1,4,0,0,5,0,0,5
+gbm,standard,5,4,1,0,4,1,0,1,4,0,0,5,0,0,0,5
+iforest_causal,default,5,0,0,5,0,0,5,0,0,5,0,0,5,0,0,5
+iforest_causal,high,5,0,0,5,0,0,5,0,0,5,0,0,5,0,0,5
+iforest_causal,standard,5,0,0,5,0,0,5,0,0,5,0,0,5,0,0,5
+matched_filter_causal,default,5,0,0,5,0,0,5,0,0,5,0,0,5,0,0,5
+matched_filter_causal,high,5,0,2,3,0,2,3,0,0,5,0,0,5,0,0,5
+matched_filter_causal,standard,5,0,0,5,0,0,5,0,0,5,0,0,5,0,0,5
+threshold,default,5,0,0,5,0,0,5,0,0,5,0,0,5,0,0,5
+threshold,high,5,0,1,4,0,0,5,0,0,5,0,0,5,0,0,5
+threshold,standard,5,0,0,5,0,0,5,0,0,5,0,0,5,0,0,5
+trend,default,5,4,1,0,0,2,3,0,0,5,0,0,5,0,0,5
+trend,high,5,0,0,5,0,0,5,0,0,5,0,0,5,0,0,5
+trend,standard,5,0,0,5,0,0,5,0,0,5,0,0,5,0,0,5

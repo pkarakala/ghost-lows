@@ -54,7 +54,7 @@ The results describe 30 virtual patients with one smooth sensor-noise model, not
 
 *Pre-registered tests (primary).*
 - Trend alarms degrade faster than threshold alarms as compressed nights increase (H1), but the effect is small: 0.09 (0.07–0.11) false alarms per day per unit fraction of compressed nights. This is bounded by the PISA model's shape and frequency, from two published studies whose frequencies disagree several-fold.
-- At the frozen operating point (no loss of severe-low sensitivity against the trend alarm), insulin and carbohydrate context did not meaningfully reduce compression false alarms for any detector (H2). Rate ratios were 0.89–0.99 in the default mix, against a smallest effect of interest of 0.75. That operating point awaits clinical review, and thresholds are chosen on in-sample training scores.
+- At the frozen operating point (no loss of severe-low sensitivity against the trend alarm), insulin and carbohydrate context did not meaningfully reduce compression false alarms for any detector (H2). Rate ratios were 0.89–0.99 in the default mix, against a smallest effect of interest of 0.75. That bar is an assumption with no published anchor: post hoc, the null holds for any bar of 20% or more, but at 10% the trend alarm's reduction (0.89) would count as meaningful (A21). That operating point awaits clinical review, and thresholds are chosen on in-sample training scores.
 
 *Trade-off curves (secondary, defined after these results were seen; amendments A11 and A13).*
 - Along each published gate's curve, compression false alarms fall only once severe lows are given up. The Baysal gate's first clear reduction, to 0.89 (0.80–0.98) times as many, costs 11 more missed severe lows of 249.
@@ -64,11 +64,13 @@ The results describe 30 virtual patients with one smooth sensor-noise model, not
 
 # Limitations
 
+This is simulation research by undergraduate students, not medical advice. No clinician reviewed the clinical assumptions (the operating point, the smallest effect of interest, the treatment rule and the upload report's wording); each is anchored to published consensus where one exists and tested over a range where the protocol allows; clinical validation is future work.
+
 The 2008 simulator lacks the 2013 model's hypoglycaemia nonlinearity and glucagon counter-regulation, so simulated lows are the weakest part of the cohort. The semi-synthetic real-data track checks them. Without counter-regulation, untreated simulated lows run on until the insulin wears off, so the virtual patients treat lows with a fixed rule from public-health advice, which shapes how long and how deep simulated lows are. The simulated sensor error is smooth, so sample-level noise is gentler than a real sensor's. No public dataset labels real compression artifacts: real-data results use injected artifacts, and real artifacts in the reference count as true lows. The PISA model's time constant is the published median of @Facchinetti2016 (9.1 min); robustness arms use 5 and 20 min and a time constant drawn per event. How often compression happens is uncertain: published rates range from about one artifact per 127 sensor-hours [@Facchinetti2016] to one deep artifact per 74.8 sensor-hours [@Lobo2026], on different sensors, sites and labelling methods, so results at a realistic frequency are a range. Confidence intervals describe the simulated cohort, not a population. The software is a research tool, not a medical device, and must not be used to decide whether to treat a low.
 
 # AI usage disclosure
 
-Co-authors: Pranav Reddy and Cohen Ferrari. Research question, study direction, interpretation and review of results: Pranav Reddy and Cohen Ferrari (equal). Manuscript: Cohen Ferrari. Literature review and clinical-claim sign-offs: Cohen Ferrari. Software and documentation were developed with AI coding agents (Claude, Anthropic) under the authors' direction; design decisions and amendments are logged in docs/reference/DECISIONS.md, and all code was reviewed by Pranav Reddy. Clinical review: none; the clinical assumptions are stated as such (RESEARCH.md §6).
+Co-authors: Pranav Reddy and Cohen Ferrari. Research question, study direction, interpretation and review of results: Pranav Reddy and Cohen Ferrari (equal). Manuscript: Cohen Ferrari. Literature review and clinical-claim sign-offs: Cohen Ferrari. Software and documentation were developed with AI coding agents (Claude, Anthropic) under the authors' direction; design decisions and amendments are logged in docs/reference/DECISIONS.md, and all code was reviewed by Pranav Reddy. Clinical review: none; clinical assumptions are literature-anchored, not clinically validated (RESEARCH.md §6).
 
 # Acknowledgements
 

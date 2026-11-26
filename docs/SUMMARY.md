@@ -35,9 +35,9 @@ A severe low is glucose below 54 mg/dL for 15 minutes. A negative warning means 
 
 ## What this does and does not mean
 
-These results describe a simulator, not patients. Simulated lows are its weakest part, because the model lacks the body's own defence against lows. Thresholds and the cost of a missed low await clinical review.
+These results describe a simulator, not patients. Simulated lows are its weakest part, because the model lacks the body's own defence against lows. No clinician has reviewed the thresholds or the cost of a missed low; they are literature-anchored assumptions, not clinically validated ([CLINICAL_REVIEW.md](CLINICAL_REVIEW.md)). The H2 null holds for a smallest effect of interest of about 20% or more, not for 10%.
 
-**Not a medical device. Not for treatment decisions.** If a reading looks wrong, confirm with a fingerstick and follow your care team's advice.
+Simulation research by undergraduate students. Not medical advice. **Not a medical device. Not for treatment decisions.** If a reading looks wrong, confirm with a fingerstick and follow your care team's advice.
 
 ## Next
 
