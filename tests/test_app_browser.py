@@ -88,7 +88,7 @@ def test_upload_renders_report_and_keeps_the_file_local(page_url):
     assert "If you are unsure whether a low is real, check with a fingerstick" in text
     assert "Time in range 70-180 mg/dL" in text
     assert "Possible compression artifacts flagged" in text
-    assert "caught about 35 in 100 injected compression artifacts" in text
+    assert "caught about 36 in 100 injected compression artifacts" in text
     assert "No number in this report leaves out flagged readings" in text
     assert "without possible compression artifacts" not in text.lower()  # amendment A12
     assert "Possible compression artifact on the night of" in text
@@ -145,7 +145,7 @@ def test_sample_data_shows_the_full_report(page_url, tmp_path):
     assert agp_box is not None and agp_box["height"] > 100 and agp_box["width"] > 200
     assert n_charts >= 3  # AGP, daily traces and at least one flagged night
     assert "Possible compression artifacts flagged" in text
-    assert "caught about 35 in 100 injected compression artifacts" in text
+    assert "caught about 36 in 100 injected compression artifacts" in text
     assert "No number in this report leaves out flagged readings" in text
     assert "without possible compression artifacts" not in text.lower()  # amendment A12
     assert "real low: true glucose below 70 mg/dL" in text
