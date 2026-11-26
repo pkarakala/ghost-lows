@@ -2,12 +2,12 @@
 
 ## Unreleased
 
-Amendments A14–A20 (DECISIONS.md) and a full rerun; numbers in `results/` change.
+Amendments A14–A21 (DECISIONS.md) and a full rerun; numbers in `results/` change.
 
 - **Compression model from the papers' full texts.** τ is Facchinetti's median 9.1 min, with a per-event τ arm; P is the gain and A the peak; the realistic frequency is a range from Facchinetti 2016 (about 13% of nights) to Lobo 2026, counted by Lobo's definition (A14, A15).
 - **Contribution record and literature checks** (A16, A17).
 - **Statistics.** Gap rule on real data (P10); t-based primary intervals with the percentile interval and non-finite shares beside them, and fold-seed arms (P13, audit fix 4); the paired causal increment of compression false alarms (fix 2); per-patient tables (fix 8); a correct Kalman transition matrix for long gaps (fix 11) (A18).
-- **No step waits for a clinician** (A20). Clinical judgments are literature-anchored assumptions, not clinically validated; the clinician sign-off is optional; a post hoc SESOI re-reading of H2 (`experiments/sesoi_sensitivity.py`); an undergraduate, not-medical-advice statement.
+- **No step waits for a clinician** (A21). Clinical judgments are literature-anchored assumptions, not clinically validated; the clinician sign-off is optional; a post hoc SESOI re-reading of H2 (`experiments/sesoi_sensitivity.py`); an undergraduate, not-medical-advice statement.
 - **Rerun on GitHub Actions.** `.github/workflows/results.yml` runs `make results` split into cohort shards and per-config jobs (`scripts/sim_shard.py`).
 
 ## v0.4.0 (2026-10-28)

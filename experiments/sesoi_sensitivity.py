@@ -1,4 +1,4 @@
-"""Post hoc: re-read the frozen H2 table at other smallest effect sizes of interest (amendment A20).
+"""Post hoc: re-read the frozen H2 table at other smallest effect sizes of interest (amendment A21).
 
     uv run python experiments/sesoi_sensitivity.py
 

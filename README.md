@@ -31,7 +31,7 @@ Clinicians: [summary](docs/SUMMARY.md), [clinical assumptions](docs/CLINICAL_REV
 
 ## How this was made
 
-Independent project by UCSB undergraduate students; not funded or endorsed by UCSB. Co-authors: Pranav Reddy and Cohen Ferrari. Research question, study direction, interpretation and review of results: Pranav Reddy and Cohen Ferrari (equal). Manuscript: Cohen Ferrari. Literature review and clinical-claim sign-offs: Cohen Ferrari. Software and documentation were developed with AI coding agents (Claude, Anthropic) under the authors' direction; design decisions and amendments are logged in docs/reference/DECISIONS.md, and all code was reviewed by Pranav Reddy. Clinical review: none; clinical assumptions are literature-anchored, not clinically validated.
+Independent project by UCSB undergraduate students; not funded or endorsed by UCSB. Co-authors: Pranav Reddy and Cohen Ferrari. Research question, study direction, interpretation and review of results: Pranav Reddy and Cohen Ferrari (equal). Manuscript: Cohen Ferrari. Literature review and clinical-claim sign-offs: Cohen Ferrari. Software and documentation were developed with AI coding agents (Claude, Anthropic) under the authors' direction; design decisions and amendments are logged in docs/reference/DECISIONS.md, and all code was reviewed by Pranav Reddy. Clinical review: none; clinical assumptions are literature-anchored, not clinically validated (RESEARCH.md §6).
 
 ## License
 

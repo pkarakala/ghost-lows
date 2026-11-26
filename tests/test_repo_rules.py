@@ -208,7 +208,7 @@ SIGNOFFS = {
 def badly_signed(text: str) -> list[str]:
     """CR items missing a sign-off line, with a sign-off ticked but not filled in (or filled in
     but not ticked), or whose tick does not match its literature check. A **Judgment** item must
-    also state its anchor and sensitivity. The clinician sign-off is optional (amendment A20)."""
+    also state its anchor and sensitivity. The clinician sign-off is optional (amendment A21)."""
     items: dict[str, tuple[bool, dict[str, bool | None]]] = {}
     current = None
     for line in text.splitlines():
@@ -237,7 +237,7 @@ def judgments(text: str) -> set[str]:
 
 def test_clinical_items_carry_the_sign_offs_they_need():
     """CONTRIBUTING.md: a maintainer fills in each sign-off and ticks the item once its
-    literature check is in; no item waits for a clinician (A20)."""
+    literature check is in; no item waits for a clinician (A21)."""
     judged = "  - **Judgment: assumption.** Anchor: a source. Sensitivity: a range."
     unanchored = "  - **Judgment: assumption.** No anchor given."
     lit = "  - [x] Literature checked: A. Reviewer, 2026-11-02."

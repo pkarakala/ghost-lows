@@ -54,7 +54,7 @@ The results describe 30 virtual patients with one smooth sensor-noise model, not
 
 *Pre-registered tests (primary).*
 - Trend alarms degrade faster than threshold alarms as compressed nights increase (H1), but the effect is small: 0.09 (0.07–0.11) false alarms per day per unit fraction of compressed nights. This is bounded by the PISA model's shape and frequency, from two published studies whose frequencies disagree several-fold.
-- At the frozen operating point (no loss of severe-low sensitivity against the trend alarm), insulin and carbohydrate context did not meaningfully reduce compression false alarms for any detector (H2). Rate ratios were 0.89–0.99 in the default mix, against a smallest effect of interest of 0.75. That bar is an assumption with no published anchor: post hoc, the null holds for any bar of 20% or more, but at 10% the trend alarm's reduction (0.89) would count as meaningful (A20). That operating point awaits clinical review, and thresholds are chosen on in-sample training scores.
+- At the frozen operating point (no loss of severe-low sensitivity against the trend alarm), insulin and carbohydrate context did not meaningfully reduce compression false alarms for any detector (H2). Rate ratios were 0.89–0.99 in the default mix, against a smallest effect of interest of 0.75. That bar is an assumption with no published anchor: post hoc, the null holds for any bar of 20% or more, but at 10% the trend alarm's reduction (0.89) would count as meaningful (A21). That operating point awaits clinical review, and thresholds are chosen on in-sample training scores.
 
 *Trade-off curves (secondary, defined after these results were seen; amendments A11 and A13).*
 - Along each published gate's curve, compression false alarms fall only once severe lows are given up. The Baysal gate's first clear reduction, to 0.89 (0.80–0.98) times as many, costs 11 more missed severe lows of 249.
@@ -70,7 +70,7 @@ The 2008 simulator lacks the 2013 model's hypoglycaemia nonlinearity and glucago
 
 # AI usage disclosure
 
-Co-authors: Pranav Reddy and Cohen Ferrari. Research question, study direction, interpretation and review of results: Pranav Reddy and Cohen Ferrari (equal). Manuscript: Cohen Ferrari. Literature review and clinical-claim sign-offs: Cohen Ferrari. Software and documentation were developed with AI coding agents (Claude, Anthropic) under the authors' direction; design decisions and amendments are logged in docs/reference/DECISIONS.md, and all code was reviewed by Pranav Reddy. Clinical review: none; clinical assumptions are literature-anchored, not clinically validated.
+Co-authors: Pranav Reddy and Cohen Ferrari. Research question, study direction, interpretation and review of results: Pranav Reddy and Cohen Ferrari (equal). Manuscript: Cohen Ferrari. Literature review and clinical-claim sign-offs: Cohen Ferrari. Software and documentation were developed with AI coding agents (Claude, Anthropic) under the authors' direction; design decisions and amendments are logged in docs/reference/DECISIONS.md, and all code was reviewed by Pranav Reddy. Clinical review: none; clinical assumptions are literature-anchored, not clinically validated (RESEARCH.md §6).
 
 # Acknowledgements
 
